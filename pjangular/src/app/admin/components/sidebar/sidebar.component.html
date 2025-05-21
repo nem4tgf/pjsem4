@@ -1,8 +1,10 @@
-<div class="sidebar-container">
+<div class="sidebar-container" [ngClass]="{ collapsed: isCollapsed }">
   <div class="logo">
-    <h3 *ngIf="!isCollapsed">Vocabulary Admin</h3>
-    <h3 *ngIf="isCollapsed">VA</h3>
-  </div>
+  <h3 *ngIf="!isCollapsed" style="color: white; margin: 0;">Vocabulary Admin</h3>
+  <h3 *ngIf="isCollapsed" style="color: white; margin: 0;">VA</h3>
+</div>
+
+
   <nz-menu
     nzMode="inline"
     [nzInlineCollapsed]="isCollapsed"
@@ -11,60 +13,60 @@
     <nz-menu-item>
       <a routerLink="/admin/dashboard">
         <i nz-icon nzType="dashboard"></i>
-        <span>Dashboard</span>
+        <span *ngIf="!isCollapsed">Dashboard</span>
       </a>
     </nz-menu-item>
     <nz-menu-item>
       <a routerLink="/admin/users">
         <i nz-icon nzType="user"></i>
-        <span>Users</span>
+        <span *ngIf="!isCollapsed">Users</span>
       </a>
     </nz-menu-item>
     <nz-menu-item>
       <a routerLink="/admin/vocabulary">
         <i nz-icon nzType="book"></i>
-        <span>Vocabulary</span>
+        <span *ngIf="!isCollapsed">Vocabulary</span>
       </a>
     </nz-menu-item>
     <nz-menu-item>
       <a routerLink="/admin/lessons">
         <i nz-icon nzType="read"></i>
-        <span>Lessons</span>
+        <span *ngIf="!isCollapsed">Lessons</span>
       </a>
     </nz-menu-item>
     <nz-menu-item>
       <a routerLink="/admin/quizzes">
         <i nz-icon nzType="question-circle"></i>
-        <span>Quizzes</span>
+        <span *ngIf="!isCollapsed">Quizzes</span>
       </a>
     </nz-menu-item>
     <nz-menu-item>
       <a routerLink="/admin/questions">
         <i nz-icon nzType="form"></i>
-        <span>Questions</span>
+        <span *ngIf="!isCollapsed">Questions</span>
       </a>
     </nz-menu-item>
     <nz-menu-item>
       <a routerLink="/admin/answers">
         <i nz-icon nzType="check-circle"></i>
-        <span>Answers</span>
+        <span *ngIf="!isCollapsed">Answers</span>
       </a>
     </nz-menu-item>
     <nz-menu-item>
       <a routerLink="/admin/progress">
         <i nz-icon nzType="schedule"></i>
-        <span>Progress</span>
+        <span *ngIf="!isCollapsed">Progress</span>
       </a>
     </nz-menu-item>
     <nz-menu-item>
       <a routerLink="/admin/quiz-results">
         <i nz-icon nzType="trophy"></i>
-        <span>Quiz Results</span>
+        <span *ngIf="!isCollapsed">Quiz Results</span>
       </a>
     </nz-menu-item>
     <nz-menu-item (click)="toggleTheme.emit()">
       <i nz-icon nzType="bulb"></i>
-      <span>Toggle Theme</span>
+      <span *ngIf="!isCollapsed">Toggle Theme</span>
     </nz-menu-item>
   </nz-menu>
 </div>

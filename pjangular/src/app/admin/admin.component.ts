@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { NzMenuThemeType } from 'ng-zorro-antd/menu';
 
 @Component({
   selector: 'app-admin',
@@ -8,13 +7,14 @@ import { NzMenuThemeType } from 'ng-zorro-antd/menu';
 })
 export class AdminComponent {
   isCollapsed = false;
-  theme: NzMenuThemeType = 'dark';
+  theme: 'light' | 'dark' = 'dark'; // Mặc định là dark
 
   toggleCollapsed(): void {
     this.isCollapsed = !this.isCollapsed;
   }
 
   toggleTheme(): void {
-    this.theme = this.theme === 'dark' ? 'light' : 'dark';
+    this.theme = this.theme === 'light' ? 'dark' : 'light';
+    console.log('Theme switched to:', this.theme); // Debug
   }
 }

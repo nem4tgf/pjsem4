@@ -1,5 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { NzMenuThemeType } from 'ng-zorro-antd/menu';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'app-sidebar',
@@ -8,6 +7,6 @@ import { NzMenuThemeType } from 'ng-zorro-antd/menu';
 })
 export class SidebarComponent {
   @Input() isCollapsed: boolean = false;
-  @Input() theme: NzMenuThemeType = 'dark';
+  @Input() theme: 'light' | 'dark' = 'dark';
   @Output() toggleTheme = new EventEmitter<void>();
 }

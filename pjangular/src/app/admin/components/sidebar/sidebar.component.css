@@ -1,6 +1,15 @@
 .sidebar-container {
-  height: 100%;
-  background: #001529; /* Màu nền tối mặc định của ng-zorro-antd dark theme */
+  width: 250px;
+  height: 100vh;
+  background-color: #001529;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease;
+  overflow: hidden;
+}
+
+.sidebar-container.collapsed {
+  width: 80px;
 }
 
 .logo {
@@ -8,47 +17,60 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  font-size: 18px;
+  color: #ffffff;
+  font-size: 20px;
   font-weight: bold;
+  background-color: #000c17;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 nz-menu {
-  background: transparent; /* Đảm bảo menu không có nền riêng */
+  flex-grow: 1;
+  background: transparent;
+  border: none;
 }
 
-nz-menu-item a {
-  color: rgba(255, 255, 255, 0.85); /* Màu chữ sáng để dễ nhìn */
+nz-menu-item,
+nz-submenu {
+  transition: background 0.3s;
+}
+
+nz-menu-item a,
+nz-submenu-title {
   display: flex;
   align-items: center;
-  transition: color 0.3s;
+  padding: 12px 16px;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
+  font-size: 15px;
+  white-space: nowrap;
 }
 
-nz-menu-item a:hover {
-  color: #fff; /* Màu chữ khi hover */
+nz-menu-item a:hover,
+nz-submenu-title:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
-nz-menu-item i {
-  margin-right: 8px;
+nz-menu-item i,
+nz-submenu i {
+  margin-right: 12px;
+  font-size: 18px;
 }
 
-nz-menu[nzTheme="dark"] nz-menu-item a {
-  color: rgba(255, 255, 255, 0.85); /* Đảm bảo chữ sáng trong dark theme */
-}
-
-nz-menu[nzTheme="dark"] nz-menu-item a:hover {
-  color: #fff;
-}
-
+/* Light Theme (optional) */
 nz-menu[nzTheme="light"] {
-  background: #fff; /* Nền sáng cho light theme */
+  background-color: #ffffff;
 }
 
 nz-menu[nzTheme="light"] nz-menu-item a {
-  color: #000; /* Chữ đen cho light theme */
+  color: #000000;
 }
 
 nz-menu[nzTheme="light"] nz-menu-item a:hover {
-  color: #1890ff; /* Màu hover cho light theme */
+  color: #1890ff;
 }
