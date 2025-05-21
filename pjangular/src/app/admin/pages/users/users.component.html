@@ -1,0 +1,53 @@
+<nz-card>
+  <h2>Danh sách người dùng</h2>
+  <nz-input-group style="margin-bottom: 16px; width: 300px;">
+    <span nz-icon nzType="search"></span>
+    <input nz-input placeholder="Tìm kiếm người dùng..." [(ngModel)]="searchValue" (ngModelChange)="filterUsers()" />
+  </nz-input-group>
+  <nz-table
+    #userTable
+    [nzData]="filteredUsers"
+    [nzFrontPagination]="false"
+    [nzPageSize]="10"
+    [nzShowPagination]="true"
+    [nzBordered]="true"
+    (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
+  >
+    <thead>
+      <tr>
+        <th nzShowSort [nzSortFn]="sortById">ID</th>
+        <th nzShowSort [nzSortFn]="sortByName">Họ và tên</th>
+        <th>Hành động</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of userTable.data">
+        <td>{{ user.id }}</td>
+        <td>{{ user.name }}</td>
+        <td>
+          <a nz-button nzType="link" (click)="openEditModal(user)">Sửa</a>
+          <span nz-divider nzType="vertical"></span>
+          <a nz-button nzType="link" nzDanger (click)="deleteUser(user.id)">Xóa</a>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+</nz-card>
+
+<nz-modal
+  [(nzVisible)]="isEditModalVisible"
+  nzTitle="Chỉnh sửa người dùng"
+  (nzOnCancel)="handleCancel()"
+  (nzOnOk)="handleOk()"
+>
+  <ng-container *nzModalContent>
+    <form nz-form>
+      <div nz-form-item>
+        <label nz-form-label>Họ và tên</label>
+        <div nz-form-control>
+          <input nz-input [(ngModel)]="selectedUser.name" name="name" />
+        </div>
+      </div>
+    </form>
+  </ng-container>
+</nz-modal>

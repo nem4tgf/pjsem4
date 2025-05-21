@@ -1,0 +1,23 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.ant-dropdown-link {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: #1890ff;
+}
+
+.ant-dropdown-link:hover {
+  color: #40a9ff;
+}

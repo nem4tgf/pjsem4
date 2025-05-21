@@ -1,0 +1,22 @@
+<ul nz-menu nzMode="inline" class="sidebar-menu" [nzTheme]="theme">
+  <li nz-menu-item routerLink="/admin/dashboard" routerLinkActive="ant-menu-item-selected">
+    <i nz-icon nzType="dashboard"></i>
+    <span>Dashboard</span>
+  </li>
+  <li nz-submenu nzTitle="Quản lý" nzIcon="appstore">
+    <ul>
+      <li nz-menu-item routerLink="/admin/users" routerLinkActive="ant-menu-item-selected">
+        <i nz-icon nzType="user"></i>
+        <span>Users</span>
+      </li>
+      <li nz-menu-item routerLink="/admin/products" routerLinkActive="ant-menu-item-selected">
+        <i nz-icon nzType="shopping"></i>
+        <span>Products</span>
+      </li>
+    </ul>
+  </li>
+  <li nz-menu-item (click)="toggleTheme()">
+    <i nz-icon nzType="bulb"></i>
+    <span>Toggle Theme</span>
+  </li>
+</ul>

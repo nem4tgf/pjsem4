@@ -1,0 +1,18 @@
+<nz-layout class="admin-container">
+  <!-- Sidebar -->
+  <nz-sider nzCollapsible [(nzCollapsed)]="isCollapsed" nzWidth="250px" [nzTheme]="theme">
+    <app-sidebar></app-sidebar>
+  </nz-sider>
+  <nz-layout>
+    <!-- Header -->
+    <nz-header>
+      <app-header></app-header>
+    </nz-header>
+    <!-- Content -->
+    <nz-content>
+      <nz-card [nzBordered]="false" class="content-card">
+        <router-outlet></router-outlet>
+      </nz-card>
+    </nz-content>
+  </nz-layout>
+</nz-layout>

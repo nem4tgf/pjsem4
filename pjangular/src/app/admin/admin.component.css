@@ -1,0 +1,32 @@
+.admin-container {
+  height: 100vh;
+  overflow: hidden;
+}
+
+nz-sider {
+  background-color: #001529;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+nz-header {
+  background-color: #fff;
+  border-bottom: 1px solid #d9d9d9;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+nz-content {
+  padding: 20px;
+  background: #f0f2f5;
+  overflow-y: auto;
+}
+
+.content-wrapper {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}

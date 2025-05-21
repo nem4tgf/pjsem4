@@ -1,0 +1,25 @@
+<nz-card>
+  <h2>Danh sách sản phẩm</h2>
+  <nz-table [nzData]="products" [nzBordered]="true" [nzPageSize]="10" [nzShowPagination]="true">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Tên sản phẩm</th>
+        <th>Giá</th>
+        <th>Hành động</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let product of products">
+        <td>{{ product.id }}</td>
+        <td>{{ product.name }}</td>
+        <td>{{ product.price | currency: 'VND' }}</td>
+        <td>
+          <a nz-button nzType="link">Sửa</a>
+          <span nz-divider nzType="vertical"></span>
+          <a nz-button nzType="link" nzDanger>Xóa</a>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+</nz-card>

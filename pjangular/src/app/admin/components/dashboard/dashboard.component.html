@@ -1,0 +1,52 @@
+<div class="dashboard-container">
+  <h2>Thống kê tổng quan</h2>
+  <div class="stats-grid">
+    <nz-card class="stat-card">
+      <h3>Người dùng</h3>
+      <p class="stat-value">1,234</p>
+      <nz-progress nzPercent="75" nzType="circle" style="--width: 80px;"></nz-progress>
+    </nz-card>
+    <nz-card class="stat-card">
+      <h3>Sản phẩm</h3>
+      <p class="stat-value">567</p>
+      <nz-progress nzPercent="60" nzType="circle" style="--width: 80px;"></nz-progress>
+    </nz-card>
+    <nz-card class="stat-card">
+      <h3>Doanh thu</h3>
+      <p class="stat-value">$123,456,789</p>
+      <nz-progress nzPercent="90" nzType="circle" style="--width: 80px;"></nz-progress>
+    </nz-card>
+  </div>
+  <nz-card>
+    <h2>Thống kê doanh thu và người dùng</h2>
+    ```chartjs
+    {
+      "type": "bar",
+      "data": {
+        "labels": ["Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5"],
+        "datasets": [
+          {
+            "label": "Doanh thu",
+            "data": [1200, 1900, 3000, 5000, 2300],
+            "backgroundColor": "#1890ff",
+            "borderColor": "#40a9ff",
+            "borderWidth": 1
+          },
+          {
+            "label": "Người dùng mới",
+            "data": [400, 300, 600, 800, 500],
+            "backgroundColor": "#52c41a",
+            "borderColor": "#73d13d",
+            "borderWidth": 1
+          }
+        ]
+      },
+      "options": {
+        "responsive": true,
+        "scales": {
+          "y": {
+            "beginAtZero": true
+          }
+        }
+      }
+    }

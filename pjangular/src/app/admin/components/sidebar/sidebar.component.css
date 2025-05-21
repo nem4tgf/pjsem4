@@ -1,0 +1,29 @@
+.sidebar-menu {
+  padding: 20px;
+}
+
+.ant-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.ant-menu-item-selected {
+  background-color: #1890ff !important;
+  color: white !important;
+}
+
+.ant-menu-item:hover {
+  background-color: #e6f7ff;
+}
+
+.ant-menu-submenu-title {
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.ant-menu-submenu-title:hover {
+  background-color: #e6f7ff;
+}
