@@ -1,4 +1,4 @@
-.users-container {
+.quizzes-container {
   padding: 20px;
 }
 
@@ -18,8 +18,4 @@ a {
 
 a:hover {
   color: #40a9ff;
-}
-
-img {
-  border-radius: 4px;
 }

@@ -1,0 +1,67 @@
+<div class="progress-container">
+  <button nz-button nzType="primary" (click)="showModal()">Thêm tiến độ</button>
+  <nz-table
+    #basicTable
+    [nzData]="filteredProgress"
+    (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
+  >
+    <thead>
+      <tr>
+        <th nzShowSort [nzSortFn]="sortById">ID</th>
+        <th>ID Người dùng</th>
+        <th>ID Bài học</th>
+        <th>Trạng thái</th>
+        <th>Cập nhật lần cuối</th>
+        <th>Hành động</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let progress of basicTable.data">
+        <td>{{ progress.progress_id }}</td>
+        <td>{{ progress.user_id }}</td>
+        <td>{{ progress.lesson_id }}</td>
+        <td>{{ progress.status }}</td>
+        <td>{{ progress.last_updated }}</td>
+        <td>
+          <a (click)="showModal(progress)">Sửa</a>
+          <nz-divider nzType="vertical"></nz-divider>
+          <a (click)="deleteProgress(progress.progress_id)">Xóa</a>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+
+  <nz-modal
+    [(nzVisible)]="isEditModalVisible"
+    [nzTitle]="selectedProgress.progress_id === 0 ? 'Thêm tiến độ' : 'Sửa tiến độ'"
+    (nzOnCancel)="handleCancel()"
+    (nzOnOk)="handleOk()"
+  >
+    <ng-container *nzModalContent>
+      <form nz-form>
+        <nz-form-item>
+          <nz-form-label>ID Người dùng</nz-form-label>
+          <nz-form-control>
+            <input nz-input type="number" [(ngModel)]="selectedProgress.user_id" name="user_id" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>ID Bài học</nz-form-label>
+          <nz-form-control>
+            <input nz-input type="number" [(ngModel)]="selectedProgress.lesson_id" name="lesson_id" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>Trạng thái</nz-form-label>
+          <nz-form-control>
+            <nz-select [(ngModel)]="selectedProgress.status" name="status">
+              <nz-option nzValue="not_started" nzLabel="Chưa bắt đầu"></nz-option>
+              <nz-option nzValue="in_progress" nzLabel="Đang tiến hành"></nz-option>
+              <nz-option nzValue="completed" nzLabel="Hoàn thành"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </ng-container>
+  </nz-modal>
+</div>

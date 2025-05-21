@@ -1,4 +1,4 @@
-.users-container {
+.vocabulary-container {
   padding: 20px;
 }
 
@@ -20,6 +20,6 @@ a:hover {
   color: #40a9ff;
 }
 
-img {
-  border-radius: 4px;
+audio {
+  width: 150px;
 }

@@ -1,53 +1,73 @@
-<nz-card>
-  <h2>Danh sách người dùng</h2>
-  <nz-input-group style="margin-bottom: 16px; width: 300px;">
-    <span nz-icon nzType="search"></span>
-    <input nz-input placeholder="Tìm kiếm người dùng..." [(ngModel)]="searchValue" (ngModelChange)="filterUsers()" />
-  </nz-input-group>
+<div class="users-container">
+  <button nz-button nzType="primary" (click)="showModal()">Thêm người dùng</button>
   <nz-table
-    #userTable
+    #basicTable
     [nzData]="filteredUsers"
-    [nzFrontPagination]="false"
-    [nzPageSize]="10"
-    [nzShowPagination]="true"
-    [nzBordered]="true"
     (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
   >
     <thead>
       <tr>
         <th nzShowSort [nzSortFn]="sortById">ID</th>
         <th nzShowSort [nzSortFn]="sortByName">Họ và tên</th>
+        <th>Tên đăng nhập</th>
+        <th>Email</th>
+        <th>Avatar</th>
+        <th>Ngày tạo</th>
         <th>Hành động</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let user of userTable.data">
-        <td>{{ user.id }}</td>
-        <td>{{ user.name }}</td>
+      <tr *ngFor="let user of basicTable.data">
+        <td>{{ user.user_id }}</td>
+        <td>{{ user.full_name }}</td>
+        <td>{{ user.username }}</td>
+        <td>{{ user.email }}</td>
         <td>
-          <a nz-button nzType="link" (click)="openEditModal(user)">Sửa</a>
-          <span nz-divider nzType="vertical"></span>
-          <a nz-button nzType="link" nzDanger (click)="deleteUser(user.id)">Xóa</a>
+          <img *ngIf="user.avatar_url" [src]="user.avatar_url" width="50" />
+        </td>
+        <td>{{ user.created_at }}</td>
+        <td>
+          <a (click)="showModal(user)">Sửa</a>
+          <nz-divider nzType="vertical"></nz-divider>
+          <a (click)="deleteUser(user.user_id)">Xóa</a>
         </td>
       </tr>
     </tbody>
   </nz-table>
-</nz-card>
 
-<nz-modal
-  [(nzVisible)]="isEditModalVisible"
-  nzTitle="Chỉnh sửa người dùng"
-  (nzOnCancel)="handleCancel()"
-  (nzOnOk)="handleOk()"
->
-  <ng-container *nzModalContent>
-    <form nz-form>
-      <div nz-form-item>
-        <label nz-form-label>Họ và tên</label>
-        <div nz-form-control>
-          <input nz-input [(ngModel)]="selectedUser.name" name="name" />
-        </div>
-      </div>
-    </form>
-  </ng-container>
-</nz-modal>
+  <nz-modal
+    [(nzVisible)]="isEditModalVisible"
+    [nzTitle]="selectedUser.user_id === 0 ? 'Thêm người dùng' : 'Sửa người dùng'"
+    (nzOnCancel)="handleCancel()"
+    (nzOnOk)="handleOk()"
+  >
+    <ng-container *nzModalContent>
+      <form nz-form>
+        <nz-form-item>
+          <nz-form-label>Tên đăng nhập</nz-form-label>
+          <nz-form-control>
+            <input nz-input [(ngModel)]="selectedUser.username" name="username" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>Email</nz-form-label>
+          <nz-form-control>
+            <input nz-input [(ngModel)]="selectedUser.email" name="email" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>Họ và tên</nz-form-label>
+          <nz-form-control>
+            <input nz-input [(ngModel)]="selectedUser.full_name" name="full_name" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>Avatar URL</nz-form-label>
+          <nz-form-control>
+            <input nz-input [(ngModel)]="selectedUser.avatar_url" name="avatar_url" />
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </ng-container>
+  </nz-modal>
+</div>

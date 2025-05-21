@@ -1,6 +1,6 @@
-<nz-card>
-  <h2>Danh sách sản phẩm</h2>
-  <nz-table [nzData]="products" [nzBordered]="true" [nzPageSize]="10" [nzShowPagination]="true">
+<div class="products-container">
+  <button nz-button nzType="primary" (click)="showModal()">Thêm sản phẩm</button>
+  <nz-table #basicTable [nzData]="products">
     <thead>
       <tr>
         <th>ID</th>
@@ -10,16 +10,53 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let product of products">
+      <tr *ngFor="let product of basicTable.data">
         <td>{{ product.id }}</td>
         <td>{{ product.name }}</td>
-        <td>{{ product.price | currency: 'VND' }}</td>
+        <td>{{ product.price }}</td>
         <td>
-          <a nz-button nzType="link">Sửa</a>
-          <span nz-divider nzType="vertical"></span>
-          <a nz-button nzType="link" nzDanger>Xóa</a>
+          <a (click)="showModal(product)">Sửa</a>
+          <nz-divider nzType="vertical"></nz-divider>
+          <a (click)="deleteProduct(product.id)">Xóa</a>
         </td>
       </tr>
     </tbody>
   </nz-table>
-</nz-card>
+
+  <nz-modal
+    [(nzVisible)]="isModalVisible"
+    [nzTitle]="selectedProduct.id === 0 ? 'Thêm sản phẩm' : 'Sửa sản phẩm'"
+    (nzOnCancel)="handleCancel()"
+    (nzOnOk)="handleOk()"
+  >
+    <ng-container *nzModalContent>
+      <form nz-form>
+        <nz-form-item>
+          <nz-form-label>Tên sản phẩm</nz-form-label>
+          <nz-form-control>
+            <input nz-input [(ngModel)]="selectedProduct.name" name="name" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>Giá</nz-form-label>
+          <nz-form-control>
+            <input nz-input type="number" [(ngModel)]="selectedProduct.price" name="price" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>Hình ảnh</nz-form-label>
+          <nz-form-control>
+            <nz-upload
+              nzAction="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+              [(nzFileList)]="fileList"
+              nzListType="picture"
+              (nzChange)="handleUploadChange($event)"
+            >
+              <button nz-button><i nz-icon nzType="upload"></i>Tải lên</button>
+            </nz-upload>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </ng-container>
+  </nz-modal>
+</div>

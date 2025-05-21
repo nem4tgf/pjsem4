@@ -1,18 +1,21 @@
+.products-container {
+  padding: 20px;
+}
+
 nz-table {
-  width: 100%;
-}
-
-th, td {
-  padding: 12px;
-  text-align: left;
-}
-
-th {
-  background-color: #1890ff;
-  color: white;
-}
-
-nz-card {
+  background: #fff;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+button[nz-button] {
+  margin-bottom: 16px;
+}
+
+a {
+  color: #1890ff;
+  cursor: pointer;
+}
+
+a:hover {
+  color: #40a9ff;
 }

@@ -1,29 +1,54 @@
-.sidebar-menu {
-  padding: 20px;
+.sidebar-container {
+  height: 100%;
+  background: #001529; /* Màu nền tối mặc định của ng-zorro-antd dark theme */
 }
 
-.ant-menu-item {
+.logo {
+  height: 64px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
+  justify-content: center;
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.ant-menu-item-selected {
-  background-color: #1890ff !important;
-  color: white !important;
+nz-menu {
+  background: transparent; /* Đảm bảo menu không có nền riêng */
 }
 
-.ant-menu-item:hover {
-  background-color: #e6f7ff;
+nz-menu-item a {
+  color: rgba(255, 255, 255, 0.85); /* Màu chữ sáng để dễ nhìn */
+  display: flex;
+  align-items: center;
+  transition: color 0.3s;
 }
 
-.ant-menu-submenu-title {
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
+nz-menu-item a:hover {
+  color: #fff; /* Màu chữ khi hover */
 }
 
-.ant-menu-submenu-title:hover {
-  background-color: #e6f7ff;
+nz-menu-item i {
+  margin-right: 8px;
+}
+
+nz-menu[nzTheme="dark"] nz-menu-item a {
+  color: rgba(255, 255, 255, 0.85); /* Đảm bảo chữ sáng trong dark theme */
+}
+
+nz-menu[nzTheme="dark"] nz-menu-item a:hover {
+  color: #fff;
+}
+
+nz-menu[nzTheme="light"] {
+  background: #fff; /* Nền sáng cho light theme */
+}
+
+nz-menu[nzTheme="light"] nz-menu-item a {
+  color: #000; /* Chữ đen cho light theme */
+}
+
+nz-menu[nzTheme="light"] nz-menu-item a:hover {
+  color: #1890ff; /* Màu hover cho light theme */
 }

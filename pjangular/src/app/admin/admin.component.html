@@ -1,18 +1,30 @@
-<nz-layout class="admin-container">
-  <!-- Sidebar -->
-  <nz-sider nzCollapsible [(nzCollapsed)]="isCollapsed" nzWidth="250px" [nzTheme]="theme">
-    <app-sidebar></app-sidebar>
-  </nz-sider>
+<div class="admin-container">
   <nz-layout>
-    <!-- Header -->
-    <nz-header>
-      <app-header></app-header>
-    </nz-header>
-    <!-- Content -->
-    <nz-content>
-      <nz-card [nzBordered]="false" class="content-card">
-        <router-outlet></router-outlet>
-      </nz-card>
-    </nz-content>
+    <nz-sider
+      nzCollapsible
+      [(nzCollapsed)]="isCollapsed"
+      [nzTrigger]="null"
+      [nzWidth]="200"
+      [nzCollapsedWidth]="80"
+    >
+      <app-sidebar
+        [isCollapsed]="isCollapsed"
+        [theme]="theme"
+        (toggleTheme)="toggleTheme()"
+      ></app-sidebar>
+    </nz-sider>
+    <nz-layout>
+      <nz-header>
+        <span class="toggle-btn" (click)="toggleCollapsed()">
+          <i nz-icon [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'"></i>
+        </span>
+        <span class="header-title">Vocabulary Admin Panel</span>
+      </nz-header>
+      <nz-content>
+        <div class="content-wrapper">
+          <router-outlet></router-outlet>
+        </div>
+      </nz-content>
+    </nz-layout>
   </nz-layout>
-</nz-layout>
+</div>

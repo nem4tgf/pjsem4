@@ -1,0 +1,65 @@
+<div class="lessons-container">
+  <button nz-button nzType="primary" (click)="showModal()">Thêm bài học</button>
+  <nz-table
+    #basicTable
+    [nzData]="filteredLessons"
+    (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
+  >
+    <thead>
+      <tr>
+        <th nzShowSort [nzSortFn]="sortByTitle">Tiêu đề</th>
+        <th>Mô tả</th>
+        <th>Cấp độ</th>
+        <th>Ngày tạo</th>
+        <th>Hành động</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let lesson of basicTable.data">
+        <td>{{ lesson.title }}</td>
+        <td>{{ lesson.description }}</td>
+        <td>{{ lesson.level }}</td>
+        <td>{{ lesson.created_at }}</td>
+        <td>
+          <a (click)="showModal(lesson)">Sửa</a>
+          <nz-divider nzType="vertical"></nz-divider>
+          <a (click)="deleteLesson(lesson.lesson_id)">Xóa</a>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+
+  <nz-modal
+    [(nzVisible)]="isEditModalVisible"
+    [nzTitle]="selectedLesson.lesson_id === 0 ? 'Thêm bài học' : 'Sửa bài học'"
+    (nzOnCancel)="handleCancel()"
+    (nzOnOk)="handleOk()"
+  >
+    <ng-container *nzModalContent>
+      <form nz-form>
+        <nz-form-item>
+          <nz-form-label>Tiêu đề</nz-form-label>
+          <nz-form-control>
+            <input nz-input [(ngModel)]="selectedLesson.title" name="title" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>Mô tả</nz-form-label>
+          <nz-form-control>
+            <textarea nz-input [(ngModel)]="selectedLesson.description" name="description"></textarea>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>Cấp độ</nz-form-label>
+          <nz-form-control>
+            <nz-select [(ngModel)]="selectedLesson.level" name="level">
+              <nz-option nzValue="beginner" nzLabel="Sơ cấp"></nz-option>
+              <nz-option nzValue="intermediate" nzLabel="Trung cấp"></nz-option>
+              <nz-option nzValue="advanced" nzLabel="Nâng cao"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </ng-container>
+  </nz-modal>
+</div>

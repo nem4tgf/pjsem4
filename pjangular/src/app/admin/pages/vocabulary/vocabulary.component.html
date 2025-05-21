@@ -1,0 +1,91 @@
+<div class="vocabulary-container">
+  <button nz-button nzType="primary" (click)="showModal()">Thêm từ vựng</button>
+  <nz-table
+    #basicTable
+    [nzData]="filteredVocabulary"
+    (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
+  >
+    <thead>
+      <tr>
+        <th nzShowSort [nzSortFn]="sortByWord">Từ vựng</th>
+        <th>Ý nghĩa</th>
+        <th>Câu ví dụ</th>
+        <th>Phát âm</th>
+        <th>Audio</th>
+        <th>Độ khó</th>
+        <th>Hành động</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let vocab of basicTable.data">
+        <td>{{ vocab.word }}</td>
+        <td>{{ vocab.meaning }}</td>
+        <td>{{ vocab.example_sentence }}</td>
+        <td>{{ vocab.pronunciation }}</td>
+        <td>
+          <audio *ngIf="vocab.audio_url" controls>
+            <source [src]="vocab.audio_url" type="audio/mpeg">
+          </audio>
+        </td>
+        <td>{{ vocab.difficulty_level }}</td>
+        <td>
+          <a (click)="showModal(vocab)">Sửa</a>
+          <nz-divider nzType="vertical"></nz-divider>
+          <a (click)="deleteVocab(vocab.word_id)">Xóa</a>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+
+  <nz-modal
+    [(nzVisible)]="isEditModalVisible"
+    [nzTitle]="selectedVocab.word_id === 0 ? 'Thêm từ vựng' : 'Sửa từ vựng'"
+    (nzOnCancel)="handleCancel()"
+    (nzOnOk)="handleOk()"
+  >
+    <ng-container *nzModalContent>
+      <form nz-form>
+        <nz-form-item>
+          <nz-form-label>Từ vựng</nz-form-label>
+          <nz-form-control>
+            <input nz-input [(ngModel)]="selectedVocab.word" name="word" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>Ý nghĩa</nz-form-label>
+          <nz-form-control>
+            <textarea nz-input [(ngModel)]="selectedVocab.meaning" name="meaning"></textarea>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>Câu ví dụ</nz-form-label>
+          <nz-form-control>
+            <textarea nz-input [(ngModel)]="selectedVocab.example_sentence" name="example_sentence"></textarea>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>Phát âm</nz-form-label>
+          <nz-form-control>
+            <input nz-input [(ngModel)]="selectedVocab.pronunciation" name="pronunciation" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>Audio URL</nz-form-label>
+          <nz-form-control>
+            <input nz-input [(ngModel)]="selectedVocab.audio_url" name="audio_url" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>Độ khó</nz-form-label>
+          <nz-form-control>
+            <nz-select [(ngModel)]="selectedVocab.difficulty_level" name="difficulty_level">
+              <nz-option nzValue="easy" nzLabel="Dễ"></nz-option>
+              <nz-option nzValue="medium" nzLabel="Trung bình"></nz-option>
+              <nz-option nzValue="hard" nzLabel="Khó"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </ng-container>
+  </nz-modal>
+</div>

@@ -10,7 +10,11 @@ export class AdminComponent {
   isCollapsed = false;
   theme: NzMenuThemeType = 'dark';
 
-  toggleTheme() {
+  toggleCollapsed(): void {
+    this.isCollapsed = !this.isCollapsed;
+  }
+
+  toggleTheme(): void {
     this.theme = this.theme === 'dark' ? 'light' : 'dark';
   }
 }

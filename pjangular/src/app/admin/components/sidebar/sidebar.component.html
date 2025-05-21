@@ -1,22 +1,70 @@
-<ul nz-menu nzMode="inline" class="sidebar-menu" [nzTheme]="theme">
-  <li nz-menu-item routerLink="/admin/dashboard" routerLinkActive="ant-menu-item-selected">
-    <i nz-icon nzType="dashboard"></i>
-    <span>Dashboard</span>
-  </li>
-  <li nz-submenu nzTitle="Quản lý" nzIcon="appstore">
-    <ul>
-      <li nz-menu-item routerLink="/admin/users" routerLinkActive="ant-menu-item-selected">
+<div class="sidebar-container">
+  <div class="logo">
+    <h3 *ngIf="!isCollapsed">Vocabulary Admin</h3>
+    <h3 *ngIf="isCollapsed">VA</h3>
+  </div>
+  <nz-menu
+    nzMode="inline"
+    [nzInlineCollapsed]="isCollapsed"
+    [nzTheme]="theme"
+  >
+    <nz-menu-item>
+      <a routerLink="/admin/dashboard">
+        <i nz-icon nzType="dashboard"></i>
+        <span>Dashboard</span>
+      </a>
+    </nz-menu-item>
+    <nz-menu-item>
+      <a routerLink="/admin/users">
         <i nz-icon nzType="user"></i>
         <span>Users</span>
-      </li>
-      <li nz-menu-item routerLink="/admin/products" routerLinkActive="ant-menu-item-selected">
-        <i nz-icon nzType="shopping"></i>
-        <span>Products</span>
-      </li>
-    </ul>
-  </li>
-  <li nz-menu-item (click)="toggleTheme()">
-    <i nz-icon nzType="bulb"></i>
-    <span>Toggle Theme</span>
-  </li>
-</ul>
+      </a>
+    </nz-menu-item>
+    <nz-menu-item>
+      <a routerLink="/admin/vocabulary">
+        <i nz-icon nzType="book"></i>
+        <span>Vocabulary</span>
+      </a>
+    </nz-menu-item>
+    <nz-menu-item>
+      <a routerLink="/admin/lessons">
+        <i nz-icon nzType="read"></i>
+        <span>Lessons</span>
+      </a>
+    </nz-menu-item>
+    <nz-menu-item>
+      <a routerLink="/admin/quizzes">
+        <i nz-icon nzType="question-circle"></i>
+        <span>Quizzes</span>
+      </a>
+    </nz-menu-item>
+    <nz-menu-item>
+      <a routerLink="/admin/questions">
+        <i nz-icon nzType="form"></i>
+        <span>Questions</span>
+      </a>
+    </nz-menu-item>
+    <nz-menu-item>
+      <a routerLink="/admin/answers">
+        <i nz-icon nzType="check-circle"></i>
+        <span>Answers</span>
+      </a>
+    </nz-menu-item>
+    <nz-menu-item>
+      <a routerLink="/admin/progress">
+        <i nz-icon nzType="schedule"></i>
+        <span>Progress</span>
+      </a>
+    </nz-menu-item>
+    <nz-menu-item>
+      <a routerLink="/admin/quiz-results">
+        <i nz-icon nzType="trophy"></i>
+        <span>Quiz Results</span>
+      </a>
+    </nz-menu-item>
+    <nz-menu-item (click)="toggleTheme.emit()">
+      <i nz-icon nzType="bulb"></i>
+      <span>Toggle Theme</span>
+    </nz-menu-item>
+  </nz-menu>
+</div>

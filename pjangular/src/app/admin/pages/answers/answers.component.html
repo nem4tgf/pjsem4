@@ -1,0 +1,59 @@
+<div class="answers-container">
+  <button nz-button nzType="primary" (click)="showModal()">Thêm câu trả lời</button>
+  <nz-table
+    #basicTable
+    [nzData]="filteredAnswers"
+    (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
+  >
+    <thead>
+      <tr>
+        <th nzShowSort [nzSortFn]="sortByText">Câu trả lời</th>
+        <th>ID Câu hỏi</th>
+        <th>Đúng/Sai</th>
+        <th>Hành động</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let answer of basicTable.data">
+        <td>{{ answer.answer_text }}</td>
+        <td>{{ answer.question_id }}</td>
+        <td>{{ answer.is_correct ? 'Đúng' : 'Sai' }}</td>
+        <td>
+          <a (click)="showModal(answer)">Sửa</a>
+          <nz-divider nzType="vertical"></nz-divider>
+          <a (click)="deleteAnswer(answer.answer_id)">Xóa</a>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+
+  <nz-modal
+    [(nzVisible)]="isEditModalVisible"
+    [nzTitle]="selectedAnswer.answer_id === 0 ? 'Thêm câu trả lời' : 'Sửa câu trả lời'"
+    (nzOnCancel)="handleCancel()"
+    (nzOnOk)="handleOk()"
+  >
+    <ng-container *nzModalContent>
+      <form nz-form>
+        <nz-form-item>
+          <nz-form-label>Câu trả lời</nz-form-label>
+          <nz-form-control>
+            <input nz-input [(ngModel)]="selectedAnswer.answer_text" name="answer_text" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>ID Câu hỏi</nz-form-label>
+          <nz-form-control>
+            <input nz-input type="number" [(ngModel)]="selectedAnswer.question_id" name="question_id" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>Đúng/Sai</nz-form-label>
+          <nz-form-control>
+            <nz-switch [(ngModel)]="selectedAnswer.is_correct" name="is_correct"></nz-switch>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </ng-container>
+  </nz-modal>
+</div>

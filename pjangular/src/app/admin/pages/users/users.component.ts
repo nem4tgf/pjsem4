@@ -1,58 +1,57 @@
-import { Component, OnInit } from '@angular/core';
-import { NzTableSortFn } from 'ng-zorro-antd/table';
-
-interface User {
-  id: number;
-  name: string;
-}
+import { Component } from '@angular/core';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 
 @Component({
   selector: 'app-users',
   templateUrl: './users.component.html',
-  styleUrls: ['./users.component.css'] // Đổi sang .css
+  styleUrls: ['./users.component.css']
 })
-export class UsersComponent implements OnInit {
-  users: User[] = [
-    { id: 1, name: 'Nguyễn Văn A' },
-    { id: 2, name: 'Trần Thị B' }
+export class UsersComponent {
+  filteredUsers: any[] = [
+    { user_id: 1, username: 'john_doe', email: 'john@example.com', full_name: 'John Doe', avatar_url: 'https://via.placeholder.com/50', created_at: '2025-05-01' },
+    { user_id: 2, username: 'jane_smith', email: 'jane@example.com', full_name: 'Jane Smith', avatar_url: 'https://via.placeholder.com/50', created_at: '2025-05-02' }
   ];
-  filteredUsers: User[] = [...this.users];
-  searchValue = '';
   isEditModalVisible = false;
-  selectedUser: User = { id: 0, name: '' };
+  selectedUser: any = { user_id: 0, username: '', email: '', full_name: '', avatar_url: '' };
 
-  sortById: NzTableSortFn<User> = (a, b) => a.id - b.id;
-  sortByName: NzTableSortFn<User> = (a, b) => a.name.localeCompare(b.name);
+  constructor(private notification: NzNotificationService) {}
 
-  ngOnInit() {}
+  sortById = (a: any, b: any) => a.user_id - b.user_id;
+  sortByName = (a: any, b: any) => a.full_name.localeCompare(b.full_name);
 
-  filterUsers() {
-    this.filteredUsers = this.users.filter(user =>
-      user.name.toLowerCase().includes(this.searchValue.toLowerCase())
-    );
+  onCurrentPageDataChange(event: any): void {
+    this.filteredUsers = event;
   }
 
-  onCurrentPageDataChange(data: readonly User[]) {
-    // Xử lý dữ liệu trang hiện tại
-  }
-
-  openEditModal(user: User) {
-    this.selectedUser = { ...user };
+  showModal(user?: any): void {
+    if (user) {
+      this.selectedUser = { ...user };
+    } else {
+      this.selectedUser = { user_id: 0, username: '', email: '', full_name: '', avatar_url: '' };
+    }
     this.isEditModalVisible = true;
   }
 
-  handleOk() {
-    this.users = this.users.map(u => (u.id === this.selectedUser.id ? this.selectedUser : u));
-    this.filteredUsers = [...this.users];
+  handleOk(): void {
+    if (this.selectedUser.user_id === 0) {
+      this.selectedUser.user_id = this.filteredUsers.length + 1;
+      this.filteredUsers.push({ ...this.selectedUser, created_at: new Date().toISOString() });
+      this.notification.success('Thành công', 'Thêm người dùng thành công');
+    } else {
+      this.filteredUsers = this.filteredUsers.map(u =>
+        u.user_id === this.selectedUser.user_id ? { ...this.selectedUser } : u
+      );
+      this.notification.success('Thành công', 'Cập nhật người dùng thành công');
+    }
     this.isEditModalVisible = false;
   }
 
-  handleCancel() {
+  handleCancel(): void {
     this.isEditModalVisible = false;
   }
 
-  deleteUser(id: number) {
-    this.users = this.users.filter(u => u.id !== id);
-    this.filteredUsers = [...this.users];
+  deleteUser(id: number): void {
+    this.filteredUsers = this.filteredUsers.filter(u => u.user_id !== id);
+    this.notification.success('Thành công', 'Xóa người dùng thành công');
   }
 }

@@ -1,0 +1,62 @@
+<div class="questions-container">
+  <button nz-button nzType="primary" (click)="showModal()">Thêm câu hỏi</button>
+  <nz-table
+    #basicTable
+    [nzData]="filteredQuestions"
+    (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
+  >
+    <thead>
+      <tr>
+        <th nzShowSort [nzSortFn]="sortByText">Câu hỏi</th>
+        <th>ID Bài kiểm tra</th>
+        <th>Loại</th>
+        <th>Hành động</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let question of basicTable.data">
+        <td>{{ question.question_text }}</td>
+        <td>{{ question.quiz_id }}</td>
+        <td>{{ question.type }}</td>
+        <td>
+          <a (click)="showModal(question)">Sửa</a>
+          <nz-divider nzType="vertical"></nz-divider>
+          <a (click)="deleteQuestion(question.question_id)">Xóa</a>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+
+  <nz-modal
+    [(nzVisible)]="isEditModalVisible"
+    [nzTitle]="selectedQuestion.question_id === 0 ? 'Thêm câu hỏi' : 'Sửa câu hỏi'"
+    (nzOnCancel)="handleCancel()"
+    (nzOnOk)="handleOk()"
+  >
+    <ng-container *nzModalContent>
+      <form nz-form>
+        <nz-form-item>
+          <nz-form-label>Câu hỏi</nz-form-label>
+          <nz-form-control>
+            <textarea nz-input [(ngModel)]="selectedQuestion.question_text" name="question_text"></textarea>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>ID Bài kiểm tra</nz-form-label>
+          <nz-form-control>
+            <input nz-input type="number" [(ngModel)]="selectedQuestion.quiz_id" name="quiz_id" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>Loại</nz-form-label>
+          <nz-form-control>
+            <nz-select [(ngModel)]="selectedQuestion.type" name="type">
+              <nz-option nzValue="multiple_choice" nzLabel="Trắc nghiệm"></nz-option>
+              <nz-option nzValue="fill_in_the_blank" nzLabel="Điền vào chỗ trống"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </ng-container>
+  </nz-modal>
+</div>
