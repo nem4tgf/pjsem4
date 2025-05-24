@@ -1,29 +1,38 @@
 <div class="dashboard-container">
-  <nz-card>
-    <h2>Thống kê hệ thống</h2>
-    <div class="stats">
-      <nz-card>
-        <h3>{{ stats.userCount }}</h3>
-        <p>Người dùng</p>
-      </nz-card>
-      <nz-card>
-        <h3>{{ stats.vocabularyCount }}</h3>
-        <p>Từ vựng</p>
-      </nz-card>
-      <nz-card>
-        <h3>{{ stats.lessonCount }}</h3>
-        <p>Bài học</p>
-      </nz-card>
-      <nz-card>
-        <h3>{{ stats.quizCount }}</h3>
-        <p>Bài kiểm tra</p>
+  <nz-card class="dashboard-card">
+    <h2 class="dashboard-title">Thống kê hệ thống</h2>
+    <div class="stats-grid">
+      <nz-card class="stat-card" *ngFor="let stat of stats | keyvalue">
+        <h3 class="stat-value">{{ stat.value }}</h3>
+        <p class="stat-label">{{ stat.key | titlecase }}</p>
       </nz-card>
     </div>
-    <apx-chart
-      [series]="chartOptions.series"
-      [chart]="chartOptions.chart"
-      [labels]="chartOptions.labels"
-      [responsive]="chartOptions.responsive"
-    ></apx-chart>
+    <div class="charts-container">
+      <div class="chart-wrapper">
+        <h3 class="chart-title">Biểu đồ cột</h3>
+        <apx-chart
+          [series]="barChartOptions.series"
+          [chart]="barChartOptions.chart"
+          [xaxis]="barChartOptions.xaxis"
+          [yaxis]="barChartOptions.yaxis"
+          [title]="barChartOptions.title"
+          [colors]="barChartOptions.colors"
+          [dataLabels]="barChartOptions.dataLabels"
+          [plotOptions]="barChartOptions.plotOptions"
+          [responsive]="barChartOptions.responsive"
+        ></apx-chart>
+      </div>
+      <div class="chart-wrapper">
+        <h3 class="chart-title">Biểu đồ hình tròn</h3>
+        <apx-chart
+          [series]="pieChartOptions.series"
+          [chart]="pieChartOptions.chart"
+          [labels]="pieChartOptions.labels"
+          [colors]="pieChartOptions.colors"
+          [dataLabels]="pieChartOptions.dataLabels"
+          [responsive]="pieChartOptions.responsive"
+        ></apx-chart>
+      </div>
+    </div>
   </nz-card>
 </div>

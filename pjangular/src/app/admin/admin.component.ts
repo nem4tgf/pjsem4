@@ -6,8 +6,8 @@ import { Component } from '@angular/core';
   styleUrls: ['./admin.component.css']
 })
 export class AdminComponent {
-  isCollapsed = false;
-  theme: 'light' | 'dark' = 'dark'; // Mặc định là dark
+  isCollapsed: boolean = false;
+  theme: 'light' | 'dark' = 'dark';
 
   toggleCollapsed(): void {
     this.isCollapsed = !this.isCollapsed;
@@ -15,6 +15,5 @@ export class AdminComponent {
 
   toggleTheme(): void {
     this.theme = this.theme === 'light' ? 'dark' : 'light';
-    console.log('Theme switched to:', this.theme); // Debug
   }
 }

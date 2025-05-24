@@ -1,76 +1,128 @@
-.sidebar-container {
-  width: 250px;
+.sidebar {
   height: 100vh;
-  background-color: #001529;
   display: flex;
   flex-direction: column;
-  transition: width 0.3s ease;
-  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+  width: 260px;
 }
 
-.sidebar-container.collapsed {
+.sidebar.collapsed {
   width: 80px;
 }
 
-.logo {
+.sidebar.light-theme {
+  background-color: #f3f4f6;
+}
+
+.sidebar.dark-theme {
+  background-color: #1f2937;
+}
+
+.sidebar-header {
   height: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
-  font-size: 20px;
-  font-weight: bold;
-  background-color: #000c17;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 0 16px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  background: linear-gradient(90deg, #2563eb, #1e40af);
 }
 
-nz-menu {
-  flex-grow: 1;
-  background: transparent;
-  border: none;
+.sidebar-header h3 {
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
 }
 
-nz-menu-item,
-nz-submenu {
-  transition: background 0.3s;
+.sidebar-menu {
+  flex: 1;
+  list-style: none;
+  margin: 0;
+  padding: 8px;
 }
 
-nz-menu-item a,
-nz-submenu-title {
+.sidebar-item {
+  margin-bottom: 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
+}
+
+.sidebar-item.hoverable:hover {
+  background-color: #2563eb;
+  color: white;
+}
+
+.sidebar-link {
   display: flex;
   align-items: center;
   padding: 12px 16px;
-  color: rgba(255, 255, 255, 0.85);
-  font-weight: 500;
-  font-size: 15px;
-  white-space: nowrap;
+  text-decoration: none;
+  transition: all 0.2s ease;
 }
 
-nz-menu-item a:hover,
-nz-submenu-title:hover {
-  color: #ffffff;
-  background-color: rgba(255, 255, 255, 0.08);
+.sidebar-link.light-link {
+  color: #1f2a44;
 }
 
-nz-menu-item i,
-nz-submenu i {
+.sidebar-link.light-link:hover {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+.sidebar-link.dark-link {
+  color: white;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
   margin-right: 12px;
-  font-size: 18px;
 }
 
-/* Light Theme (optional) */
-nz-menu[nzTheme="light"] {
-  background-color: #ffffff;
+.label {
+  font-size: 14px;
+  font-weight: 500;
 }
 
-nz-menu[nzTheme="light"] nz-menu-item a {
-  color: #000000;
+@media (max-width: 768px) {
+  .sidebar {
+    width: 200px;
+  }
+
+  .sidebar.collapsed {
+    width: 60px;
+  }
+
+  .sidebar-header h3 {
+    font-size: 14px;
+  }
+
+  .sidebar-link {
+    padding: 10px 12px;
+  }
+
+  .icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .label {
+    font-size: 13px;
+  }
 }
 
-nz-menu[nzTheme="light"] nz-menu-item a:hover {
-  color: #1890ff;
+@media (max-width: 480px) {
+  .sidebar {
+    width: 60px;
+  }
+
+  .sidebar.collapsed {
+    width: 60px;
+  }
+
+  .sidebar-header h3 {
+    font-size: 12px;
+  }
+
+  .label {
+    display: none;
+  }
 }

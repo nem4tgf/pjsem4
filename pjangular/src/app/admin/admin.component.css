@@ -1,5 +1,6 @@
 .admin-container {
   height: 100vh;
+  overflow: hidden;
 }
 
 nz-sider {
@@ -7,29 +8,45 @@ nz-sider {
   background: #001529;
 }
 
-nz-header {
-  background: #fff;
-  padding: 0 16px;
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+.header-wrapper {
+  background: #ffffff;
+  padding: 0;
+  box-shadow: 0 1px 6px rgba(0, 21, 41, 0.08);
   display: flex;
   align-items: center;
 }
 
 .toggle-btn {
-  font-size: 18px;
+  font-size: 20px;
   cursor: pointer;
-  margin-right: 16px;
-}
-
-.header-title {
-  font-size: 18px;
-  font-weight: 500;
+  padding: 16px;
+  color: #1f2a44;
 }
 
 .content-wrapper {
   margin: 24px 16px;
   padding: 24px;
-  background: #fff;
+  background: #f8fafc;
   min-height: calc(100vh - 112px);
+  border-radius: 12px;
   transition: margin-left 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .content-wrapper {
+    margin: 16px 12px;
+    padding: 16px;
+  }
+
+  .toggle-btn {
+    font-size: 18px;
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .content-wrapper {
+    margin: 12px 8px;
+    padding: 12px;
+  }
 }

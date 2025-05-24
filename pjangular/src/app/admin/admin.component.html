@@ -1,15 +1,14 @@
-<nz-layout>
+<nz-layout class="admin-container">
   <nz-sider nzCollapsible [(nzCollapsed)]="isCollapsed" (nzCollapsedChange)="toggleCollapsed()">
     <app-sidebar [isCollapsed]="isCollapsed" [theme]="theme" (toggleTheme)="toggleTheme()"></app-sidebar>
   </nz-sider>
   <nz-layout>
-    <nz-header style="background: #fff; padding: 0 16px;">
-      <span nz-icon nzType="menu" (click)="toggleCollapsed()" style="font-size: 20px; cursor: pointer;"></span>
+    <nz-header class="header-wrapper">
+      <span nz-icon nzType="menu" class="toggle-btn" (click)="toggleCollapsed()"></span>
+      <app-header [theme]="theme"></app-header>
     </nz-header>
-    <nz-content style="margin: 16px;">
-      <div style="padding: 24px; background: #fff; min-height: calc(100vh - 112px);">
-        <router-outlet></router-outlet>
-      </div>
+    <nz-content class="content-wrapper">
+      <router-outlet></router-outlet>
     </nz-content>
   </nz-layout>
 </nz-layout>

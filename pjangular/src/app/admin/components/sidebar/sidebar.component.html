@@ -1,72 +1,21 @@
-<div class="sidebar-container" [ngClass]="{ collapsed: isCollapsed }">
-  <div class="logo">
-  <h3 *ngIf="!isCollapsed" style="color: white; margin: 0;">Vocabulary Admin</h3>
-  <h3 *ngIf="isCollapsed" style="color: white; margin: 0;">VA</h3>
-</div>
-
-
-  <nz-menu
-    nzMode="inline"
-    [nzInlineCollapsed]="isCollapsed"
-    [nzTheme]="theme"
-  >
-    <nz-menu-item>
-      <a routerLink="/admin/dashboard">
-        <i nz-icon nzType="dashboard"></i>
-        <span *ngIf="!isCollapsed">Dashboard</span>
+<div class="sidebar" [ngClass]="{
+  'collapsed': isCollapsed,
+  'light-theme': theme === 'light',
+  'dark-theme': theme === 'dark'
+}">
+  <div class="sidebar-header">
+    <h3 *ngIf="!isCollapsed">Vocabulary Admin</h3>
+    <h3 *ngIf="isCollapsed">VA</h3>
+  </div>
+  <ul class="sidebar-menu">
+    <li *ngFor="let item of menuItems" class="sidebar-item" [ngClass]="{'hoverable': !isCollapsed}">
+      <a [routerLink]="item.link" class="sidebar-link"
+         [ngClass]="theme === 'light' ? 'light-link' : 'dark-link'">
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="item.icon" />
+        </svg>
+        <span *ngIf="!isCollapsed" class="label">{{ item.label }}</span>
       </a>
-    </nz-menu-item>
-    <nz-menu-item>
-      <a routerLink="/admin/users">
-        <i nz-icon nzType="user"></i>
-        <span *ngIf="!isCollapsed">Users</span>
-      </a>
-    </nz-menu-item>
-    <nz-menu-item>
-      <a routerLink="/admin/vocabulary">
-        <i nz-icon nzType="book"></i>
-        <span *ngIf="!isCollapsed">Vocabulary</span>
-      </a>
-    </nz-menu-item>
-    <nz-menu-item>
-      <a routerLink="/admin/lessons">
-        <i nz-icon nzType="read"></i>
-        <span *ngIf="!isCollapsed">Lessons</span>
-      </a>
-    </nz-menu-item>
-    <nz-menu-item>
-      <a routerLink="/admin/quizzes">
-        <i nz-icon nzType="question-circle"></i>
-        <span *ngIf="!isCollapsed">Quizzes</span>
-      </a>
-    </nz-menu-item>
-    <nz-menu-item>
-      <a routerLink="/admin/questions">
-        <i nz-icon nzType="form"></i>
-        <span *ngIf="!isCollapsed">Questions</span>
-      </a>
-    </nz-menu-item>
-    <nz-menu-item>
-      <a routerLink="/admin/answers">
-        <i nz-icon nzType="check-circle"></i>
-        <span *ngIf="!isCollapsed">Answers</span>
-      </a>
-    </nz-menu-item>
-    <nz-menu-item>
-      <a routerLink="/admin/progress">
-        <i nz-icon nzType="schedule"></i>
-        <span *ngIf="!isCollapsed">Progress</span>
-      </a>
-    </nz-menu-item>
-    <nz-menu-item>
-      <a routerLink="/admin/quiz-results">
-        <i nz-icon nzType="trophy"></i>
-        <span *ngIf="!isCollapsed">Quiz Results</span>
-      </a>
-    </nz-menu-item>
-    <nz-menu-item (click)="toggleTheme.emit()">
-      <i nz-icon nzType="bulb"></i>
-      <span *ngIf="!isCollapsed">Toggle Theme</span>
-    </nz-menu-item>
-  </nz-menu>
+    </li>
+  </ul>
 </div>
