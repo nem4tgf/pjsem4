@@ -1,26 +1,41 @@
 <nz-card nzTitle="Manage Quizzes">
-  <nz-select [(ngModel)]="selectedLessonId" (ngModelChange)="loadQuizzes($event)" nzPlaceHolder="Select Lesson">
-    <nz-option *ngFor="let lesson of lessons" [nzValue]="lesson.lessonId" [nzLabel]="lesson.title"></nz-option>
-  </nz-select>
-  <button nz-button nzType="primary" (click)="showModal(false)">Add Quiz</button>
+  <nz-form-item>
+    <nz-form-label nzFor="selectLesson" nzRequired>Select Lesson to Filter</nz-form-label>
+    <nz-form-control>
+      <nz-select
+        [(ngModel)]="selectedLessonId"
+        (ngModelChange)="loadQuizzes($event)"
+        nzPlaceHolder="Select Lesson"
+        nzAllowClear
+        nzShowSearch
+      >
+        <nz-option *ngFor="let lesson of lessons" [nzValue]="lesson.lessonId" [nzLabel]="lesson.title"></nz-option>
+      </nz-select>
+    </nz-form-control>
+  </nz-form-item>
+
+  <button *ngIf="isAdmin" nz-button nzType="primary" (click)="showModal(false)">Add Quiz</button>
+
   <nz-table #basicTable [nzData]="quizzes" [nzLoading]="!quizzes.length">
     <thead>
       <tr>
         <th>Title</th>
         <th>Skill</th>
         <th>Lesson</th>
-        <th>Actions</th>
+        <th *ngIf="isAdmin">Actions</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let quiz of basicTable.data">
         <td>{{ quiz.title }}</td>
         <td>{{ quiz.skill }}</td>
-        <td>{{ quiz.lesson.title }}</td>
         <td>
+          {{ getLessonTitle(quiz.lessonId) }}
+        </td>
+        <td *ngIf="isAdmin">
           <a nz-button nzType="link" (click)="showModal(true, quiz)">Edit</a>
           <nz-divider nzType="vertical"></nz-divider>
-          <a nz-button nzType="link" nzDanger (click)="quiz.quizId !== undefined && deleteQuiz(quiz.quizId)">Delete</a>
+          <a nz-button nzType="link" nzDanger (click)="quiz.quizId != null && deleteQuiz(quiz.quizId!)">Delete</a>
         </td>
       </tr>
     </tbody>
@@ -31,30 +46,38 @@
     [nzTitle]="isEdit ? 'Edit Quiz' : 'Add Quiz'"
     (nzOnOk)="handleOk()"
     (nzOnCancel)="handleCancel()"
+    [nzContent]="quizModalContent"
   >
-    <form nz-form [formGroup]="quizForm">
-      <nz-form-item>
-        <nz-form-label nzRequired>Lesson</nz-form-label>
-        <nz-form-control nzErrorTip="Lesson is required">
-          <nz-select formControlName="lesson">
-            <nz-option *ngFor="let lesson of lessons" [nzValue]="lesson.lessonId" [nzLabel]="lesson.title"></nz-option>
-          </nz-select>
-        </nz-form-control>
-      </nz-form-item>
-      <nz-form-item>
-        <nz-form-label nzRequired>Title</nz-form-label>
-        <nz-form-control nzErrorTip="Title is required">
-          <input nz-input formControlName="title" />
-        </nz-form-control>
-      </nz-form-item>
-      <nz-form-item>
-        <nz-form-label nzRequired>Skill</nz-form-label>
-        <nz-form-control nzErrorTip="Skill is required">
-          <nz-select formControlName="skill">
-            <nz-option *ngFor="let skill of skills" [nzValue]="skill" [nzLabel]="skill"></nz-option>
-          </nz-select>
-        </nz-form-control>
-      </nz-form-item>
-    </form>
+    <ng-template #quizModalContent>
+      <form nz-form [formGroup]="quizForm">
+        <nz-form-item>
+          <nz-form-label nzRequired>Lesson</nz-form-label>
+          <nz-form-control
+            [nzErrorTip]="quizForm.get('lessonId')?.hasError('required') ? 'Lesson is required' : ''"
+          >
+            <nz-select formControlName="lessonId" nzPlaceHolder="Select a lesson"> <nz-option *ngFor="let lesson of lessons" [nzValue]="lesson.lessonId" [nzLabel]="lesson.title"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzRequired>Title</nz-form-label>
+          <nz-form-control
+            [nzErrorTip]="quizForm.get('title')?.hasError('required') ? 'Title is required' : ''"
+          >
+            <input nz-input formControlName="title" placeholder="Enter quiz title"/>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzRequired>Skill</nz-form-label>
+          <nz-form-control
+            [nzErrorTip]="quizForm.get('skill')?.hasError('required') ? 'Skill is required' : ''"
+          >
+            <nz-select formControlName="skill" nzPlaceHolder="Select skill">
+              <nz-option *ngFor="let skill of skills" [nzValue]="skill" [nzLabel]="skill"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </ng-template>
   </nz-modal>
 </nz-card>

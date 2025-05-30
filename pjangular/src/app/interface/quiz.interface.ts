@@ -1,4 +1,5 @@
-import { Lesson } from "./lesson.interface";
+
+import { Lesson } from "./lesson.interface"; 
 
 export enum Skill {
   LISTENING = 'LISTENING',
@@ -10,8 +11,8 @@ export enum Skill {
 }
 
 export interface Quiz {
-  quizId: number;
-  lesson: Lesson; // Quan hệ ManyToOne với Lesson
+  quizId?: number; // quizId có thể optional khi tạo mới
+  lessonId: number; // <--- SỬA ĐỔI QUAN TRỌNG: Backend chỉ nhận lessonId (number)
   title: string;
   skill: Skill;
   createdAt?: string; // LocalDateTime được ánh xạ thành string
