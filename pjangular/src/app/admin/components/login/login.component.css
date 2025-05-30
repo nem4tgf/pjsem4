@@ -1,0 +1,17 @@
+:host {
+  display: block;
+  height: 100vh;
+}
+
+nz-card {
+  border-radius: 8px;
+}
+
+nz-form-item {
+  margin-bottom: 16px;
+}
+
+button[nz-button] {
+  height: 40px;
+  font-size: 16px;
+}

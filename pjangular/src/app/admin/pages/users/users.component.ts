@@ -1,57 +1,107 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { forkJoin } from 'rxjs';
+import { Role, User } from 'src/app/interface/user.interface';
+import { UserService } from 'src/app/service/user.service';
 
 @Component({
   selector: 'app-users',
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.css']
 })
-export class UsersComponent {
-  filteredUsers: any[] = [
-    { user_id: 1, username: 'john_doe', email: 'john@example.com', full_name: 'John Doe', avatar_url: 'https://via.placeholder.com/50', created_at: '2025-05-01' },
-    { user_id: 2, username: 'jane_smith', email: 'jane@example.com', full_name: 'Jane Smith', avatar_url: 'https://via.placeholder.com/50', created_at: '2025-05-02' }
-  ];
-  isEditModalVisible = false;
-  selectedUser: any = { user_id: 0, username: '', email: '', full_name: '', avatar_url: '' };
+export class UsersComponent implements OnInit {
+  users: User[] = [];
+  isVisible = false;
+  isEdit = false;
+  userForm: FormGroup;
+  roles = Object.values(Role);
 
-  constructor(private notification: NzNotificationService) {}
-
-  sortById = (a: any, b: any) => a.user_id - b.user_id;
-  sortByName = (a: any, b: any) => a.full_name.localeCompare(b.full_name);
-
-  onCurrentPageDataChange(event: any): void {
-    this.filteredUsers = event;
+  constructor(
+    private userService: UserService,
+    private fb: FormBuilder,
+    private modalService: NzModalService,
+    private notification: NzNotificationService
+  ) {
+    this.userForm = this.fb.group({
+      userId: [null],
+      username: ['', [Validators.required, Validators.minLength(3)]],
+      email: ['', [Validators.required, Validators.email]],
+      fullName: [''],
+      avatarUrl: [''],
+      role: [null, Validators.required]
+    });
   }
 
-  showModal(user?: any): void {
-    if (user) {
-      this.selectedUser = { ...user };
+  ngOnInit(): void {
+    this.loadUsers();
+  }
+
+  loadUsers(): void {
+    // Giả định lấy user với ID cố định vì không có getAllUsers
+    const userIds = [1, 2, 3]; // Thay bằng ID thực tế hoặc logic khác
+    forkJoin(
+      userIds.map(id => this.userService.getUserById(id))
+    ).subscribe({
+      next: (users) => {
+        this.users = users;
+      },
+      error: () => {
+        this.notification.error('Error', 'Failed to load users');
+      }
+    });
+  }
+
+  showModal(isEdit: boolean, user?: User): void {
+    this.isEdit = isEdit;
+    if (isEdit && user) {
+      this.userForm.patchValue(user);
+      this.isVisible = true;
     } else {
-      this.selectedUser = { user_id: 0, username: '', email: '', full_name: '', avatar_url: '' };
+      this.notification.warning('Warning', 'Create user is not supported');
+      // this.userForm.reset();
+      // this.isVisible = true;
     }
-    this.isEditModalVisible = true;
   }
 
   handleOk(): void {
-    if (this.selectedUser.user_id === 0) {
-      this.selectedUser.user_id = this.filteredUsers.length + 1;
-      this.filteredUsers.push({ ...this.selectedUser, created_at: new Date().toISOString() });
-      this.notification.success('Thành công', 'Thêm người dùng thành công');
-    } else {
-      this.filteredUsers = this.filteredUsers.map(u =>
-        u.user_id === this.selectedUser.user_id ? { ...this.selectedUser } : u
-      );
-      this.notification.success('Thành công', 'Cập nhật người dùng thành công');
+    if (this.userForm.invalid) {
+      this.userForm.markAllAsTouched();
+      return;
     }
-    this.isEditModalVisible = false;
+    if (!this.isEdit) {
+      this.notification.warning('Warning', 'Create user is not supported');
+      return;
+    }
+    const user: User = this.userForm.value;
+    this.userService.updateUser(user.userId!, user).subscribe({
+      next: () => {
+        this.notification.success('Success', 'User updated');
+        this.loadUsers();
+        this.isVisible = false;
+      },
+      error: () => {
+        this.notification.error('Error', 'Failed to update user');
+      }
+    });
   }
 
   handleCancel(): void {
-    this.isEditModalVisible = false;
+    this.isVisible = false;
   }
 
-  deleteUser(id: number): void {
-    this.filteredUsers = this.filteredUsers.filter(u => u.user_id !== id);
-    this.notification.success('Thành công', 'Xóa người dùng thành công');
+  deleteUser(userId: number): void {
+    this.modalService.confirm({
+      nzTitle: 'Are you sure?',
+      nzContent: 'This action cannot be undone.',
+      nzOnOk: () => {
+        this.notification.warning('Warning', 'Delete user is not supported');
+        // this.userService.deleteUser(userId).subscribe(() => {
+        //   this.notification.success('Success', 'User deleted');
+        //   this.loadUsers();
+        // });
+      }
+    });
   }
 }

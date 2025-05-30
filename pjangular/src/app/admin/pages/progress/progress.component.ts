@@ -1,56 +1,80 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { Lesson } from 'src/app/interface/lesson.interface';
+import { Progress, Status, Skill } from 'src/app/interface/progress.interface';
+import { User } from 'src/app/interface/user.interface';
+import { LessonService } from 'src/app/service/lesson.service';
+import { ProgressService } from 'src/app/service/progress.service';
+import { UserService } from 'src/app/service/user.service';
 
 @Component({
   selector: 'app-progress',
   templateUrl: './progress.component.html',
   styleUrls: ['./progress.component.css']
 })
-export class ProgressComponent {
-  filteredProgress: any[] = [
-    { progress_id: 1, user_id: 1, lesson_id: 1, status: 'in_progress', last_updated: '2025-05-01' },
-    { progress_id: 2, user_id: 2, lesson_id: 2, status: 'completed', last_updated: '2025-05-02' }
-  ];
-  isEditModalVisible = false;
-  selectedProgress: any = { progress_id: 0, user_id: 0, lesson_id: 0, status: 'not_started' };
+export class ProgressComponent implements OnInit {
+  progressList: Progress[] = [];
+  users: User[] = [];
+  lessons: Lesson[] = [];
+  progressForm: FormGroup;
+  statuses = Object.values(Status);
+  skills = Object.values(Skill);
 
-  constructor(private notification: NzNotificationService) {}
-
-  sortById = (a: any, b: any) => a.progress_id - b.progress_id;
-
-  onCurrentPageDataChange(event: any): void {
-    this.filteredProgress = event;
+  constructor(
+    private progressService: ProgressService,
+    private userService: UserService,
+    private lessonService: LessonService,
+    private fb: FormBuilder,
+    private notification: NzNotificationService
+  ) {
+    this.progressForm = this.fb.group({
+      user: [null, Validators.required],
+      lesson: [null, Validators.required],
+      skill: [null, Validators.required],
+      status: [null, Validators.required],
+      completionPercentage: [0, [Validators.required, Validators.min(0), Validators.max(100)]]
+    });
   }
 
-  showModal(progress?: any): void {
-    if (progress) {
-      this.selectedProgress = { ...progress };
-    } else {
-      this.selectedProgress = { progress_id: 0, user_id: 0, lesson_id: 0, status: 'not_started' };
+  ngOnInit(): void {
+    this.loadUsers();
+    this.loadLessons();
+  }
+
+  loadUsers(): void {
+    this.userService.getAllUsers().subscribe(users => {
+      this.users = users;
+    });
+  }
+
+  loadLessons(): void {
+    this.lessonService.getAllLessons().subscribe(lessons => {
+      this.lessons = lessons;
+    });
+  }
+
+  loadProgress(): void {
+    if (this.progressForm.value.userId) {
+      this.progressService.getProgressByUser(this.progressForm.value.userId).subscribe(progress => {
+        this.progressList = progress;
+      });
     }
-    this.isEditModalVisible = true;
   }
 
-  handleOk(): void {
-    if (this.selectedProgress.progress_id === 0) {
-      this.selectedProgress.progress_id = this.filteredProgress.length + 1;
-      this.filteredProgress.push({ ...this.selectedProgress, last_updated: new Date().toISOString() });
-      this.notification.success('Thành công', 'Thêm tiến độ thành công');
-    } else {
-      this.filteredProgress = this.filteredProgress.map(p =>
-        p.progress_id === this.selectedProgress.progress_id ? { ...this.selectedProgress } : p
-      );
-      this.notification.success('Thành công', 'Cập nhật tiến độ thành công');
+  updateProgress(): void {
+    if (this.progressForm.invalid) {
+      this.progressForm.markAllAsTouched();
+      return;
     }
-    this.isEditModalVisible = false;
-  }
-
-  handleCancel(): void {
-    this.isEditModalVisible = false;
-  }
-
-  deleteProgress(id: number): void {
-    this.filteredProgress = this.filteredProgress.filter(p => p.progress_id !== id);
-    this.notification.success('Thành công', 'Xóa tiến độ thành công');
+    const progress: Progress = {
+      ...this.progressForm.value,
+      user: this.users.find(u => u.userId === this.progressForm.value.userId)!,
+      lesson: this.lessons.find(l => l.lessonId === this.progressForm.value.lessonId)!
+    };
+    this.progressService.updateProgress(progress).subscribe(() => {
+      this.notification.success('Success', 'Progress updated');
+      this.loadProgress();
+    });
   }
 }

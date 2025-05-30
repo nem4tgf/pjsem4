@@ -1,56 +1,96 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { Vocabulary, DifficultyLevel } from 'src/app/interface/vocabulary.interface';
+import { VocabularyService } from 'src/app/service/vocabulary.service';
 
 @Component({
   selector: 'app-vocabulary',
   templateUrl: './vocabulary.component.html',
   styleUrls: ['./vocabulary.component.css']
 })
-export class VocabularyComponent {
-  filteredVocabulary: any[] = [
-    { word_id: 1, word: 'apple', meaning: 'Quả táo', example_sentence: 'I eat an apple every day.', pronunciation: '/ˈæpəl/', audio_url: 'https://example.com/apple.mp3', difficulty_level: 'easy' },
-    { word_id: 2, word: 'beautiful', meaning: 'Đẹp', example_sentence: 'The sunset is beautiful.', pronunciation: '/ˈbjuːtɪfl/', audio_url: 'https://example.com/beautiful.mp3', difficulty_level: 'medium' }
-  ];
-  isEditModalVisible = false;
-  selectedVocab: any = { word_id: 0, word: '', meaning: '', example_sentence: '', pronunciation: '', audio_url: '', difficulty_level: 'medium' };
+export class VocabularyComponent implements OnInit {
+  vocabularies: Vocabulary[] = [];
+  isVisible = false;
+  isEdit = false;
+  vocabularyForm: FormGroup;
+  difficultyLevels = Object.values(DifficultyLevel);
 
-  constructor(private notification: NzNotificationService) {}
-
-  sortByWord = (a: any, b: any) => a.word.localeCompare(b.word);
-
-  onCurrentPageDataChange(event: any): void {
-    this.filteredVocabulary = event;
+  constructor(
+    private vocabularyService: VocabularyService,
+    private fb: FormBuilder,
+    private modal: NzModalService,
+    private notification: NzNotificationService
+  ) {
+    this.vocabularyForm = this.fb.group({
+      wordId: [null],
+      word: ['', Validators.required],
+      meaning: ['', Validators.required],
+      exampleSentence: [''],
+      pronunciation: [''],
+      audioUrl: [''],
+      writingPrompt: [''],
+      difficultyLevel: [null, Validators.required]
+    });
   }
 
-  showModal(vocab?: any): void {
-    if (vocab) {
-      this.selectedVocab = { ...vocab };
+  ngOnInit(): void {
+    this.loadVocabularies();
+  }
+
+  loadVocabularies(): void {
+    this.vocabularyService.getAllVocabulary().subscribe(vocabularies => {
+      this.vocabularies = vocabularies;
+    });
+  }
+
+  showModal(isEdit: boolean, vocabulary?: Vocabulary): void {
+    this.isEdit = isEdit;
+    if (isEdit && vocabulary) {
+      this.vocabularyForm.patchValue(vocabulary);
     } else {
-      this.selectedVocab = { word_id: 0, word: '', meaning: '', example_sentence: '', pronunciation: '', audio_url: '', difficulty_level: 'medium' };
+      this.vocabularyForm.reset();
     }
-    this.isEditModalVisible = true;
+    this.isVisible = true;
   }
 
   handleOk(): void {
-    if (this.selectedVocab.word_id === 0) {
-      this.selectedVocab.word_id = this.filteredVocabulary.length + 1;
-      this.filteredVocabulary.push({ ...this.selectedVocab });
-      this.notification.success('Thành công', 'Thêm từ vựng thành công');
-    } else {
-      this.filteredVocabulary = this.filteredVocabulary.map(v =>
-        v.word_id === this.selectedVocab.word_id ? { ...this.selectedVocab } : v
-      );
-      this.notification.success('Thành công', 'Cập nhật từ vựng thành công');
+    if (this.vocabularyForm.invalid) {
+      this.vocabularyForm.markAllAsTouched();
+      return;
     }
-    this.isEditModalVisible = false;
+    const vocabulary: Vocabulary = this.vocabularyForm.value;
+    if (this.isEdit) {
+      this.vocabularyService.updateVocabulary(vocabulary.wordId!, vocabulary).subscribe(() => {
+        this.notification.success('Success', 'Vocabulary updated');
+        this.loadVocabularies();
+        this.isVisible = false;
+      });
+    } else {
+      this.vocabularyService.createVocabulary(vocabulary).subscribe(() => {
+        this.notification.success('Success', 'Vocabulary created');
+        this.loadVocabularies();
+        this.isVisible = false;
+      });
+    }
   }
 
   handleCancel(): void {
-    this.isEditModalVisible = false;
+    this.isVisible = false;
   }
 
-  deleteVocab(id: number): void {
-    this.filteredVocabulary = this.filteredVocabulary.filter(v => v.word_id !== id);
-    this.notification.success('Thành công', 'Xóa từ vựng thành công');
+  deleteVocabulary(wordId: number): void {
+    this.modal.confirm({
+      nzTitle: 'Are you sure?',
+      nzContent: 'This action cannot be undone.',
+      nzOnOk: () => {
+        this.vocabularyService.deleteVocabulary(wordId).subscribe(() => {
+          this.notification.success('Success', 'Vocabulary deleted');
+          this.loadVocabularies();
+          this.isVisible = false;
+        });
+      }
+    });
   }
 }

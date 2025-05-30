@@ -1,14 +1,39 @@
-<nz-layout class="admin-container">
-  <nz-sider nzCollapsible [(nzCollapsed)]="isCollapsed" (nzCollapsedChange)="toggleCollapsed()">
-    <app-sidebar [isCollapsed]="isCollapsed" [theme]="theme" (toggleTheme)="toggleTheme()"></app-sidebar>
+<nz-layout>
+  <nz-sider [nzCollapsed]="isCollapsed" [nzCollapsible]="true" (nzCollapsedChange)="toggleCollapsed()">
+    <div class="logo"></div>
+    <ul nz-menu nzTheme="dark" nzMode="inline">
+      <li nz-submenu nzTitle="Dashboard" nzIcon="dashboard">
+        <ul>
+          <li nz-menu-item routerLink="/admin/dashboard">Overview</li>
+        </ul>
+      </li>
+      <li nz-menu-item routerLink="/admin/learning-materials" nzIcon="book">Learning Materials</li>
+      <li nz-menu-item routerLink="/admin/flashcards" nzIcon="file-text">Flashcards</li>
+      <li nz-menu-item routerLink="/admin/stats" nzIcon="bar-chart">Stats</li>
+      <li nz-menu-item routerLink="/admin/lessons" nzIcon="read">Lessons</li>
+      <li nz-menu-item routerLink="/admin/progress" nzIcon="sync">Progress</li>
+      <li nz-menu-item routerLink="/admin/questions" nzIcon="question-circle">Questions</li>
+      <li nz-menu-item routerLink="/admin/quiz-results" nzIcon="check-circle">Quiz Results</li>
+      <li nz-menu-item routerLink="/admin/quizzes" nzIcon="form">Quizzes</li>
+      <li nz-menu-item routerLink="/admin/users" nzIcon="user">Users</li>
+      <li nz-menu-item routerLink="/admin/vocabulary" nzIcon="book">Vocabulary</li>
+    </ul>
   </nz-sider>
   <nz-layout>
-    <nz-header class="header-wrapper">
-      <span nz-icon nzType="menu" class="toggle-btn" (click)="toggleCollapsed()"></span>
-      <app-header [theme]="theme"></app-header>
+    <nz-header>
+      <div class="header-content">
+        <span>Admin Panel</span>
+        <div class="user-info" *ngIf="currentUser">
+          <nz-avatar [nzSrc]="currentUser.avatarUrl" [nzText]="currentUser.username[0] | uppercase" [nzSize]="32"></nz-avatar>
+          <span class="username">{{ currentUser.username }}</span>
+          <button nz-button nzType="link" (click)="logout()">Logout</button>
+        </div>
+      </div>
     </nz-header>
-    <nz-content class="content-wrapper">
-      <router-outlet></router-outlet>
+    <nz-content>
+      <div class="inner-content">
+        <router-outlet></router-outlet>
+      </div>
     </nz-content>
   </nz-layout>
 </nz-layout>

@@ -1,91 +1,103 @@
-<div class="vocabulary-container">
-  <button nz-button nzType="primary" (click)="showModal()">Thêm từ vựng</button>
+<nz-card nzTitle="Manage Vocabulary">
+  <button nz-button nzType="primary" (click)="showModal(false)">
+    Add Vocabulary
+  </button>
   <nz-table
     #basicTable
-    [nzData]="filteredVocabulary"
-    (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
+    [nzData]="vocabularies"
+    [nzLoading]="!vocabularies.length"
   >
     <thead>
       <tr>
-        <th nzShowSort [nzSortFn]="sortByWord">Từ vựng</th>
-        <th>Ý nghĩa</th>
-        <th>Câu ví dụ</th>
-        <th>Phát âm</th>
-        <th>Audio</th>
-        <th>Độ khó</th>
-        <th>Hành động</th>
+        <th>Word</th>
+        <th>Meaning</th>
+        <th>Difficulty</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let vocab of basicTable.data">
         <td>{{ vocab.word }}</td>
         <td>{{ vocab.meaning }}</td>
-        <td>{{ vocab.example_sentence }}</td>
-        <td>{{ vocab.pronunciation }}</td>
+        <td>{{ vocab.difficultyLevel }}</td>
         <td>
-          <audio *ngIf="vocab.audio_url" controls>
-            <source [src]="vocab.audio_url" type="audio/mpeg">
-          </audio>
-        </td>
-        <td>{{ vocab.difficulty_level }}</td>
-        <td>
-          <a (click)="showModal(vocab)">Sửa</a>
+          <a nz-button nzType="link" (click)="showModal(true, vocab)">Edit</a>
           <nz-divider nzType="vertical"></nz-divider>
-          <a (click)="deleteVocab(vocab.word_id)">Xóa</a>
+          <a
+            nz-button
+            nzType="link"
+            nzDanger
+            (click)="vocab.wordId !== undefined && deleteVocabulary(vocab.wordId)"
+          >Delete</a>
         </td>
       </tr>
     </tbody>
   </nz-table>
 
   <nz-modal
-    [(nzVisible)]="isEditModalVisible"
-    [nzTitle]="selectedVocab.word_id === 0 ? 'Thêm từ vựng' : 'Sửa từ vựng'"
-    (nzOnCancel)="handleCancel()"
+    [(nzVisible)]="isVisible"
+    [nzTitle]="isEdit ? 'Edit Vocabulary' : 'Add Vocabulary'"
     (nzOnOk)="handleOk()"
+    (nzOnCancel)="handleCancel()"
+    [nzContent]="modalContent"
   >
-    <ng-container *nzModalContent>
-      <form nz-form>
+    <ng-template #modalContent>
+      <form nz-form [formGroup]="vocabularyForm">
         <nz-form-item>
-          <nz-form-label>Từ vựng</nz-form-label>
-          <nz-form-control>
-            <input nz-input [(ngModel)]="selectedVocab.word" name="word" />
+          <nz-form-label nzRequired>Word</nz-form-label>
+          <nz-form-control
+            [nzErrorTip]="vocabularyForm.get('word')?.hasError('required') ? 'Word is required' : ''"
+          >
+            <input nz-input formControlName="word" placeholder="Enter word" />
           </nz-form-control>
         </nz-form-item>
         <nz-form-item>
-          <nz-form-label>Ý nghĩa</nz-form-label>
-          <nz-form-control>
-            <textarea nz-input [(ngModel)]="selectedVocab.meaning" name="meaning"></textarea>
+          <nz-form-label nzRequired>Meaning</nz-form-label>
+          <nz-form-control
+            [nzErrorTip]="vocabularyForm.get('meaning')?.hasError('required') ? 'Meaning is required' : ''"
+          >
+            <input nz-input formControlName="meaning" placeholder="Enter meaning" />
           </nz-form-control>
         </nz-form-item>
         <nz-form-item>
-          <nz-form-label>Câu ví dụ</nz-form-label>
+          <nz-form-label>Example Sentence</nz-form-label>
           <nz-form-control>
-            <textarea nz-input [(ngModel)]="selectedVocab.example_sentence" name="example_sentence"></textarea>
+            <textarea nz-input formControlName="exampleSentence" placeholder="Enter example sentence"></textarea>
           </nz-form-control>
         </nz-form-item>
         <nz-form-item>
-          <nz-form-label>Phát âm</nz-form-label>
+          <nz-form-label>Pronunciation</nz-form-label>
           <nz-form-control>
-            <input nz-input [(ngModel)]="selectedVocab.pronunciation" name="pronunciation" />
+            <input nz-input formControlName="pronunciation" placeholder="Enter pronunciation (e.g., /ˈwɜːrd/)" />
           </nz-form-control>
         </nz-form-item>
         <nz-form-item>
           <nz-form-label>Audio URL</nz-form-label>
           <nz-form-control>
-            <input nz-input [(ngModel)]="selectedVocab.audio_url" name="audio_url" />
+            <input nz-input formControlName="audioUrl" placeholder="Enter audio URL" />
           </nz-form-control>
         </nz-form-item>
         <nz-form-item>
-          <nz-form-label>Độ khó</nz-form-label>
+          <nz-form-label>Writing Prompt</nz-form-label>
           <nz-form-control>
-            <nz-select [(ngModel)]="selectedVocab.difficulty_level" name="difficulty_level">
-              <nz-option nzValue="easy" nzLabel="Dễ"></nz-option>
-              <nz-option nzValue="medium" nzLabel="Trung bình"></nz-option>
-              <nz-option nzValue="hard" nzLabel="Khó"></nz-option>
+            <input nz-input formControlName="writingPrompt" placeholder="Enter writing prompt" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzRequired>Difficulty Level</nz-form-label>
+          <nz-form-control
+            [nzErrorTip]="vocabularyForm.get('difficultyLevel')?.hasError('required') ? 'Difficulty level is required' : ''"
+          >
+            <nz-select formControlName="difficultyLevel" nzPlaceHolder="Select difficulty level">
+              <nz-option
+                *ngFor="let level of difficultyLevels"
+                [nzValue]="level"
+                [nzLabel]="level"
+              ></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
       </form>
-    </ng-container>
+    </ng-template>
   </nz-modal>
-</div>
+</nz-card>

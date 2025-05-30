@@ -1,73 +1,71 @@
-<div class="users-container">
-  <button nz-button nzType="primary" (click)="showModal()">Thêm người dùng</button>
-  <nz-table
-    #basicTable
-    [nzData]="filteredUsers"
-    (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
-  >
+<nz-card nzTitle="Manage Users">
+  <!-- Chức năng thêm user bị vô hiệu hóa do thiếu API -->
+  <button nz-button nzType="primary" (click)="showModal(false)" disabled nz-tooltip="Create user is not supported">Add User</button>
+  <nz-table #basicTable [nzData]="users" [nzLoading]="!users.length">
     <thead>
       <tr>
-        <th nzShowSort [nzSortFn]="sortById">ID</th>
-        <th nzShowSort [nzSortFn]="sortByName">Họ và tên</th>
-        <th>Tên đăng nhập</th>
+        <th>Username</th>
         <th>Email</th>
-        <th>Avatar</th>
-        <th>Ngày tạo</th>
-        <th>Hành động</th>
+        <th>Full Name</th>
+        <th>Role</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let user of basicTable.data">
-        <td>{{ user.user_id }}</td>
-        <td>{{ user.full_name }}</td>
         <td>{{ user.username }}</td>
         <td>{{ user.email }}</td>
+        <td>{{ user.fullName }}</td>
+        <td>{{ user.role }}</td>
         <td>
-          <img *ngIf="user.avatar_url" [src]="user.avatar_url" width="50" />
-        </td>
-        <td>{{ user.created_at }}</td>
-        <td>
-          <a (click)="showModal(user)">Sửa</a>
+          <a nz-button nzType="link" (click)="showModal(true, user)">Edit</a>
           <nz-divider nzType="vertical"></nz-divider>
-          <a (click)="deleteUser(user.user_id)">Xóa</a>
+          <!-- Chức năng xóa bị vô hiệu hóa do thiếu API -->
+          <a nz-button nzType="link" nzDanger (click)="deleteUser(user.userId)" nz-tooltip="Delete user is not supported">Delete</a>
         </td>
       </tr>
     </tbody>
   </nz-table>
 
   <nz-modal
-    [(nzVisible)]="isEditModalVisible"
-    [nzTitle]="selectedUser.user_id === 0 ? 'Thêm người dùng' : 'Sửa người dùng'"
-    (nzOnCancel)="handleCancel()"
+    [(nzVisible)]="isVisible"
+    [nzTitle]="isEdit ? 'Edit User' : 'Add User'"
     (nzOnOk)="handleOk()"
+    (nzOnCancel)="handleCancel()"
   >
-    <ng-container *nzModalContent>
-      <form nz-form>
-        <nz-form-item>
-          <nz-form-label>Tên đăng nhập</nz-form-label>
-          <nz-form-control>
-            <input nz-input [(ngModel)]="selectedUser.username" name="username" />
-          </nz-form-control>
-        </nz-form-item>
-        <nz-form-item>
-          <nz-form-label>Email</nz-form-label>
-          <nz-form-control>
-            <input nz-input [(ngModel)]="selectedUser.email" name="email" />
-          </nz-form-control>
-        </nz-form-item>
-        <nz-form-item>
-          <nz-form-label>Họ và tên</nz-form-label>
-          <nz-form-control>
-            <input nz-input [(ngModel)]="selectedUser.full_name" name="full_name" />
-          </nz-form-control>
-        </nz-form-item>
-        <nz-form-item>
-          <nz-form-label>Avatar URL</nz-form-label>
-          <nz-form-control>
-            <input nz-input [(ngModel)]="selectedUser.avatar_url" name="avatar_url" />
-          </nz-form-control>
-        </nz-form-item>
-      </form>
-    </ng-container>
+    <form nz-form [formGroup]="userForm">
+      <nz-form-item>
+        <nz-form-label nzRequired>Username</nz-form-label>
+        <nz-form-control nzErrorTip="Username is required and must be at least 3 characters">
+          <input nz-input formControlName="username" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>Email</nz-form-label>
+        <nz-form-control nzErrorTip="Valid email is required">
+          <input nz-input formControlName="email" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>Full Name</nz-form-label>
+        <nz-form-control>
+          <input nz-input formControlName="fullName" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label>Avatar URL</nz-form-label>
+        <nz-form-control>
+          <input nz-input formControlName="avatarUrl" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>Role</nz-form-label>
+        <nz-form-control nzErrorTip="Role is required">
+          <nz-select formControlName="role">
+            <nz-option *ngFor="let role of roles" [nzValue]="role" [nzLabel]="role"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
   </nz-modal>
-</div>
+</nz-card>

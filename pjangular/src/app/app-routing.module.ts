@@ -1,38 +1,23 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AdminComponent } from './admin/admin.component';
-import { DashboardComponent } from './admin/components/dashboard/dashboard.component';
-import { UsersComponent } from './admin/pages/users/users.component';
-import { VocabularyComponent } from './admin/pages/vocabulary/vocabulary.component';
-import { LessonsComponent } from './admin/pages/lessons/lessons.component';
-import { QuizzesComponent } from './admin/pages/quizzes/quizzes.component';
-import { QuestionsComponent } from './admin/pages/questions/questions.component';
-import { AnswersComponent } from './admin/pages/answers/answers.component';
-import { ProgressComponent } from './admin/pages/progress/progress.component';
-import { QuizResultsComponent } from './admin/pages/quiz-results/quiz-results.component';
+import { AuthGuard } from './service/auth.guard'; // Đảm bảo đường dẫn đúng tới AuthGuard của bạn
+import { LoginComponent } from './admin/components/login/login.component'; // Import LoginComponent
 
 const routes: Routes = [
+  { path: 'login', component: LoginComponent },
+  { path: '', redirectTo: '/login', pathMatch: 'full' }, // Chuyển hướng mặc định đến trang login
   {
     path: 'admin',
-    component: AdminComponent,
-    children: [
-      { path: 'dashboard', component: DashboardComponent },
-      { path: 'users', component: UsersComponent },
-      { path: 'vocabulary', component: VocabularyComponent },
-      { path: 'lessons', component: LessonsComponent },
-      { path: 'quizzes', component: QuizzesComponent },
-      { path: 'questions', component: QuestionsComponent },
-      { path: 'answers', component: AnswersComponent },
-      { path: 'progress', component: ProgressComponent },
-      { path: 'quiz-results', component: QuizResultsComponent },
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
-    ]
+    // Cấu hình LAZY LOADING cho AdminModule
+    loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule),
+    canActivate: [AuthGuard], // Bảo vệ các route trong AdminModule
+    data: { role: 'ROLE_ADMIN' }
   },
-  { path: '', redirectTo: '/admin', pathMatch: 'full' }
+  { path: '**', redirectTo: '/login' } // Xử lý các route không khớp (ví dụ: trang 404)
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }

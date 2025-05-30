@@ -1,56 +1,76 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { QuizResult } from 'src/app/interface/quiz-result.interface';
+import { User } from 'src/app/interface/user.interface';
+import { Quiz } from 'src/app/interface/quiz.interface';
+import { QuizResultService } from 'src/app/service/quiz-result.service';
+import { UserService } from 'src/app/service/user.service';
+import { QuizService } from 'src/app/service/quiz.service';
 
 @Component({
   selector: 'app-quiz-results',
   templateUrl: './quiz-results.component.html',
   styleUrls: ['./quiz-results.component.css']
 })
-export class QuizResultsComponent {
-  filteredQuizResults: any[] = [
-    { result_id: 1, user_id: 1, quiz_id: 1, score: 80, completed_at: '2025-05-01' },
-    { result_id: 2, user_id: 2, quiz_id: 2, score: 90, completed_at: '2025-05-02' }
-  ];
-  isEditModalVisible = false;
-  selectedResult: any = { result_id: 0, user_id: 0, quiz_id: 0, score: 0 };
+export class QuizResultsComponent implements OnInit {
+  results: QuizResult[] = [];
+  users: User[] = [];
+  quizzes: Quiz[] = [];
+  resultForm: FormGroup;
 
-  constructor(private notification: NzNotificationService) {}
-
-  sortById = (a: any, b: any) => a.result_id - b.result_id;
-
-  onCurrentPageDataChange(event: any): void {
-    this.filteredQuizResults = event;
+  constructor(
+    private resultService: QuizResultService,
+    private userService: UserService,
+    private quizService: QuizService,
+    private fb: FormBuilder,
+    private notification: NzNotificationService
+  ) {
+    this.resultForm = this.fb.group({
+      userId: [null, Validators.required],
+      quizId: [null, Validators.required],
+      score: [0, [Validators.required, Validators.min(0), Validators.max(100)]]
+    });
   }
 
-  showModal(result?: any): void {
-    if (result) {
-      this.selectedResult = { ...result };
-    } else {
-      this.selectedResult = { result_id: 0, user_id: 0, quiz_id: 0, score: 0 };
+  ngOnInit(): void {
+    this.loadUsers();
+    this.loadQuizzes();
+  }
+
+  loadUsers(): void {
+    this.userService.getAllUsers().subscribe(users => {
+      this.users = users;
+    });
+  }
+
+  loadQuizzes(): void {
+    this.quizService.getAllQuizzes().subscribe(quizzes => {
+      this.quizzes = quizzes;
+    });
+  }
+
+  loadResults(): void {
+    if (this.resultForm.value.userId) {
+      this.resultService.getQuizResultsByUser(this.resultForm.value.userId).subscribe(results => {
+        this.results = results;
+      });
     }
-    this.isEditModalVisible = true;
   }
 
-  handleOk(): void {
-    if (this.selectedResult.result_id === 0) {
-      this.selectedResult.result_id = this.filteredQuizResults.length + 1;
-      this.filteredQuizResults.push({ ...this.selectedResult, completed_at: new Date().toISOString() });
-      this.notification.success('Thành công', 'Thêm kết quả thành công');
-    } else {
-      this.filteredQuizResults = this.filteredQuizResults.map(r =>
-        r.result_id === this.selectedResult.result_id ? { ...this.selectedResult } : r
-      );
-      this.notification.success('Thành công', 'Cập nhật kết quả thành công');
+  saveResult(): void {
+    if (this.resultForm.invalid) {
+      this.resultForm.markAllAsTouched();
+      return;
     }
-    this.isEditModalVisible = false;
-  }
-
-  handleCancel(): void {
-    this.isEditModalVisible = false;
-  }
-
-  deleteResult(id: number): void {
-    this.filteredQuizResults = this.filteredQuizResults.filter(r => r.result_id !== id);
-    this.notification.success('Thành công', 'Xóa kết quả thành công');
+    const result: QuizResult = {
+      ...this.resultForm.value,
+      user: this.users.find(u => u.userId === this.resultForm.value.userId)!,
+      quiz: this.quizzes.find(q => q.quizId === this.resultForm.value.quizId)!
+    };
+    this.resultService.saveQuizResult(result).subscribe(() => {
+      this.notification.success('Success', 'Result saved');
+      this.loadResults();
+    });
   }
 }

@@ -1,56 +1,112 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { Answer } from 'src/app/interface/answer.interface';
+import { Question } from 'src/app/interface/question.interface';
+import { AnswerService } from 'src/app/service/answer.service';
+import { QuestionService } from 'src/app/service/question.service';
 
 @Component({
   selector: 'app-answers',
   templateUrl: './answers.component.html',
   styleUrls: ['./answers.component.css']
 })
-export class AnswersComponent {
-  filteredAnswers: any[] = [
-    { answer_id: 1, question_id: 1, answer_text: 'Quả táo', is_correct: true },
-    { answer_id: 2, question_id: 1, answer_text: 'Quả cam', is_correct: false }
-  ];
-  isEditModalVisible = false;
-  selectedAnswer: any = { answer_id: 0, question_id: 0, answer_text: '', is_correct: false };
+export class AnswersComponent implements OnInit {
+  answers: Answer[] = [];
+  questions: Question[] = [];
+  isVisible = false;
+  isEdit = false;
+  answerForm: FormGroup;
+  selectedQuestionId: number | null = null; // --- THÊM DÒNG NÀY ---
 
-  constructor(private notification: NzNotificationService) {}
-
-  sortByText = (a: any, b: any) => a.answer_text.localeCompare(b.answer_text);
-
-  onCurrentPageDataChange(event: any): void {
-    this.filteredAnswers = event;
+  constructor(
+    private answerService: AnswerService,
+    private questionService: QuestionService,
+    private fb: FormBuilder,
+    private modal: NzModalService,
+    private notification: NzNotificationService
+  ) {
+    this.answerForm = this.fb.group({
+      answerId: [null],
+      question: [null, Validators.required],
+      answerText: ['', Validators.required],
+      isCorrect: [false, Validators.required]
+    });
   }
 
-  showModal(answer?: any): void {
-    if (answer) {
-      this.selectedAnswer = { ...answer };
+  ngOnInit(): void {
+    this.loadQuestions();
+  }
+
+  loadQuestions(): void {
+    this.questionService.getQuestionsByQuizId(1).subscribe(questions => {
+      this.questions = questions;
+    });
+  }
+
+  loadAnswers(questionId: number): void {
+    this.answerService.getAnswersByQuestionId(questionId).subscribe(answers => {
+      this.answers = answers;
+    });
+  }
+
+  showModal(isEdit: boolean, answer?: Answer): void {
+    this.isEdit = isEdit;
+    if (isEdit && answer) {
+      this.answerForm.patchValue({
+        ...answer,
+        question: answer.question.questionId
+      });
     } else {
-      this.selectedAnswer = { answer_id: 0, question_id: 0, answer_text: '', is_correct: false };
+      this.answerForm.reset({ isCorrect: false });
     }
-    this.isEditModalVisible = true;
+    this.isVisible = true;
   }
 
   handleOk(): void {
-    if (this.selectedAnswer.answer_id === 0) {
-      this.selectedAnswer.answer_id = this.filteredAnswers.length + 1;
-      this.filteredAnswers.push({ ...this.selectedAnswer });
-      this.notification.success('Thành công', 'Thêm câu trả lời thành công');
-    } else {
-      this.filteredAnswers = this.filteredAnswers.map(a =>
-        a.answer_id === this.selectedAnswer.answer_id ? { ...this.selectedAnswer } : a
-      );
-      this.notification.success('Thành công', 'Cập nhật câu trả lời thành công');
+    if (this.answerForm.invalid) {
+      this.answerForm.markAllAsTouched();
+      return;
     }
-    this.isEditModalVisible = false;
+    const answer: Answer = {
+      ...this.answerForm.value,
+      // Thêm kiểm tra null/undefined cho `find` nếu có thể không tìm thấy
+      question: this.questions.find(q => q.questionId === this.answerForm.value.question)!
+    };
+    if (this.isEdit) {
+      // Đảm bảo `answer.answerId` không phải `undefined` nếu bạn gọi API
+      this.answerService.updateAnswer(answer.answerId!, answer).subscribe(() => {
+        this.notification.success('Success', 'Answer updated');
+        // Đảm bảo `answer.question.questionId` không phải `undefined`
+        this.loadAnswers(answer.question.questionId!);
+        this.isVisible = false;
+      });
+    } else {
+      this.answerService.createAnswer(answer).subscribe(() => {
+        this.notification.success('Success', 'Answer created');
+        // Đảm bảo `answer.question.questionId` không phải `undefined`
+        this.loadAnswers(answer.question.questionId!);
+        this.isVisible = false;
+      });
+    }
   }
 
   handleCancel(): void {
-    this.isEditModalVisible = false;
+    this.isVisible = false;
   }
 
-  deleteAnswer(id: number): void {
-    this.filteredAnswers = this.filteredAnswers.filter(a => a.answer_id !== id);
-    this.notification.success('Thành công', 'Xóa câu trả lời thành công');
+  deleteAnswer(answerId: number): void {
+    this.modal.confirm({
+      nzTitle: 'Are you sure?',
+      nzContent: 'This action cannot be undone.',
+      nzOnOk: () => {
+        this.answerService.deleteAnswer(answerId).subscribe(() => {
+          this.notification.success('Success', 'Answer deleted');
+          // Đảm bảo `this.answerForm.value.question` không phải `undefined` trước khi truyền vào loadAnswers
+          this.loadAnswers(this.answerForm.value.question);
+        });
+      }
+    });
   }
 }

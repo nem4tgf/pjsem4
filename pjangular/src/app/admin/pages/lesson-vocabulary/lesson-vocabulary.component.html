@@ -1,0 +1,64 @@
+<nz-card [nzTitle]="'Manage Vocabulary for Lesson ' + (lessonId || '')">
+  <button *ngIf="isAdmin" nz-button nzType="primary" (click)="showAddModal()">
+    Add Existing Vocabulary
+  </button>
+  <nz-table
+    #basicTable
+    [nzData]="lessonVocabularies"
+    [nzLoading]="!lessonVocabularies.length"
+  >
+    <thead>
+      <tr>
+        <th>Word</th>
+        <th>Meaning</th>
+        <th>Difficulty</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let vocab of basicTable.data">
+        <td>{{ vocab.word || 'N/A' }}</td>
+        <td>{{ vocab.meaning || 'N/A' }}</td>
+        <td>{{ vocab.difficultyLevel || 'N/A' }}</td>
+        <td>
+          <a
+            *ngIf="isAdmin"
+            nz-button
+            nzType="link"
+            nzDanger
+            (click)="vocab.wordId !== undefined && deleteVocabularyFromLesson(vocab.wordId)"
+          >Remove from Lesson</a>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+
+  <nz-modal
+    [(nzVisible)]="isAddModalVisible"
+    nzTitle="Add Vocabulary to Lesson"
+    (nzOnOk)="handleAddOk()"
+    (nzOnCancel)="handleCancel()"
+    [nzContent]="addVocabularyModalContent" >
+    <ng-template #addVocabularyModalContent> <form nz-form [formGroup]="vocabularyForm">
+        <nz-form-item>
+          <nz-form-label nzRequired>Select Vocabulary</nz-form-label>
+          <nz-form-control
+            [nzErrorTip]="vocabularyForm.get('wordId')?.hasError('required') ? 'Please select a vocabulary' : ''"
+          >
+            <nz-select
+              formControlName="wordId"
+              nzPlaceHolder="Select an existing vocabulary"
+              nzShowSearch
+            >
+              <nz-option
+                *ngFor="let vocab of allVocabularies"
+                [nzValue]="vocab.wordId"
+                [nzLabel]="vocab.word + ' (' + vocab.meaning + ')'"
+              ></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </ng-template>
+  </nz-modal>
+</nz-card>

@@ -1,17 +1,13 @@
-<div class="lessons-container">
-  <button nz-button nzType="primary" (click)="showModal()">Thêm bài học</button>
-  <nz-table
-    #basicTable
-    [nzData]="filteredLessons"
-    (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
-  >
+<nz-card nzTitle="Manage Lessons">
+  <button *ngIf="isAdmin" nz-button nzType="primary" (click)="showModal(false)">Add Lesson</button>
+  <nz-table #basicTable [nzData]="lessons" [nzLoading]="!lessons.length">
     <thead>
       <tr>
-        <th nzShowSort [nzSortFn]="sortByTitle">Tiêu đề</th>
-        <th>Mô tả</th>
-        <th>Cấp độ</th>
-        <th>Ngày tạo</th>
-        <th>Hành động</th>
+        <th>Title</th>
+        <th>Description</th>
+        <th>Level</th>
+        <th>Skill</th>
+        <th *ngIf="isAdmin">Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -19,47 +15,58 @@
         <td>{{ lesson.title }}</td>
         <td>{{ lesson.description }}</td>
         <td>{{ lesson.level }}</td>
-        <td>{{ lesson.created_at }}</td>
-        <td>
-          <a (click)="showModal(lesson)">Sửa</a>
+        <td>{{ lesson.skill }}</td>
+        <td *ngIf="isAdmin">
+          <a nz-button nzType="link" (click)="showModal(true, lesson)">Edit</a>
           <nz-divider nzType="vertical"></nz-divider>
-          <a (click)="deleteLesson(lesson.lesson_id)">Xóa</a>
+          <a nz-button nzType="link" nzDanger (click)="deleteLesson(lesson.lessonId)">Delete</a>
+          <nz-divider nzType="vertical"></nz-divider>
+          <a nz-button nzType="link" [routerLink]="['/admin/lessons', lesson.lessonId, 'vocabulary']">Manage Vocabulary</a>
         </td>
       </tr>
     </tbody>
   </nz-table>
 
   <nz-modal
-    [(nzVisible)]="isEditModalVisible"
-    [nzTitle]="selectedLesson.lesson_id === 0 ? 'Thêm bài học' : 'Sửa bài học'"
-    (nzOnCancel)="handleCancel()"
+    [(nzVisible)]="isVisible"
+    [nzTitle]="isEdit ? 'Edit Lesson' : 'Add Lesson'"
     (nzOnOk)="handleOk()"
+    (nzOnCancel)="handleCancel()"
+    [nzContent]="modalContent"
   >
-    <ng-container *nzModalContent>
-      <form nz-form>
+    <ng-template #modalContent>
+      <form nz-form [formGroup]="lessonForm">
         <nz-form-item>
-          <nz-form-label>Tiêu đề</nz-form-label>
-          <nz-form-control>
-            <input nz-input [(ngModel)]="selectedLesson.title" name="title" />
+          <nz-form-label nzRequired>Title</nz-form-label>
+          <nz-form-control
+            [nzErrorTip]="lessonForm.get('title')?.hasError('required') ? 'Title is required' : 'Title must be at least 3 characters'"
+          >
+            <input nz-input formControlName="title" placeholder="Enter lesson title" />
           </nz-form-control>
         </nz-form-item>
         <nz-form-item>
-          <nz-form-label>Mô tả</nz-form-label>
+          <nz-form-label>Description</nz-form-label>
           <nz-form-control>
-            <textarea nz-input [(ngModel)]="selectedLesson.description" name="description"></textarea>
+            <textarea nz-input formControlName="description" placeholder="Enter lesson description"></textarea>
           </nz-form-control>
         </nz-form-item>
         <nz-form-item>
-          <nz-form-label>Cấp độ</nz-form-label>
-          <nz-form-control>
-            <nz-select [(ngModel)]="selectedLesson.level" name="level">
-              <nz-option nzValue="beginner" nzLabel="Sơ cấp"></nz-option>
-              <nz-option nzValue="intermediate" nzLabel="Trung cấp"></nz-option>
-              <nz-option nzValue="advanced" nzLabel="Nâng cao"></nz-option>
+          <nz-form-label nzRequired>Level</nz-form-label>
+          <nz-form-control nzErrorTip="Level is required">
+            <nz-select formControlName="level" nzPlaceHolder="Select level">
+              <nz-option *ngFor="let level of levels" [nzValue]="level" [nzLabel]="level"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzRequired>Skill</nz-form-label>
+          <nz-form-control nzErrorTip="Skill is required">
+            <nz-select formControlName="skill" nzPlaceHolder="Select skill">
+              <nz-option *ngFor="let skill of skills" [nzValue]="skill" [nzLabel]="skill"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
       </form>
-    </ng-container>
+    </ng-template>
   </nz-modal>
-</div>
+</nz-card>

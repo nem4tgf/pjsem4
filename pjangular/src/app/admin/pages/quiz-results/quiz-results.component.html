@@ -1,63 +1,45 @@
-<div class="quiz-results-container">
-  <button nz-button nzType="primary" (click)="showModal()">Thêm kết quả</button>
-  <nz-table
-    #basicTable
-    [nzData]="filteredQuizResults"
-    (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
-  >
+<nz-card nzTitle="Manage Quiz Results">
+  <form nz-form [formGroup]="resultForm">
+    <nz-form-item>
+      <nz-form-label nzRequired>User</nz-form-label>
+      <nz-form-control nzErrorTip="User is required">
+        <nz-select formControlName="userId" (ngModelChange)="loadResults()">
+          <nz-option *ngFor="let user of users" [nzValue]="user.userId" [nzLabel]="user.username"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzRequired>Quiz</nz-form-label>
+      <nz-form-control nzErrorTip="Quiz is required">
+        <nz-select formControlName="quizId">
+          <nz-option *ngFor="let quiz of quizzes" [nzValue]="quiz.quizId" [nzLabel]="quiz.title"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzRequired>Score</nz-form-label>
+      <nz-form-control nzErrorTip="Valid score required">
+        <nz-input-number formControlName="score" [nzMin]="0" [nzMax]="100"></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+    <button nz-button nzType="primary" (click)="saveResult()">Save Result</button>
+  </form>
+  <nz-table #basicTable [nzData]="results" [nzLoading]="!results.length">
     <thead>
       <tr>
-        <th nzShowSort [nzSortFn]="sortById">ID</th>
-        <th>ID Người dùng</th>
-        <th>ID Bài kiểm tra</th>
-        <th>Điểm</th>
-        <th>Ngày hoàn thành</th>
-        <th>Hành động</th>
+        <th>User</th>
+        <th>Quiz</th>
+        <th>Score</th>
+        <th>Completed At</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let result of basicTable.data">
-        <td>{{ result.result_id }}</td>
-        <td>{{ result.user_id }}</td>
-        <td>{{ result.quiz_id }}</td>
+        <td>{{ result.user.username }}</td>
+        <td>{{ result.quiz.title }}</td>
         <td>{{ result.score }}</td>
-        <td>{{ result.completed_at }}</td>
-        <td>
-          <a (click)="showModal(result)">Sửa</a>
-          <nz-divider nzType="vertical"></nz-divider>
-          <a (click)="deleteResult(result.result_id)">Xóa</a>
-        </td>
+        <td>{{ result.completedAt }}</td>
       </tr>
     </tbody>
   </nz-table>
-
-  <nz-modal
-    [(nzVisible)]="isEditModalVisible"
-    [nzTitle]="selectedResult.result_id === 0 ? 'Thêm kết quả' : 'Sửa kết quả'"
-    (nzOnCancel)="handleCancel()"
-    (nzOnOk)="handleOk()"
-  >
-    <ng-container *nzModalContent>
-      <form nz-form>
-        <nz-form-item>
-          <nz-form-label>ID Người dùng</nz-form-label>
-          <nz-form-control>
-            <input nz-input type="number" [(ngModel)]="selectedResult.user_id" name="user_id" />
-          </nz-form-control>
-        </nz-form-item>
-        <nz-form-item>
-          <nz-form-label>ID Bài kiểm tra</nz-form-label>
-          <nz-form-control>
-            <input nz-input type="number" [(ngModel)]="selectedResult.quiz_id" name="quiz_id" />
-          </nz-form-control>
-        </nz-form-item>
-        <nz-form-item>
-          <nz-form-label>Điểm</nz-form-label>
-          <nz-form-control>
-            <input nz-input type="number" [(ngModel)]="selectedResult.score" name="score" />
-          </nz-form-control>
-        </nz-form-item>
-      </form>
-    </ng-container>
-  </nz-modal>
-</div>
+</nz-card>

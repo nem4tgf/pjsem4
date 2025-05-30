@@ -1,21 +1,18 @@
-<div class="sidebar" [ngClass]="{
-  'collapsed': isCollapsed,
-  'light-theme': theme === 'light',
-  'dark-theme': theme === 'dark'
-}">
-  <div class="sidebar-header">
-    <h3 *ngIf="!isCollapsed">Vocabulary Admin</h3>
-    <h3 *ngIf="isCollapsed">VA</h3>
-  </div>
-  <ul class="sidebar-menu">
-    <li *ngFor="let item of menuItems" class="sidebar-item" [ngClass]="{'hoverable': !isCollapsed}">
-      <a [routerLink]="item.link" class="sidebar-link"
-         [ngClass]="theme === 'light' ? 'light-link' : 'dark-link'">
-        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="item.icon" />
-        </svg>
-        <span *ngIf="!isCollapsed" class="label">{{ item.label }}</span>
-      </a>
-    </li>
+<div class="logo"></div>
+<ul nz-menu nzTheme="dark" nzMode="inline">
+  <li nz-submenu nzTitle="Dashboard" nzIcon="dashboard">
+    <ul>
+      <li nz-menu-item routerLink="/admin/dashboard">Overview</li>
+    </ul>
+  </li>
+  <li nz-menu-item routerLink="/admin/learning-materials" nzIcon="book">Learning Materials</li>
+  <li nz-menu-item routerLink="/admin/flashcards" nzIcon="file-text">Flashcards</li>
+  <li nz-menu-item routerLink="/admin/stats" nzIcon="bar-chart">Stats</li>
+  <li nz-menu-item routerLink="/admin/lessons" nzIcon="read">Lessons</li>
+  <li nz-menu-item routerLink="/admin/progress" nzIcon="sync">Progress</li>
+  <li nz-menu-item routerLink="/admin/questions" nzIcon="question-circle">Questions</li>
+  <li nz-menu-item routerLink="/admin/quiz-results" nzIcon="check-circle">Quiz Results</li>
+  <li nz-menu-item routerLink="/admin/quizzes" nzIcon="form">Quizzes</li>
+  <li nz-menu-item routerLink="/admin/users" nzIcon="user">Users</li>
+  <li nz-menu-item routerLink="/admin/vocabulary" nzIcon="book">Vocabulary</li>
   </ul>
-</div>

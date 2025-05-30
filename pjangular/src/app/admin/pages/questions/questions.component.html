@@ -1,62 +1,60 @@
-<div class="questions-container">
-  <button nz-button nzType="primary" (click)="showModal()">Thêm câu hỏi</button>
-  <nz-table
-    #basicTable
-    [nzData]="filteredQuestions"
-    (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
-  >
+<nz-card nzTitle="Manage Questions">
+  <nz-select [(ngModel)]="selectedQuizId" (ngModelChange)="loadQuestions($event)" nzPlaceHolder="Select Quiz">
+    <nz-option *ngFor="let quiz of quizzes" [nzValue]="quiz.quizId" [nzLabel]="quiz.title"></nz-option>
+  </nz-select>
+  <button nz-button nzType="primary" (click)="showModal(false)">Add Question</button>
+  <nz-table #basicTable [nzData]="questions" [nzLoading]="!questions.length">
     <thead>
       <tr>
-        <th nzShowSort [nzSortFn]="sortByText">Câu hỏi</th>
-        <th>ID Bài kiểm tra</th>
-        <th>Loại</th>
-        <th>Hành động</th>
+        <th>Question Text</th>
+        <th>Skill</th>
+        <th>Quiz</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let question of basicTable.data">
-        <td>{{ question.question_text }}</td>
-        <td>{{ question.quiz_id }}</td>
-        <td>{{ question.type }}</td>
+        <td>{{ question.questionText }}</td>
+        <td>{{ question.skill }}</td>
+        <td>{{ question.quiz.title }}</td>
         <td>
-          <a (click)="showModal(question)">Sửa</a>
+          <a nz-button nzType="link" (click)="showModal(true, question)">Edit</a>
           <nz-divider nzType="vertical"></nz-divider>
-          <a (click)="deleteQuestion(question.question_id)">Xóa</a>
+          <a nz-button nzType="link" nzDanger (click)="question.questionId !== undefined && deleteQuestion(question.questionId)">Delete</a>
         </td>
       </tr>
     </tbody>
   </nz-table>
 
   <nz-modal
-    [(nzVisible)]="isEditModalVisible"
-    [nzTitle]="selectedQuestion.question_id === 0 ? 'Thêm câu hỏi' : 'Sửa câu hỏi'"
-    (nzOnCancel)="handleCancel()"
+    [(nzVisible)]="isVisible"
+    [nzTitle]="isEdit ? 'Edit Question' : 'Add Question'"
     (nzOnOk)="handleOk()"
+    (nzOnCancel)="handleCancel()"
   >
-    <ng-container *nzModalContent>
-      <form nz-form>
-        <nz-form-item>
-          <nz-form-label>Câu hỏi</nz-form-label>
-          <nz-form-control>
-            <textarea nz-input [(ngModel)]="selectedQuestion.question_text" name="question_text"></textarea>
-          </nz-form-control>
-        </nz-form-item>
-        <nz-form-item>
-          <nz-form-label>ID Bài kiểm tra</nz-form-label>
-          <nz-form-control>
-            <input nz-input type="number" [(ngModel)]="selectedQuestion.quiz_id" name="quiz_id" />
-          </nz-form-control>
-        </nz-form-item>
-        <nz-form-item>
-          <nz-form-label>Loại</nz-form-label>
-          <nz-form-control>
-            <nz-select [(ngModel)]="selectedQuestion.type" name="type">
-              <nz-option nzValue="multiple_choice" nzLabel="Trắc nghiệm"></nz-option>
-              <nz-option nzValue="fill_in_the_blank" nzLabel="Điền vào chỗ trống"></nz-option>
-            </nz-select>
-          </nz-form-control>
-        </nz-form-item>
-      </form>
-    </ng-container>
+    <form nz-form [formGroup]="questionForm">
+      <nz-form-item>
+        <nz-form-label nzRequired>Quiz</nz-form-label>
+        <nz-form-control nzErrorTip="Quiz is required">
+          <nz-select formControlName="quiz">
+            <nz-option *ngFor="let quiz of quizzes" [nzValue]="quiz.quizId" [nzLabel]="quiz.title"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>Question Text</nz-form-label>
+        <nz-form-control nzErrorTip="Question text is required">
+          <input nz-input formControlName="questionText" />
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzRequired>Skill</nz-form-label>
+        <nz-form-control nzErrorTip="Skill is required">
+          <nz-select formControlName="skill">
+            <nz-option *ngFor="let skill of skills" [nzValue]="skill" [nzLabel]="skill"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
   </nz-modal>
-</div>
+</nz-card>

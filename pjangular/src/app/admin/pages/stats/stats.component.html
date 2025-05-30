@@ -1,0 +1,11 @@
+<nz-card nzTitle="Statistics">
+  <div *ngIf="stats; else loading">
+    <p>User Count: {{ stats.userCount }}</p>
+    <p>Vocabulary Count: {{ stats.vocabularyCount }}</p>
+    <p>Lesson Count: {{ stats.lessonCount }}</p>
+    <p>Quiz Count: {{ stats.quizCount }}</p>
+  </div>
+  <ng-template #loading>
+    <nz-spin nzSimple></nz-spin>
+  </ng-template>
+</nz-card>

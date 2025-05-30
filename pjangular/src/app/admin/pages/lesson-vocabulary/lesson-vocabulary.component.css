@@ -1,0 +1,82 @@
+/* Định dạng cho card chứa toàn bộ component */
+nz-card {
+  margin: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Định dạng nút "Add Vocabulary" */
+nz-button[nzType="primary"] {
+  margin-bottom: 16px;
+  background-color: #1890ff;
+  border-color: #1890ff;
+  transition: background-color 0.3s;
+}
+
+nz-button[nzType="primary"]:hover {
+  background-color: #40a9ff;
+  border-color: #40a9ff;
+}
+
+/* Định dạng bảng */
+nz-table {
+  background: #fff;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+nz-table th {
+  background: #fafafa;
+  color: #595959;
+  font-weight: 500;
+}
+
+nz-table td {
+  color: #262626;
+}
+
+/* Định dạng cột Actions */
+nz-table td a[nz-button][nzType="link"][nzDanger] {
+  color: #ff4d4f;
+}
+
+nz-table td a[nz-button][nzType="link"][nzDanger]:hover {
+  color: #ff7875;
+}
+
+/* Định dạng modal */
+nz-modal {
+  min-width: 400px;
+}
+
+nz-modal nz-form-item {
+  margin-bottom: 16px;
+}
+
+nz-modal nz-form-label {
+  color: #595959;
+  font-weight: 500;
+}
+
+nz-modal nz-select {
+  width: 100%;
+}
+
+/* Định dạng select trong modal */
+nz-select {
+  border-radius: 4px;
+}
+
+nz-select:hover {
+  border-color: #40a9ff;
+}
+
+/* Định dạng thông báo lỗi trong form */
+nz-form-control[nzErrorTip] {
+  color: #ff4d4f;
+}
+
+/* Định dạng loading cho bảng */
+nz-table[nzLoading="true"] {
+  opacity: 0.6;
+}

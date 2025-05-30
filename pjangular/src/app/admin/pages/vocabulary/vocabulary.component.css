@@ -1,25 +1,7 @@
-.vocabulary-container {
-  padding: 20px;
-}
-
-nz-table {
-  background: #fff;
-  border-radius: 8px;
+nz-card {
+  margin-bottom: 16px;
 }
 
 button[nz-button] {
   margin-bottom: 16px;
-}
-
-a {
-  color: #1890ff;
-  cursor: pointer;
-}
-
-a:hover {
-  color: #40a9ff;
-}
-
-audio {
-  width: 150px;
 }

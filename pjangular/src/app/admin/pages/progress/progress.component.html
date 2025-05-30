@@ -1,67 +1,63 @@
-<div class="progress-container">
-  <button nz-button nzType="primary" (click)="showModal()">Thêm tiến độ</button>
-  <nz-table
-    #basicTable
-    [nzData]="filteredProgress"
-    (nzCurrentPageDataChange)="onCurrentPageDataChange($event)"
-  >
+<nz-card nzTitle="Manage Progress">
+  <form nz-form [formGroup]="progressForm">
+    <nz-form-item>
+      <nz-form-label nzRequired>User</nz-form-label>
+      <nz-form-control nzErrorTip="User is required">
+        <nz-select formControlName="userId" (ngModelChange)="loadProgress()">
+          <nz-option *ngFor="let user of users" [nzValue]="user.userId" [nzLabel]="user.username"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzRequired>Lesson</nz-form-label>
+      <nz-form-control nzErrorTip="Lesson is required">
+        <nz-select formControlName="lessonId">
+          <nz-option *ngFor="let lesson of lessons" [nzValue]="lesson.lessonId" [nzLabel]="lesson.title"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzRequired>Skill</nz-form-label>
+      <nz-form-control nzErrorTip="Skill is required">
+        <nz-select formControlName="skill">
+          <nz-option *ngFor="let skill of skills" [nzValue]="skill" [nzLabel]="skill"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzRequired>Status</nz-form-label>
+      <nz-form-control nzErrorTip="Status is required">
+        <nz-select formControlName="status">
+          <nz-option *ngFor="let status of statuses" [nzValue]="status" [nzLabel]="status"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label nzRequired>Completion %</nz-form-label>
+      <nz-form-control nzErrorTip="Valid percentage required">
+        <nz-input-number formControlName="completionPercentage" [nzMin]="0" [nzMax]="100"></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+    <button nz-button nzType="primary" (click)="updateProgress()">Update Progress</button>
+  </form>
+  <nz-table #basicTable [nzData]="progressList" [nzLoading]="!progressList.length">
     <thead>
       <tr>
-        <th nzShowSort [nzSortFn]="sortById">ID</th>
-        <th>ID Người dùng</th>
-        <th>ID Bài học</th>
-        <th>Trạng thái</th>
-        <th>Cập nhật lần cuối</th>
-        <th>Hành động</th>
+        <th>User</th>
+        <th>Lesson</th>
+        <th>Skill</th>
+        <th>Status</th>
+        <th>Completion %</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let progress of basicTable.data">
-        <td>{{ progress.progress_id }}</td>
-        <td>{{ progress.user_id }}</td>
-        <td>{{ progress.lesson_id }}</td>
+        <td>{{ progress.user.username }}</td>
+        <td>{{ progress.lesson.title }}</td>
+        <td>{{ progress.skill }}</td>
         <td>{{ progress.status }}</td>
-        <td>{{ progress.last_updated }}</td>
-        <td>
-          <a (click)="showModal(progress)">Sửa</a>
-          <nz-divider nzType="vertical"></nz-divider>
-          <a (click)="deleteProgress(progress.progress_id)">Xóa</a>
-        </td>
+        <td>{{ progress.completionPercentage }}</td>
       </tr>
     </tbody>
   </nz-table>
-
-  <nz-modal
-    [(nzVisible)]="isEditModalVisible"
-    [nzTitle]="selectedProgress.progress_id === 0 ? 'Thêm tiến độ' : 'Sửa tiến độ'"
-    (nzOnCancel)="handleCancel()"
-    (nzOnOk)="handleOk()"
-  >
-    <ng-container *nzModalContent>
-      <form nz-form>
-        <nz-form-item>
-          <nz-form-label>ID Người dùng</nz-form-label>
-          <nz-form-control>
-            <input nz-input type="number" [(ngModel)]="selectedProgress.user_id" name="user_id" />
-          </nz-form-control>
-        </nz-form-item>
-        <nz-form-item>
-          <nz-form-label>ID Bài học</nz-form-label>
-          <nz-form-control>
-            <input nz-input type="number" [(ngModel)]="selectedProgress.lesson_id" name="lesson_id" />
-          </nz-form-control>
-        </nz-form-item>
-        <nz-form-item>
-          <nz-form-label>Trạng thái</nz-form-label>
-          <nz-form-control>
-            <nz-select [(ngModel)]="selectedProgress.status" name="status">
-              <nz-option nzValue="not_started" nzLabel="Chưa bắt đầu"></nz-option>
-              <nz-option nzValue="in_progress" nzLabel="Đang tiến hành"></nz-option>
-              <nz-option nzValue="completed" nzLabel="Hoàn thành"></nz-option>
-            </nz-select>
-          </nz-form-control>
-        </nz-form-item>
-      </form>
-    </ng-container>
-  </nz-modal>
-</div>
+</nz-card>

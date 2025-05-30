@@ -1,52 +1,47 @@
-.admin-container {
-  height: 100vh;
-  overflow: hidden;
+nz-layout {
+  min-height: 100vh;
 }
 
 nz-sider {
-  transition: width 0.3s ease;
   background: #001529;
 }
 
-.header-wrapper {
-  background: #ffffff;
-  padding: 0;
-  box-shadow: 0 1px 6px rgba(0, 21, 41, 0.08);
+.logo {
+  height: 32px;
+  margin: 16px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+nz-header {
+  background: #fff;
+  padding: 0 24px;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 64px;
+}
+
+.user-info {
   display: flex;
   align-items: center;
+  gap: 12px;
 }
 
-.toggle-btn {
-  font-size: 20px;
-  cursor: pointer;
-  padding: 16px;
-  color: #1f2a44;
+.username {
+  font-weight: 500;
 }
 
-.content-wrapper {
-  margin: 24px 16px;
+nz-content {
+  margin: 24px;
+}
+
+.inner-content {
   padding: 24px;
-  background: #f8fafc;
-  min-height: calc(100vh - 112px);
-  border-radius: 12px;
-  transition: margin-left 0.3s ease;
-}
-
-@media (max-width: 768px) {
-  .content-wrapper {
-    margin: 16px 12px;
-    padding: 16px;
-  }
-
-  .toggle-btn {
-    font-size: 18px;
-    padding: 12px;
-  }
-}
-
-@media (max-width: 480px) {
-  .content-wrapper {
-    margin: 12px 8px;
-    padding: 12px;
-  }
+  background: #fff;
+  min-height: 360px;
+  border-radius: 4px;
 }
