@@ -1,30 +1,49 @@
 <nz-card nzTitle="Manage Quiz Results">
-  <form nz-form [formGroup]="resultForm">
+  <form nz-form [formGroup]="resultForm" *ngIf="isAdmin">
     <nz-form-item>
       <nz-form-label nzRequired>User</nz-form-label>
-      <nz-form-control nzErrorTip="User is required">
-        <nz-select formControlName="userId" (ngModelChange)="loadResults()">
+      <nz-form-control
+        [nzErrorTip]="resultForm.get('userId')?.hasError('required') && resultForm.get('userId')?.touched ? 'User is required' : ''"
+      >
+        <nz-select
+          formControlName="userId"
+          [(ngModel)]="selectedUserId"
+          (ngModelChange)="onUserChange($event)"
+          nzPlaceHolder="Select a user"
+          nzShowSearch
+          >
           <nz-option *ngFor="let user of users" [nzValue]="user.userId" [nzLabel]="user.username"></nz-option>
         </nz-select>
       </nz-form-control>
     </nz-form-item>
     <nz-form-item>
       <nz-form-label nzRequired>Quiz</nz-form-label>
-      <nz-form-control nzErrorTip="Quiz is required">
-        <nz-select formControlName="quizId">
+      <nz-form-control
+        [nzErrorTip]="resultForm.get('quizId')?.hasError('required') && resultForm.get('quizId')?.touched ? 'Quiz is required' : ''"
+      >
+        <nz-select formControlName="quizId" nzPlaceHolder="Select a quiz" nzShowSearch
+          >
           <nz-option *ngFor="let quiz of quizzes" [nzValue]="quiz.quizId" [nzLabel]="quiz.title"></nz-option>
         </nz-select>
       </nz-form-control>
     </nz-form-item>
     <nz-form-item>
       <nz-form-label nzRequired>Score</nz-form-label>
-      <nz-form-control nzErrorTip="Valid score required">
-        <nz-input-number formControlName="score" [nzMin]="0" [nzMax]="100"></nz-input-number>
+      <nz-form-control
+        [nzErrorTip]="
+          (resultForm.get('score')?.hasError('required') && resultForm.get('score')?.touched) ? 'Score is required' :
+          (resultForm.get('score')?.hasError('min') || resultForm.get('score')?.hasError('max')) ? 'Score must be between 0 and 100' : ''
+        "
+      >
+        <nz-input-number formControlName="score" [nzMin]="0" [nzMax]="100" nzPlaceHolder="Enter score"></nz-input-number>
       </nz-form-control>
     </nz-form-item>
     <button nz-button nzType="primary" (click)="saveResult()">Save Result</button>
   </form>
-  <nz-table #basicTable [nzData]="results" [nzLoading]="!results.length">
+
+  <nz-divider *ngIf="isAdmin"></nz-divider>
+
+  <nz-table #basicTable [nzData]="results" [nzLoading]="!results.length" *ngIf="isAdmin">
     <thead>
       <tr>
         <th>User</th>
@@ -35,11 +54,15 @@
     </thead>
     <tbody>
       <tr *ngFor="let result of basicTable.data">
-        <td>{{ result.user.username }}</td>
-        <td>{{ result.quiz.title }}</td>
+        <td>{{ getUserUsername(result.userId) }}</td>
+        <td>{{ getQuizTitle(result.quizId) }}</td>
         <td>{{ result.score }}</td>
-        <td>{{ result.completedAt }}</td>
+        <td>{{ result.completedAt | date: 'medium' }}</td>
       </tr>
     </tbody>
   </nz-table>
+
+  <div *ngIf="!isAdmin" class="no-permission-message">
+    <p>Bạn không có quyền truy cập trang quản lý kết quả bài kiểm tra.</p>
+  </div>
 </nz-card>

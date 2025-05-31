@@ -1,29 +1,57 @@
 <nz-card nzTitle="Dashboard Overview">
   <div *ngIf="stats; else loading">
-    <nz-row nzGutter="16">
-      <nz-col nzSpan="6">
-        <nz-card nzTitle="Users">
-          <p>{{ stats.userCount }}</p>
+    <nz-row nzGutter="16" nzJustify="start" nzAlign="top">
+      <nz-col nzXs="24" nzSm="12" nzMd="6" nzLg="6" class="stat-card-col">
+        <nz-card nzTitle="Total Users" nzHoverable>
+          <p class="stat-value">{{ stats.userCount }}</p>
         </nz-card>
       </nz-col>
-      <nz-col nzSpan="6">
-        <nz-card nzTitle="Vocabulary">
-          <p>{{ stats.vocabularyCount }}</p>
+      <nz-col nzXs="24" nzSm="12" nzMd="6" nzLg="6" class="stat-card-col">
+        <nz-card nzTitle="Total Vocabulary" nzHoverable>
+          <p class="stat-value">{{ stats.vocabularyCount }}</p>
         </nz-card>
       </nz-col>
-      <nz-col nzSpan="6">
-        <nz-card nzTitle="Lessons">
-          <p>{{ stats.lessonCount }}</p>
+      <nz-col nzXs="24" nzSm="12" nzMd="6" nzLg="6" class="stat-card-col">
+        <nz-card nzTitle="Total Lessons" nzHoverable>
+          <p class="stat-value">{{ stats.lessonCount }}</p>
         </nz-card>
       </nz-col>
-      <nz-col nzSpan="6">
-        <nz-card nzTitle="Quizzes">
-          <p>{{ stats.quizCount }}</p>
+      <nz-col nzXs="24" nzSm="12" nzMd="6" nzLg="6" class="stat-card-col">
+        <nz-card nzTitle="Total Quizzes" nzHoverable>
+          <p class="stat-value">{{ stats.quizCount }}</p>
         </nz-card>
       </nz-col>
     </nz-row>
-  </div>
+
+    <nz-divider></nz-divider>
+
+    <nz-row nzGutter="16" nzJustify="center" nzAlign="top">
+      <nz-col nzXs="24" nzMd="24" nzLg="16" class="chart-container-col">
+        <nz-card nzTitle="Resource Comparison" nzHoverable>
+          <div id="resource-chart">
+            <ng-container *ngIf="resourceChartOptions">
+              <apx-chart
+                [series]="resourceChartOptions.series"
+                [chart]="resourceChartOptions.chart"
+                [dataLabels]="resourceChartOptions.dataLabels"
+                [plotOptions]="resourceChartOptions.plotOptions"
+                [yaxis]="resourceChartOptions.yaxis"
+                [xaxis]="resourceChartOptions.xaxis"
+                [fill]="resourceChartOptions.fill"
+                [tooltip]="resourceChartOptions.tooltip"
+                [stroke]="resourceChartOptions.stroke"
+                [title]="resourceChartOptions.title"
+                [legend]="resourceChartOptions.legend"
+              ></apx-chart>
+            </ng-container>
+          </div>
+        </nz-card>
+      </nz-col>
+    </nz-row>
+
+    </div>
   <ng-template #loading>
-    <nz-spin nzSimple></nz-spin>
+    <nz-spin nzSimple nzSize="large"></nz-spin>
+    <p>Loading dashboard data...</p>
   </ng-template>
 </nz-card>

@@ -1,46 +1,67 @@
 <nz-card nzTitle="Manage Progress">
-  <form nz-form [formGroup]="progressForm">
+  <form nz-form [formGroup]="progressForm" *ngIf="isAdmin">
     <nz-form-item>
       <nz-form-label nzRequired>User</nz-form-label>
-      <nz-form-control nzErrorTip="User is required">
-        <nz-select formControlName="userId" (ngModelChange)="loadProgress()">
+      <nz-form-control
+        [nzErrorTip]="progressForm.get('userId')?.hasError('required') ? 'User is required' : ''"
+      >
+        <nz-select
+          formControlName="userId"
+          [(ngModel)]="selectedUserId"
+          (ngModelChange)="onUserChange($event)"
+          nzPlaceHolder="Select a user"
+        >
           <nz-option *ngFor="let user of users" [nzValue]="user.userId" [nzLabel]="user.username"></nz-option>
         </nz-select>
       </nz-form-control>
     </nz-form-item>
     <nz-form-item>
       <nz-form-label nzRequired>Lesson</nz-form-label>
-      <nz-form-control nzErrorTip="Lesson is required">
-        <nz-select formControlName="lessonId">
+      <nz-form-control
+        [nzErrorTip]="progressForm.get('lessonId')?.hasError('required') ? 'Lesson is required' : ''"
+      >
+        <nz-select formControlName="lessonId" nzPlaceHolder="Select a lesson">
           <nz-option *ngFor="let lesson of lessons" [nzValue]="lesson.lessonId" [nzLabel]="lesson.title"></nz-option>
         </nz-select>
       </nz-form-control>
     </nz-form-item>
     <nz-form-item>
       <nz-form-label nzRequired>Skill</nz-form-label>
-      <nz-form-control nzErrorTip="Skill is required">
-        <nz-select formControlName="skill">
+      <nz-form-control
+        [nzErrorTip]="progressForm.get('skill')?.hasError('required') ? 'Skill is required' : ''"
+      >
+        <nz-select formControlName="skill" nzPlaceHolder="Select a skill">
           <nz-option *ngFor="let skill of skills" [nzValue]="skill" [nzLabel]="skill"></nz-option>
         </nz-select>
       </nz-form-control>
     </nz-form-item>
     <nz-form-item>
       <nz-form-label nzRequired>Status</nz-form-label>
-      <nz-form-control nzErrorTip="Status is required">
-        <nz-select formControlName="status">
+      <nz-form-control
+        [nzErrorTip]="progressForm.get('status')?.hasError('required') ? 'Status is required' : ''"
+      >
+        <nz-select formControlName="status" nzPlaceHolder="Select a status">
           <nz-option *ngFor="let status of statuses" [nzValue]="status" [nzLabel]="status"></nz-option>
         </nz-select>
       </nz-form-control>
     </nz-form-item>
     <nz-form-item>
       <nz-form-label nzRequired>Completion %</nz-form-label>
-      <nz-form-control nzErrorTip="Valid percentage required">
-        <nz-input-number formControlName="completionPercentage" [nzMin]="0" [nzMax]="100"></nz-input-number>
+      <nz-form-control
+        [nzErrorTip]="
+          progressForm.get('completionPercentage')?.hasError('required') ? 'Completion percentage is required' :
+          (progressForm.get('completionPercentage')?.hasError('min') || progressForm.get('completionPercentage')?.hasError('max')) ? 'Percentage must be between 0 and 100' : ''
+        "
+      >
+        <nz-input-number formControlName="completionPercentage" [nzMin]="0" [nzMax]="100" nzPlaceHolder="Enter percentage"></nz-input-number>
       </nz-form-control>
     </nz-form-item>
     <button nz-button nzType="primary" (click)="updateProgress()">Update Progress</button>
   </form>
-  <nz-table #basicTable [nzData]="progressList" [nzLoading]="!progressList.length">
+
+  <nz-divider *ngIf="isAdmin"></nz-divider>
+
+  <nz-table #basicTable [nzData]="progressList" [nzLoading]="!progressList.length" *ngIf="isAdmin">
     <thead>
       <tr>
         <th>User</th>
@@ -48,16 +69,22 @@
         <th>Skill</th>
         <th>Status</th>
         <th>Completion %</th>
+        <th>Last Updated</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let progress of basicTable.data">
-        <td>{{ progress.user.username }}</td>
-        <td>{{ progress.lesson.title }}</td>
+        <td>{{ getUserUsername(progress.userId) }}</td>
+        <td>{{ getLessonTitle(progress.lessonId) }}</td>
         <td>{{ progress.skill }}</td>
         <td>{{ progress.status }}</td>
         <td>{{ progress.completionPercentage }}</td>
+        <td>{{ progress.lastUpdated | date: 'medium' }}</td>
       </tr>
     </tbody>
   </nz-table>
+
+  <div *ngIf="!isAdmin" class="no-permission-message">
+    <p>Bạn không có quyền truy cập trang quản lý tiến độ.</p>
+  </div>
 </nz-card>

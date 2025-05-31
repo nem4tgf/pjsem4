@@ -1,3 +1,5 @@
+// src/app/service/quiz-result.service.ts
+
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -13,8 +15,10 @@ export class QuizResultService extends ApiService {
     super(http);
   }
 
+  // Request body bây giờ sẽ là { userId: number, quizId: number, score: number }
   saveQuizResult(request: QuizResult): Observable<QuizResult> {
-    return this.checkAuth().pipe(
+    // Đảm bảo bạn có Auth token hoặc quyền hợp lệ
+    return this.checkAuth().pipe( // Sử dụng checkAuth() nếu đây là hành động của người dùng bình thường, hoặc checkAdminRole() nếu chỉ admin mới được làm
       switchMap(() => this.http.post<QuizResult>(`${this.apiUrl}/quiz-results`, request))
     );
   }

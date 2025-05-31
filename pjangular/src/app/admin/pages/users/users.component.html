@@ -1,13 +1,14 @@
 <nz-card nzTitle="Manage Users">
-  <!-- Chức năng thêm user bị vô hiệu hóa do thiếu API -->
-  <button nz-button nzType="primary" (click)="showModal(false)" disabled nz-tooltip="Create user is not supported">Add User</button>
-  <nz-table #basicTable [nzData]="users" [nzLoading]="!users.length">
+  <button nz-button nzType="primary" (click)="showModal(false)" *ngIf="isAdmin">Add User</button>
+
+  <nz-table #basicTable [nzData]="users" [nzLoading]="!users.length" *ngIf="isAdmin">
     <thead>
       <tr>
         <th>Username</th>
         <th>Email</th>
         <th>Full Name</th>
         <th>Role</th>
+        <th>Created At</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -17,55 +18,78 @@
         <td>{{ user.email }}</td>
         <td>{{ user.fullName }}</td>
         <td>{{ user.role }}</td>
+        <td>{{ user.createdAt | date: 'short' }}</td>
         <td>
           <a nz-button nzType="link" (click)="showModal(true, user)">Edit</a>
           <nz-divider nzType="vertical"></nz-divider>
-          <!-- Chức năng xóa bị vô hiệu hóa do thiếu API -->
-          <a nz-button nzType="link" nzDanger (click)="deleteUser(user.userId)" nz-tooltip="Delete user is not supported">Delete</a>
+          <a nz-button nzType="link" nzDanger (click)="deleteUser(user.userId)">Delete</a>
         </td>
       </tr>
     </tbody>
   </nz-table>
+
+  <div *ngIf="!isAdmin" class="no-permission-message">
+    <p>Bạn không có quyền truy cập trang quản lý người dùng.</p>
+  </div>
 
   <nz-modal
     [(nzVisible)]="isVisible"
     [nzTitle]="isEdit ? 'Edit User' : 'Add User'"
     (nzOnOk)="handleOk()"
     (nzOnCancel)="handleCancel()"
-  >
-    <form nz-form [formGroup]="userForm">
-      <nz-form-item>
-        <nz-form-label nzRequired>Username</nz-form-label>
-        <nz-form-control nzErrorTip="Username is required and must be at least 3 characters">
-          <input nz-input formControlName="username" />
-        </nz-form-control>
-      </nz-form-item>
-      <nz-form-item>
-        <nz-form-label nzRequired>Email</nz-form-label>
-        <nz-form-control nzErrorTip="Valid email is required">
-          <input nz-input formControlName="email" />
-        </nz-form-control>
-      </nz-form-item>
-      <nz-form-item>
-        <nz-form-label>Full Name</nz-form-label>
-        <nz-form-control>
-          <input nz-input formControlName="fullName" />
-        </nz-form-control>
-      </nz-form-item>
-      <nz-form-item>
-        <nz-form-label>Avatar URL</nz-form-label>
-        <nz-form-control>
-          <input nz-input formControlName="avatarUrl" />
-        </nz-form-control>
-      </nz-form-item>
-      <nz-form-item>
-        <nz-form-label nzRequired>Role</nz-form-label>
-        <nz-form-control nzErrorTip="Role is required">
-          <nz-select formControlName="role">
-            <nz-option *ngFor="let role of roles" [nzValue]="role" [nzLabel]="role"></nz-option>
-          </nz-select>
-        </nz-form-control>
-      </nz-form-item>
-    </form>
+    [nzOkText]="isEdit ? 'Update' : 'Create'"
+    [nzCancelText]="'Cancel'"
+    [nzContent]="userModalContent" >
+    <ng-template #userModalContent>
+      <form nz-form [formGroup]="userForm">
+        <nz-form-item>
+          <nz-form-label nzRequired>Username</nz-form-label>
+          <nz-form-control
+            [nzErrorTip]="userForm.get('username')?.hasError('required') && userForm.get('username')?.touched ? 'Username is required' :
+                          userForm.get('username')?.hasError('minlength') && userForm.get('username')?.touched ? 'Username must be at least 3 characters' : ''"
+          >
+            <input nz-input formControlName="username" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzRequired>Email</nz-form-label>
+          <nz-form-control
+            [nzErrorTip]="userForm.get('email')?.hasError('required') && userForm.get('email')?.touched ? 'Email is required' :
+                          userForm.get('email')?.hasError('email') && userForm.get('email')?.touched ? 'Valid email is required' : ''"
+          >
+            <input nz-input formControlName="email" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item *ngIf="!isEdit">
+          <nz-form-label nzRequired>Password</nz-form-label>
+          <nz-form-control
+            [nzErrorTip]="userForm.get('password')?.hasError('required') && userForm.get('password')?.touched ? 'Password is required' :
+                          userForm.get('password')?.hasError('minlength') && userForm.get('password')?.touched ? 'Password must be at least 6 characters' : ''"
+          >
+            <input nz-input formControlName="password" type="password" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>Full Name</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="fullName" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>Avatar URL</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="avatarUrl" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzRequired>Role</nz-form-label>
+          <nz-form-control [nzErrorTip]="userForm.get('role')?.hasError('required') && userForm.get('role')?.touched ? 'Role is required' : ''">
+            <nz-select formControlName="role" nzPlaceHolder="Select role">
+              <nz-option *ngFor="let role of roles" [nzValue]="role" [nzLabel]="role"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </ng-template>
   </nz-modal>
 </nz-card>
