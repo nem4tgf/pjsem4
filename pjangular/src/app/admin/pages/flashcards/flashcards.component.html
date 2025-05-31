@@ -1,49 +1,39 @@
 <nz-card nzTitle="Manage Flashcards">
-  <form nz-form [formGroup]="flashcardForm">
+  <div class="filter-controls" style="margin-bottom: 20px;">
     <nz-form-item>
-      <nz-form-label nzRequired>User</nz-form-label>
-      <nz-form-control nzErrorTip="User is required">
-        <nz-select formControlName="userId" (ngModelChange)="loadFlashcards()">
-          <nz-option *ngFor="let user of users" [nzValue]="user.userId" [nzLabel]="user.username"></nz-option>
-          <nz-option *ngIf="!users.length" nzDisabled nzLabel="No users available"></nz-option>
+      <nz-form-label nzRequired>Select Lesson</nz-form-label>
+      <nz-form-control>
+        <nz-select [(ngModel)]="selectedLessonId" (ngModelChange)="loadFlashcards()" nzPlaceHolder="Select Lesson">
+          <nz-option *ngFor="let lesson of lessons" [nzValue]="lesson.lessonId" [nzLabel]="lesson.title"></nz-option>
+          <nz-option *ngIf="!lessons.length" nzDisabled nzLabel="No lessons available"></nz-option>
         </nz-select>
       </nz-form-control>
     </nz-form-item>
-    <nz-form-item>
-      <nz-form-label nzRequired>Lesson</nz-form-label>
-      <nz-form-control>
-        <nz-input-number [(ngModel)]="selectedLessonId" [ngModelOptions]="{standalone: true}" (ngModelChange)="loadFlashcards()"></nz-input-number>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-label nzRequired>Vocabulary</nz-form-label>
-      <nz-form-control nzErrorTip="Vocabulary is required">
-        <nz-select formControlName="wordId">
-          <nz-option *ngFor="let vocab of vocabulary" [nzValue]="vocab.wordId" [nzLabel]="vocab.word"></nz-option>
-        </nz-select>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-label nzRequired>Is Known</nz-form-label>
-      <nz-form-control>
-        <nz-switch formControlName="isKnown"></nz-switch>
-      </nz-form-control>
-    </nz-form-item>
-    <button nz-button nzType="primary" (click)="markFlashcard()">Mark Flashcard</button>
-  </form>
+  </div>
+
+
   <nz-table #basicTable [nzData]="flashcards" [nzLoading]="!flashcards.length">
     <thead>
       <tr>
-        <th>User</th>
         <th>Word</th>
+        <th>Meaning</th>
         <th>Is Known</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let flashcard of basicTable.data">
-        <td>{{ getUserName(flashcard.userId) }}</td>
-        <td>{{ getWord(flashcard.wordId) }}</td>
-        <td>{{ flashcard.isKnown ? 'Yes' : 'No' }}</td>
+        <td>{{ flashcard.word }}</td>
+        <td>{{ flashcard.meaning }}</td>
+        <td>
+          <nz-tag [nzColor]="flashcard.isKnown ? 'green' : 'red'">
+            {{ flashcard.isKnown ? 'Known' : 'Unknown' }}
+          </nz-tag>
+        </td>
+        <td>
+          <a nz-button nzType="link" (click)="toggleIsKnown(flashcard, true)" *ngIf="!flashcard.isKnown">Mark as Known</a>
+          <nz-divider nzType="vertical" *ngIf="!flashcard.isKnown && flashcard.isKnown"></nz-divider> <a nz-button nzType="link" nzDanger (click)="toggleIsKnown(flashcard, false)" *ngIf="flashcard.isKnown">Mark as Unknown</a>
+        </td>
       </tr>
     </tbody>
   </nz-table>
