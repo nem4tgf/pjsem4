@@ -1,3 +1,4 @@
+// src/app/interface/lesson.interface.ts
 
 export enum Level {
   BEGINNER = 'BEGINNER',
@@ -15,10 +16,13 @@ export enum Skill {
 }
 
 export interface Lesson {
-  lessonId: number; // Đã bỏ dấu '?' để làm cho nó bắt buộc
+  // `lessonId` là optional khi tạo mới, bắt buộc khi cập nhật/xóa
+  lessonId?: number;
   title: string;
-  description?: string; // Giữ nguyên tùy chọn
+  description?: string; // Tùy chọn
   level: Level;
   skill: Skill;
-  createdAt?: string; // Giữ nguyên tùy chọn
+  price: number; // THÊM MỚI: Giá của bài học
+  createdAt?: string; // Tùy chọn, thường do backend tạo
+  durationMonths?: number; // Tùy chọn
 }

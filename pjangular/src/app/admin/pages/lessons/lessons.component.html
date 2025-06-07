@@ -7,6 +7,7 @@
         <th>Description</th>
         <th>Level</th>
         <th>Skill</th>
+        <th>Price</th> <th>Duration (Months)</th>
         <th *ngIf="isAdmin">Actions</th>
       </tr>
     </thead>
@@ -16,6 +17,7 @@
         <td>{{ lesson.description }}</td>
         <td>{{ lesson.level }}</td>
         <td>{{ lesson.skill }}</td>
+        <td>{{ lesson.price | currency:'VND':'symbol':'1.0-2' }}</td> <td>{{ lesson.durationMonths }}</td>
         <td *ngIf="isAdmin">
           <a nz-button nzType="link" (click)="showModal(true, lesson)">Edit</a>
           <nz-divider nzType="vertical"></nz-divider>
@@ -39,7 +41,7 @@
         <nz-form-item>
           <nz-form-label nzRequired>Title</nz-form-label>
           <nz-form-control
-            [nzErrorTip]="lessonForm.get('title')?.hasError('required') ? 'Title is required' : 'Title must be at least 3 characters'"
+            [nzErrorTip]="lessonForm.get('title')?.hasError('required') ? 'Title is required' : (lessonForm.get('title')?.hasError('minlength') ? 'Title must be at least 3 characters' : '')"
           >
             <input nz-input formControlName="title" placeholder="Enter lesson title" />
           </nz-form-control>
@@ -64,6 +66,16 @@
             <nz-select formControlName="skill" nzPlaceHolder="Select skill">
               <nz-option *ngFor="let skill of skills" [nzValue]="skill" [nzLabel]="skill"></nz-option>
             </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzRequired>Price</nz-form-label> <nz-form-control [nzErrorTip]="lessonForm.get('price')?.hasError('required') ? 'Price is required' : (lessonForm.get('price')?.hasError('min') ? 'Price must be greater than 0' : '')">
+            <nz-input-number formControlName="price" [nzMin]="0.01" [nzStep]="1000"></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label>Duration (Months)</nz-form-label> <nz-form-control nzErrorTip="Duration must be at least 1 month">
+            <nz-input-number formControlName="durationMonths" [nzMin]="1" [nzStep]="1"></nz-input-number>
           </nz-form-control>
         </nz-form-item>
       </form>

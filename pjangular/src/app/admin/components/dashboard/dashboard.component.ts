@@ -1,11 +1,12 @@
 // src/app/dashboard/dashboard.component.ts
+
 import { Component, OnInit } from '@angular/core';
 import { Stats } from 'src/app/interface/stats.interface';
 import { StatsService } from 'src/app/service/stats.service';
 
 // Import các loại từ ApexCharts cho cấu hình biểu đồ Column Chart
 import {
-  ApexAxisChartSeries, // Dùng cho biểu đồ có trục X, Y
+  ApexAxisChartSeries,
   ApexChart,
   ApexDataLabels,
   ApexPlotOptions,
@@ -30,7 +31,7 @@ export type ColumnChartOptions = {
   fill: ApexFill;
   tooltip: ApexTooltip;
   stroke: ApexStroke;
-  title: ApexTitleSubtitle; // Thêm title cho biểu đồ
+  title: ApexTitleSubtitle;
   legend: ApexLegend;
 };
 
@@ -43,6 +44,7 @@ export class DashboardComponent implements OnInit {
   stats: Stats | null = null;
 
   public resourceChartOptions: Partial<ColumnChartOptions> | undefined;
+  // Đã bỏ userRolesChartOptions, vocabularyDifficultyChartOptions, lessonSkillChartOptions
 
   constructor(private statsService: StatsService) {}
 
@@ -50,7 +52,8 @@ export class DashboardComponent implements OnInit {
     this.statsService.getStats().subscribe({
       next: (stats) => {
         this.stats = stats;
-        this.initializeResourceChart(); // Khởi tạo biểu đồ cột
+        console.log('Loaded stats:', stats);
+        this.initializeResourceChart(); // Chỉ gọi khởi tạo biểu đồ Resource Chart
       },
       error: (err) => {
         console.error('Failed to load stats:', err);
@@ -58,6 +61,7 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  // Chỉ còn hàm initializeResourceChart()
   initializeResourceChart(): void {
     if (!this.stats) {
       return;
@@ -66,30 +70,32 @@ export class DashboardComponent implements OnInit {
     this.resourceChartOptions = {
       series: [
         {
-          name: "Count", // Tên của series (có thể là "Số lượng" hoặc "Số lượng")
+          name: "Count",
           data: [
             this.stats.userCount,
             this.stats.vocabularyCount,
             this.stats.lessonCount,
-            this.stats.quizCount
+            this.stats.quizCount,
+            this.stats.questionCount || 0,
+            this.stats.quizResultCount || 0
           ]
         }
       ],
       chart: {
         height: 350,
-        type: "bar", // Loại biểu đồ: "bar" (cột dọc)
+        type: "bar",
         toolbar: {
-          show: false // Không hiển thị thanh công cụ của biểu đồ
+          show: false
         }
       },
       plotOptions: {
         bar: {
-          horizontal: false, // Cột dọc
-          columnWidth: "55%" // Chiều rộng của cột
+          horizontal: false,
+          columnWidth: "55%"
         }
       },
       dataLabels: {
-        enabled: false // Không hiển thị số liệu trực tiếp trên cột (tùy chọn, bạn có thể bật lên)
+        enabled: false
       },
       stroke: {
         show: true,
@@ -97,15 +103,15 @@ export class DashboardComponent implements OnInit {
         colors: ["transparent"]
       },
       xaxis: {
-        categories: ["Users", "Vocabulary", "Lessons", "Quizzes"] // Các danh mục trên trục X
+        categories: ["Users", "Vocabulary", "Lessons", "Quizzes", "Questions", "Quiz Results"]
       },
       yaxis: {
         title: {
-          text: "Count" // Tiêu đề trục Y
+          text: "Count"
         },
         labels: {
           formatter: function (val) {
-            return Math.floor(val).toString(); // Đảm bảo nhãn trục Y là số nguyên
+            return Math.floor(val).toString();
           }
         }
       },
@@ -115,12 +121,12 @@ export class DashboardComponent implements OnInit {
       tooltip: {
         y: {
           formatter: function (val) {
-            return "" + val + " items"; // Định dạng tooltip khi hover
+            return "" + val + " items";
           }
         }
       },
       title: {
-        text: "Resource Overview", // Tiêu đề cho biểu đồ chính
+        text: "Resource Overview",
         align: 'left',
         style: {
           fontSize: '18px',
@@ -128,7 +134,7 @@ export class DashboardComponent implements OnInit {
         }
       },
       legend: {
-        show: false // Không hiển thị chú giải nếu chỉ có một series
+        show: false
       }
     };
   }

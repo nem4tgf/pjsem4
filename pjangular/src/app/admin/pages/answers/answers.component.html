@@ -1,58 +1,84 @@
 <nz-card nzTitle="Manage Answers">
-  <nz-select [(ngModel)]="selectedQuestionId" (ngModelChange)="loadAnswers($event)" nzPlaceHolder="Select Question">
-    <nz-option *ngFor="let question of questions" [nzValue]="question.questionId" [nzLabel]="question.questionText"></nz-option>
-  </nz-select>
-  <button nz-button nzType="primary" (click)="showModal(false)">Add Answer</button>
-  <nz-table #basicTable [nzData]="answers" [nzLoading]="!answers.length">
+  <div class="header-actions">
+    <nz-select [(ngModel)]="selectedQuestionId" (ngModelChange)="loadAnswers($event)" nzPlaceHolder="Select Question"
+      style="width: 250px; margin-right: 10px;">
+      <nz-option *ngFor="let question of questions" [nzValue]="question.questionId"
+        [nzLabel]="question.questionText"></nz-option>
+    </nz-select>
+    <button nz-button nzType="primary" (click)="showModal(false)">Add New Answer (Disabled by Default)</button>
+  </div>
+
+  <nz-table #basicTable [nzData]="answers" [nzLoading]="!answers.length && selectedQuestionId !== null"
+    [nzNoResult]="selectedQuestionId === null ? 'Please select a question to view answers.' : 'No answers found for this question.'">
     <thead>
       <tr>
         <th>Answer Text</th>
         <th>Correct</th>
         <th>Question</th>
+        <th>Status</th>
         <th>Actions</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let answer of basicTable.data">
-        <td>{{ answer.answerText }}</td>
-        <td>{{ answer.isCorrect ? 'Yes' : 'No' }}</td>
-        <td>{{ answer.question.questionText }}</td>
+      <tr *ngFor="let answer of basicTable.data" [class.disabled-row]="!answer.isActive">
+        <td>{{ answer.content }}</td>
         <td>
-          <a nz-button nzType="link" (click)="showModal(true, answer)">Edit</a>
+          <nz-tag [nzColor]="answer.isCorrect ? 'green' : 'red'">
+            {{ answer.isCorrect ? 'Yes' : 'No' }}
+          </nz-tag>
+        </td>
+        <td>{{ getQuestionText(answer.questionId) }}</td>
+        <td>
+          <nz-tag [nzColor]="answer.isActive ? 'green' : 'red'">
+            {{ answer.isActive ? 'Active' : 'Disabled' }}
+          </nz-tag>
+        </td>
+        <td>
+          <button nz-button nzType="link" (click)="showModal(true, answer)" [disabled]="!answer.isActive">Edit</button>
           <nz-divider nzType="vertical"></nz-divider>
-          <a nz-button nzType="link" nzDanger (click)="answer.answerId !== undefined && deleteAnswer(answer.answerId)">Delete</a>
+          <button nz-button nzType="link" [nzDanger]="answer.isActive" (click)="toggleAnswerStatus(answer)">
+            {{ answer.isActive ? 'Disable' : 'Enable' }}
+          </button>
+          <nz-divider nzType="vertical"></nz-divider>
+          <button nz-button nzType="link" nzDanger (click)="softDeleteAnswer(answer)">
+            Soft Delete
+          </button>
         </td>
       </tr>
     </tbody>
   </nz-table>
 
-  <nz-modal
-    [(nzVisible)]="isVisible"
-    [nzTitle]="isEdit ? 'Edit Answer' : 'Add Answer'"
-    (nzOnOk)="handleOk()"
-    (nzOnCancel)="handleCancel()"
-  >
-    <form nz-form [formGroup]="answerForm">
-      <nz-form-item>
-        <nz-form-label nzRequired>Question</nz-form-label>
-        <nz-form-control nzErrorTip="Question is required">
-          <nz-select formControlName="question">
-            <nz-option *ngFor="let question of questions" [nzValue]="question.questionId" [nzLabel]="question.questionText"></nz-option>
-          </nz-select>
-        </nz-form-control>
-      </nz-form-item>
-      <nz-form-item>
-        <nz-form-label nzRequired>Answer Text</nz-form-label>
-        <nz-form-control nzErrorTip="Answer text is required">
-          <input nz-input formControlName="answerText" />
-        </nz-form-control>
-      </nz-form-item>
-      <nz-form-item>
-        <nz-form-label nzRequired>Is Correct</nz-form-label>
-        <nz-form-control>
-          <nz-switch formControlName="isCorrect"></nz-switch>
-        </nz-form-control>
-      </nz-form-item>
-    </form>
+  <nz-modal [(nzVisible)]="isVisible" [nzTitle]="isEdit ? 'Edit Answer' : 'Add Answer'" (nzOnOk)="handleOk()"
+    (nzOnCancel)="handleCancel()" [nzOkText]="isEdit ? 'Update' : 'Create'" [nzCancelText]="'Cancel'"
+    [nzContent]="modalContent">
+    <ng-template #modalContent>
+      <form nz-form [formGroup]="answerForm">
+        <nz-form-item>
+          <nz-form-label nzRequired>Question</nz-form-label>
+          <nz-form-control nzErrorTip="Question is required">
+            <nz-select formControlName="questionId" [nzDisabled]="isEdit">
+              <nz-option *ngFor="let question of questions" [nzValue]="question.questionId"
+                [nzLabel]="question.questionText"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label nzRequired>Answer Text</nz-form-label>
+          <nz-form-control
+            [nzErrorTip]="answerForm.get('content')?.hasError('required') ? 'Answer text is required' : (answerForm.get('content')?.hasError('whitespace') ? 'Answer text cannot be just whitespace' : '')">
+            <input nz-input formControlName="content" placeholder="Enter answer text" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item *ngIf="isEdit">
+          <nz-form-label nzRequired>Is Correct</nz-form-label>
+          <nz-form-control>
+            <nz-switch formControlName="isCorrect"></nz-switch>
+          </nz-form-control>
+        </nz-form-item>
+        <div *ngIf="!isEdit" class="ant-form-item-explain" style="color: #faad14;">
+          <p><i nz-icon nzType="info-circle" nzTheme="fill"></i> Câu trả lời sẽ được tạo ở trạng thái "Disabled" và cần được kích hoạt thủ công.</p>
+        </div>
+      </form>
+    </ng-template>
   </nz-modal>
 </nz-card>

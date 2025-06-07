@@ -1,8 +1,11 @@
+// src/app/interface/answer.interface.ts
+
 import { Question } from "./question.interface";
 
 export interface Answer {
-  answerId: number; // Đã bỏ dấu '?' để làm cho nó bắt buộc
-  question: Question; // Quan hệ ManyToOne với Question
-  answerText: string;
+  answerId?: number;
+  questionId: number; // Đã đổi từ question: Question;
+  content: string;
   isCorrect: boolean;
+  isActive: boolean;
 }

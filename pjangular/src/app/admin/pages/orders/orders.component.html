@@ -1,0 +1,96 @@
+<nz-card nzTitle="Quản lý Đơn hàng">
+  <div class="table-operations">
+    <button nz-button nzType="primary" (click)="loadOrders()">
+      <span nz-icon nzType="reload"></span> Tải lại
+    </button>
+  </div>
+
+  <nz-table
+    #orderTable
+    [nzData]="orders"
+    [nzLoading]="loading"
+    nzShowPagination
+    [nzPageSize]="10"
+    nzBordered
+  >
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Người đặt hàng</th>
+        <th>Ngày đặt hàng</th>
+        <th>Tổng tiền</th>
+        <th>Trạng thái</th>
+        <th>Địa chỉ giao hàng</th>
+        <th>Hành động</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let order of orderTable.data">
+        <td>{{ order.orderId }}</td>
+        <td>{{ order.user.fullName }} ({{ order.user.email }})</td>
+        <td>{{ order.orderDate | date: 'short' }}</td>
+        <td>{{ order.totalAmount | currency:'VND':'symbol':'1.0-0' }}</td>
+        <td>
+          <nz-tag [nzColor]="getStatusTagColor(order.status)">{{ order.status }}</nz-tag>
+        </td>
+        <td>{{ order.shippingAddress || 'N/A' }}</td>
+        <td>
+          <a (click)="showOrderDetailModal(order)">Xem chi tiết</a>
+          <nz-divider nzType="vertical"></nz-divider>
+          <a (click)="showUpdateStatusModal(order)">Cập nhật trạng thái</a>
+          <nz-divider nzType="vertical"></nz-divider>
+          <a nz-popconfirm nzPopconfirmTitle="Bạn có chắc chắn muốn xóa không?" (nzOnConfirm)="deleteOrder(order.orderId)" nzPopconfirmPlacement="left" nzOkText="Xóa" nzCancelText="Hủy">
+            Xóa
+          </a>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+</nz-card>
+
+<nz-modal
+  [(nzVisible)]="isVisible"
+  nzTitle="Chi tiết đơn hàng #{{ selectedOrder?.orderId }}"
+  [nzFooter]="null"
+  (nzOnCancel)="handleCancel()"
+  (nzOnOk)="handleOk()"
+  [nzWidth]="800"
+>
+  <div *nzModalContent>
+    <div *ngIf="selectedOrder">
+      <p><b>Người đặt hàng:</b> {{ selectedOrder.user.fullName }} ({{ selectedOrder.user.email }})</p>
+      <p><b>Ngày đặt hàng:</b> {{ selectedOrder.orderDate | date: 'medium' }}</p>
+      <p><b>Tổng tiền:</b> {{ selectedOrder.totalAmount | currency:'VND':'symbol':'1.0-0' }}</p>
+      <p><b>Trạng thái:</b> <nz-tag [nzColor]="getStatusTagColor(selectedOrder.status)">{{ selectedOrder.status }}</nz-tag></p>
+      <p><b>Địa chỉ giao hàng:</b> {{ selectedOrder.shippingAddress || 'Chưa cung cấp' }}</p>
+
+      <nz-divider nzText="Các sản phẩm trong đơn hàng"></nz-divider>
+      <nz-table
+        #detailTable
+        [nzData]="selectedOrder.items"
+        nzSize="small"
+        [nzShowPagination]="false"
+        nzBordered
+      >
+        <thead>
+          <tr>
+            <th>ID Chi tiết</th>
+            <th>ID Bài học</th>
+            <th>Tiêu đề Bài học</th>
+            <th>Số lượng</th>
+            <th>Giá mua tại thời điểm</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of detailTable.data">
+            <td>{{ item.orderDetailId }}</td>
+            <td>{{ item.lesson.lessonId }}</td>
+            <td>{{ item.lesson.title }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.priceAtPurchase | currency:'VND':'symbol':'1.0-0' }}</td>
+          </tr>
+        </tbody>
+      </nz-table>
+    </div>
+  </div>
+</nz-modal>

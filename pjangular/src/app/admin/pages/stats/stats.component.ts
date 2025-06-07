@@ -1,5 +1,7 @@
+// src/app/stats/stats.component.ts
+
 import { Component, OnInit } from '@angular/core';
-import { Stats } from 'src/app/interface/stats.interface';
+import { Stats } from 'src/app/interface/stats.interface'; // Đảm bảo interface này đã được cập nhật
 import { StatsService } from 'src/app/service/stats.service';
 
 @Component({
@@ -16,9 +18,10 @@ export class StatsComponent implements OnInit {
     this.statsService.getStats().subscribe({
       next: (stats) => {
         this.stats = stats;
+        console.log('Loaded stats:', stats); // Log để kiểm tra dữ liệu nhận được
       },
-      error: () => {
-        console.error('Failed to load stats');
+      error: (err) => { // Thay đổi sang (err) để có thể log lỗi chi tiết hơn
+        console.error('Failed to load stats:', err); // Log lỗi chi tiết
       }
     });
   }

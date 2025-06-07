@@ -21,13 +21,23 @@
           <p class="stat-value">{{ stats.quizCount }}</p>
         </nz-card>
       </nz-col>
+
+      <nz-col nzXs="24" nzSm="12" nzMd="6" nzLg="6" class="stat-card-col">
+        <nz-card nzTitle="Total Questions" nzHoverable>
+          <p class="stat-value">{{ stats.questionCount || 0 }}</p>
+        </nz-card>
+      </nz-col>
+      <nz-col nzXs="24" nzSm="12" nzMd="6" nzLg="6" class="stat-card-col">
+        <nz-card nzTitle="Total Quiz Results" nzHoverable>
+          <p class="stat-value">{{ stats.quizResultCount || 0 }}</p>
+        </nz-card>
+      </nz-col>
     </nz-row>
 
     <nz-divider></nz-divider>
 
     <nz-row nzGutter="16" nzJustify="center" nzAlign="top">
-      <nz-col nzXs="24" nzMd="24" nzLg="16" class="chart-container-col">
-        <nz-card nzTitle="Resource Comparison" nzHoverable>
+      <nz-col nzXs="24" nzMd="24" nzLg="24" class="chart-container-col"> <nz-card nzTitle="Resource Comparison" nzHoverable>
           <div id="resource-chart">
             <ng-container *ngIf="resourceChartOptions">
               <apx-chart
@@ -47,9 +57,9 @@
           </div>
         </nz-card>
       </nz-col>
-    </nz-row>
+      </nz-row>
 
-    </div>
+  </div>
   <ng-template #loading>
     <nz-spin nzSimple nzSize="large"></nz-spin>
     <p>Loading dashboard data...</p>

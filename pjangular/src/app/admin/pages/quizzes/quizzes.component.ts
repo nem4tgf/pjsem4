@@ -1,5 +1,3 @@
-// src/app/admin/pages/quizzes/quizzes.component.ts
-
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NzModalService } from 'ng-zorro-antd/modal';
@@ -36,14 +34,14 @@ export class QuizzesComponent implements OnInit {
   ) {
     this.quizForm = this.fb.group({
       quizId: [null],
-      lessonId: [null, Validators.required], // <--- SỬA: form control 'lessonId' (number)
+      lessonId: [null, Validators.required],
       title: ['', Validators.required],
       skill: [null, Validators.required]
     });
   }
 
   ngOnInit(): void {
-    this.checkRoleAndLoadData(); // Gọi hàm kiểm tra quyền và tải dữ liệu
+    this.checkRoleAndLoadData();
   }
 
   private checkRoleAndLoadData(): void {
@@ -51,7 +49,7 @@ export class QuizzesComponent implements OnInit {
       next: (isAdmin) => {
         this.isAdmin = isAdmin;
         if (this.isAdmin) {
-          this.loadLessons(); // Chỉ tải lessons nếu là admin
+          this.loadLessons();
         } else {
           this.notification.warning('Warning', 'You do not have administrative privileges to manage quizzes.');
         }
@@ -68,13 +66,27 @@ export class QuizzesComponent implements OnInit {
       next: (lessons) => {
         this.lessons = lessons;
         console.log('Loaded all lessons:', this.lessons);
-        // Optionally, load quizzes for the first lesson or a default one
-        if (this.lessons.length > 0 && this.selectedLessonId === null) {
-          this.selectedLessonId = this.lessons[0].lessonId;
-          this.loadQuizzes(this.selectedLessonId);
-        } else if (this.selectedLessonId !== null) {
-            // Nếu đã có selectedLessonId (từ lần load trước), tải quizzes cho lesson đó
+
+        // THAY ĐỔI TẠI ĐÂY: Xử lý gán selectedLessonId an toàn hơn
+        if (this.lessons.length > 0) {
+          // Nếu chưa có lesson nào được chọn, hoặc lesson đã chọn không còn tồn tại,
+          // thì chọn lesson đầu tiên trong danh sách (nếu nó có lessonId)
+          if (this.selectedLessonId === null || !this.lessons.some(l => l.lessonId === this.selectedLessonId)) {
+            if (this.lessons[0].lessonId !== undefined) {
+              this.selectedLessonId = this.lessons[0].lessonId;
+            } else {
+              // Trường hợp lesson đầu tiên không có ID (ít khả năng xảy ra nếu backend hoạt động đúng)
+              console.warn('First lesson has no ID. Cannot auto-select for quizzes.');
+              this.selectedLessonId = null;
+            }
+          }
+          // Nếu đã có lessonId được chọn hợp lệ hoặc vừa gán được, tải quizzes
+          if (this.selectedLessonId !== null) {
             this.loadQuizzes(this.selectedLessonId);
+          }
+        } else {
+          this.selectedLessonId = null; // Không có bài học nào
+          this.quizzes = []; // Đảm bảo danh sách quiz rỗng
         }
       },
       error: (err) => {
@@ -84,11 +96,20 @@ export class QuizzesComponent implements OnInit {
     });
   }
 
+  // Giữ nguyên loadQuizzes(lessonId: number): vì nó mong đợi một number
   loadQuizzes(lessonId: number): void {
     if (!this.isAdmin) {
       this.notification.error('Error', 'You do not have permission to view quizzes.');
       return;
     }
+    // Đảm bảo lessonId không phải null/undefined trước khi gọi service
+    if (lessonId == null) {
+      this.notification.error('Error', 'Lesson ID is missing for loading quizzes.');
+      console.error('loadQuizzes: lessonId is null or undefined.');
+      this.quizzes = [];
+      return;
+    }
+
     this.quizService.getQuizzesByLessonId(lessonId).subscribe({
       next: (quizzes) => {
         this.quizzes = quizzes;
@@ -112,14 +133,13 @@ export class QuizzesComponent implements OnInit {
     if (isEdit && quiz) {
       this.quizForm.patchValue({
         quizId: quiz.quizId,
-        lessonId: quiz.lessonId, // <--- SỬA: patch vào 'lessonId'
+        lessonId: quiz.lessonId,
         title: quiz.title,
         skill: quiz.skill
       });
     } else {
-      // Thiết lập giá trị mặc định cho lesson nếu đang add và đã có selectedLessonId
-      if (this.selectedLessonId) {
-        this.quizForm.get('lessonId')?.setValue(this.selectedLessonId); // <--- SỬA: set value cho 'lessonId'
+      if (this.selectedLessonId !== null) { // THAY ĐỔI: Sử dụng !== null
+        this.quizForm.get('lessonId')?.setValue(this.selectedLessonId);
       }
     }
     this.isVisible = true;
@@ -131,39 +151,35 @@ export class QuizzesComponent implements OnInit {
     if (this.quizForm.invalid) {
       this.quizForm.markAllAsTouched();
       this.notification.error('Error', 'Please fill in all required fields correctly.');
-      // Thêm console.error chi tiết cho các trường bị lỗi
       console.error(
         'Form is invalid. Errors:',
-        this.quizForm.controls['lessonId']?.errors, // <--- SỬA: Kiểm tra 'lessonId'
+        this.quizForm.controls['lessonId']?.errors,
         this.quizForm.controls['title']?.errors,
         this.quizForm.controls['skill']?.errors
       );
       return;
     }
 
-    // Lấy lessonId trực tiếp từ form control 'lessonId'
-    const lessonIdFromForm = this.quizForm.get('lessonId')?.value;
-
-    // Tạo đối tượng Quiz để gửi đi (chỉ chứa lessonId, không phải Lesson object)
     const quizToSend: Quiz = {
-      quizId: this.quizForm.get('quizId')?.value, // Có thể là null/undefined khi tạo mới
-      lessonId: lessonIdFromForm, // <--- SỬA: Gửi lessonId
+      quizId: this.quizForm.get('quizId')?.value,
+      // THAY ĐỔI: Ép kiểu để đảm bảo nó là number khi gọi service, vì validator đã đảm bảo nó có giá trị
+      lessonId: this.quizForm.get('lessonId')?.value as number,
       title: this.quizForm.get('title')?.value,
       skill: this.quizForm.get('skill')?.value
-      // createdAt không cần gửi, backend sẽ tự tạo
     };
 
     console.log('Quiz object to send:', quizToSend);
 
     if (this.isEdit) {
-      if (quizToSend.quizId === null || quizToSend.quizId === undefined) {
+      // THAY ĐỔI: Kiểm tra quizId có tồn tại và dùng non-null assertion
+      if (quizToSend.quizId == null) { // Dùng == null để bắt cả null và undefined
         this.notification.error('Error', 'Quiz ID is missing for update.');
         return;
       }
       this.quizService.updateQuiz(quizToSend.quizId, quizToSend).subscribe({
         next: () => {
           this.notification.success('Success', 'Quiz updated successfully!');
-          this.loadQuizzes(quizToSend.lessonId); // Tải lại quizzes cho bài học này
+          this.loadQuizzes(quizToSend.lessonId);
           this.isVisible = false;
           this.quizForm.reset();
         },
@@ -173,10 +189,10 @@ export class QuizzesComponent implements OnInit {
         }
       });
     } else {
-      this.quizService.createQuiz(quizToSend).subscribe({ // Gửi quizToSend trực tiếp
+      this.quizService.createQuiz(quizToSend).subscribe({
         next: () => {
           this.notification.success('Success', 'Quiz created successfully!');
-          this.loadQuizzes(quizToSend.lessonId); // Tải lại quizzes cho bài học này
+          this.loadQuizzes(quizToSend.lessonId);
           this.isVisible = false;
           this.quizForm.reset();
         },
@@ -205,8 +221,7 @@ export class QuizzesComponent implements OnInit {
         this.quizService.deleteQuiz(quizId).subscribe({
           next: () => {
             this.notification.success('Success', 'Quiz deleted successfully!');
-            // Tải lại quizzes cho lesson đang được chọn, nếu có
-            if (this.selectedLessonId) {
+            if (this.selectedLessonId !== null) { // THAY ĐỔI: Chỉ tải lại nếu có lesson được chọn
               this.loadQuizzes(this.selectedLessonId);
             }
           },
@@ -219,12 +234,8 @@ export class QuizzesComponent implements OnInit {
     });
   }
 
-  /**
-   * Helper function to get lesson title from lessonId.
-   * Used in the template to display lesson title in the table.
-   */
-  getLessonTitle(lessonId: number | undefined): string {
-    if (lessonId == null) {
+  getLessonTitle(lessonId: number | undefined): string { // Giữ nguyên, nhận number | undefined
+    if (lessonId == null) { // Dùng == null để bắt cả null và undefined
       return 'N/A';
     }
     const lesson = this.lessons.find(l => l.lessonId === lessonId);
