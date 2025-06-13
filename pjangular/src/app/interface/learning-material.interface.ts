@@ -1,6 +1,3 @@
-// src/app/interface/learning-material.interface.ts
-// import { Lesson } from "./lesson.interface"; // CÓ THỂ BỎ DÒNG NÀY NẾU KHÔNG CÒN DÙNG TRỰC TIẾP
-
 export enum MaterialType {
   AUDIO = 'AUDIO',
   VIDEO = 'VIDEO',
@@ -10,9 +7,27 @@ export enum MaterialType {
 }
 
 export interface LearningMaterial {
-  materialId?: number; // materialId là optional cho trường hợp tạo mới
-  lessonId: number;    // <--- THAY ĐỔI TẠI ĐÂY: Chỉ cần lessonId
+  materialId?: number;
+  lessonId: number;
   materialType: MaterialType;
   materialUrl?: string;
   description?: string;
+}
+
+export interface LearningMaterialSearchRequest {
+  lessonId?: number;
+  materialType?: MaterialType | '';
+  description?: string;
+  page?: number;
+  size?: number;
+  sortBy?: string;
+  sortDir?: 'ASC' | 'DESC';
+}
+
+export interface LearningMaterialPage {
+  content: LearningMaterial[];
+  totalElements: number;
+  totalPages: number;
+  page: number;
+  size: number;
 }

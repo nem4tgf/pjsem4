@@ -1,9 +1,10 @@
+// src/app/service/payment.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';
 import { ApiService } from './api.service';
-import { Payment, PaymentRequest, PaymentStatus } from '../interface/payment.interface';
+import { Payment, PaymentRequest, PaymentStatus } from '../interface/payment.interface'; // Import PaymentRequest
 import { environment } from './enviroment';
 
 @Injectable({
@@ -51,20 +52,21 @@ export class PaymentService extends ApiService {
     );
   }
 
+  // THAY ĐỔI LỚN TẠI ĐÂY: initiatePayPalPayment giờ nhận cancelUrl và successUrl trong request body
   initiatePayPalPayment(userId: number, orderId: number, amount: number, cancelUrl: string, successUrl: string): Observable<string> {
-    const request: PaymentRequest = {
-      userId,
-      orderId,
-      amount,
-      paymentMethod: 'PayPal',
-      description: `Thanh toán PayPal cho đơn hàng #${orderId}`
+    const requestBody: PaymentRequest = {
+      userId: userId,
+      orderId: orderId,
+      amount: amount,
+      paymentMethod: 'PayPal', // Đảm bảo khớp với giá trị enum/string ở backend
+      description: `Thanh toán PayPal cho đơn hàng #${orderId}`,
+      cancelUrl: cancelUrl, // Đã thêm vào body
+      successUrl: successUrl  // Đã thêm vào body
     };
-    const params = new HttpParams()
-      .set('cancelUrl', cancelUrl)
-      .set('successUrl', successUrl);
 
+    // Không cần HttpParams nữa vì đã đưa vào body
     return this.checkAuth().pipe(
-      switchMap(() => this.http.post(`${this.paymentApiUrl}/paypal/initiate`, request, { params, responseType: 'text' })),
+      switchMap(() => this.http.post(`${this.paymentApiUrl}/paypal/initiate`, requestBody, { responseType: 'text' })),
       catchError(this.handleError)
     );
   }
@@ -72,7 +74,8 @@ export class PaymentService extends ApiService {
   completePayPalPayment(paymentId: string, payerId: string): Observable<Payment> {
     const params = new HttpParams()
       .set('paymentId', paymentId)
-      .set('PayerID', payerId);
+      .set('PayerID', payerId); // PayerID với chữ 'P' hoa
+
     return this.checkAuth().pipe(
       switchMap(() => this.http.get<Payment>(`${this.paymentApiUrl}/paypal/complete`, { params })),
       catchError(this.handleError)

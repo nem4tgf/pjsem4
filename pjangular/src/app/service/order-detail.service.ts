@@ -1,9 +1,10 @@
+// src/app/service/order-detail.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';
 import { ApiService } from './api.service';
-import { OrderDetail } from '../interface/order-detail.interface';
+import { OrderDetail, OrderDetailRequest } from '../interface/order-detail.interface'; // Import OrderDetailRequest
 import { environment } from './enviroment';
 
 @Injectable({
@@ -37,7 +38,8 @@ export class OrderDetailService extends ApiService {
     );
   }
 
-  updateOrderDetail(id: number, request: any): Observable<OrderDetail> {
+  // Cập nhật kiểu dữ liệu của 'request' thành OrderDetailRequest
+  updateOrderDetail(id: number, request: OrderDetailRequest): Observable<OrderDetail> {
     return this.checkAuth().pipe(
       switchMap(() => this.http.put<OrderDetail>(`${this.orderDetailApiUrl}/${id}`, request)),
       catchError(this.handleError)

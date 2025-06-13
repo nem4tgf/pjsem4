@@ -1,3 +1,4 @@
+<!-- src/app/components/admin/payments/payments.component.html -->
 <nz-card nzTitle="Quản lý Thanh toán">
   <div class="table-operations">
     <button nz-button nzType="primary" (click)="loadPayments()">
@@ -15,21 +16,22 @@
   >
     <thead>
       <tr>
-        <th>ID</th>
+        <th>ID Giao dịch</th>
         <th>Người dùng</th>
         <th>ID Đơn hàng</th>
         <th>Số tiền</th>
         <th>Ngày thanh toán</th>
         <th>Phương thức</th>
-        <th>Mã giao dịch</th>
+        <th>Transaction ID</th>
         <th>Trạng thái</th>
+        <th>Mô tả</th>
         <th>Hành động</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let payment of paymentTable.data">
         <td>{{ payment.paymentId }}</td>
-        <td>{{ payment.user.fullName }} ({{ payment.user.email }})</td>
+        <td>{{ payment.user?.fullName }} ({{ payment.user?.email }})</td> <!-- Sử dụng optional chaining nếu user có thể null -->
         <td>{{ payment.orderId }}</td>
         <td>{{ payment.amount | currency:'VND':'symbol':'1.0-0' }}</td>
         <td>{{ payment.paymentDate | date: 'short' }}</td>
@@ -38,6 +40,7 @@
         <td>
           <nz-tag [nzColor]="getPaymentStatusTagColor(payment.status)">{{ payment.status }}</nz-tag>
         </td>
+        <td>{{ payment.description || 'N/A' }}</td>
         <td>
           <a (click)="showPaymentDetailModal(payment)">Xem chi tiết</a>
           <nz-divider nzType="vertical"></nz-divider>
@@ -52,7 +55,7 @@
 
 <nz-modal
   [(nzVisible)]="isVisible"
-  nzTitle="Chi tiết giao dịch thanh toán #{{ selectedPayment?.paymentId }}"
+  nzTitle="Chi tiết Thanh toán #{{ selectedPayment?.paymentId }}"
   [nzFooter]="null"
   (nzOnCancel)="handleCancel()"
   (nzOnOk)="handleOk()"
@@ -61,14 +64,14 @@
   <div *nzModalContent>
     <div *ngIf="selectedPayment">
       <p><b>ID Giao dịch:</b> {{ selectedPayment.paymentId }}</p>
-      <p><b>Người dùng:</b> {{ selectedPayment.user.fullName }} ({{ selectedPayment.user.email }})</p>
+      <p><b>Người dùng:</b> {{ selectedPayment.user?.fullName }} ({{ selectedPayment.user?.email }})</p>
       <p><b>ID Đơn hàng:</b> {{ selectedPayment.orderId }}</p>
       <p><b>Số tiền:</b> {{ selectedPayment.amount | currency:'VND':'symbol':'1.0-0' }}</p>
       <p><b>Ngày thanh toán:</b> {{ selectedPayment.paymentDate | date: 'medium' }}</p>
       <p><b>Phương thức:</b> {{ selectedPayment.paymentMethod }}</p>
-      <p><b>Mã giao dịch:</b> {{ selectedPayment.transactionId }}</p>
+      <p><b>Transaction ID:</b> {{ selectedPayment.transactionId }}</p>
       <p><b>Trạng thái:</b> <nz-tag [nzColor]="getPaymentStatusTagColor(selectedPayment.status)">{{ selectedPayment.status }}</nz-tag></p>
-      <p><b>Mô tả:</b> {{ selectedPayment.description || 'Không có mô tả' }}</p>
+      <p><b>Mô tả:</b> {{ selectedPayment.description || 'Chưa có' }}</p>
     </div>
   </div>
 </nz-modal>

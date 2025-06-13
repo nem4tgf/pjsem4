@@ -3,7 +3,6 @@
 /* Layout chung */
 nz-layout {
   min-height: 100vh;
-  /* THAY ĐỔI MỚI: Thêm transition cho margin-left để di chuyển mượt mà */
   transition: margin-left 0.2s ease-in-out;
 }
 
@@ -15,27 +14,129 @@ nz-sider {
   left: 0;
   top: 0;
   bottom: 0;
-  z-index: 1000; /* Đảm bảo sidebar luôn ở trên cùng */
-  /* THAY ĐỔI MỚI: Thêm transition cho width */
+  z-index: 1000;
   transition: width 0.2s ease-in-out;
+
+  /* THAY ĐỔI MỚI: Màu nền sidebar */
+  background: #2c3e50; /* Màu tối đậm, hiện đại */
+  /* Hoặc thử gradient nhẹ nhàng */
+  /* background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%); */
 }
 
 /* THAY ĐỔI MỚI: CSS cho layout chính khi sidebar không bị thu gọn */
-nz-layout.ant-layout-has-sider { /* Ant Design thêm class này khi có sider */
-  margin-left: 200px; /* Chiều rộng mặc định của sidebar */
+nz-layout.ant-layout-has-sider {
+  margin-left: 200px;
 }
 
 /* THAY ĐỔI MỚI: CSS cho layout chính khi sidebar bị thu gọn */
 nz-layout.ant-layout-has-sider.ant-layout-sider-collapsed {
-  margin-left: 80px; /* Chiều rộng khi sidebar bị thu gọn */
+  margin-left: 80px;
 }
 
-
+/* Logo Area */
 .logo {
   height: 32px;
-  background: rgba(255, 255, 255, 0.2);
+  /* THAY ĐỔI MỚI: Logo trong suốt hơn, phù hợp với nền tối */
+  background: rgba(255, 255, 255, 0.1);
   margin: 16px;
+  border-radius: 4px; /* Bo góc nhẹ cho logo */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* THAY ĐỔI MỚI: Bạn có thể thêm text hoặc icon vào đây */
+  /* font-weight: bold;
+  color: #ecf0f1;
+  font-size: 18px; */
 }
+
+/* Menu items within sidebar */
+nz-menu {
+  /* THAY ĐỔI MỚI: Đảm bảo menu items không có margin hoặc padding thừa */
+  margin: 0;
+  padding: 0;
+  border-right: none; /* Bỏ border mặc định của Ant Design menu */
+}
+
+/* THAY ĐỔI MỚI: Styles cho mỗi menu item */
+nz-menu-item,
+nz-submenu {
+  margin-bottom: 8px; /* Khoảng cách giữa các mục menu */
+  border-radius: 4px; /* Bo góc cho mỗi item */
+  transition: all 0.3s ease; /* Hiệu ứng chuyển động mượt mà */
+}
+
+/* THAY ĐỔI MỚI: Hover state cho menu items */
+nz-menu-item:hover,
+nz-submenu:hover {
+  background-color: rgba(255, 255, 255, 0.15) !important; /* Nền sáng hơn khi hover */
+  color: #fff !important; /* Màu chữ trắng sáng */
+}
+
+/* THAY ĐỔI MỚI: Active state cho menu items (khi được chọn) */
+nz-menu-item.ant-menu-item-selected {
+  background-color: #1890ff !important; /* Màu xanh của Ant Design làm nền */
+  color: #fff !important; /* Chữ trắng */
+  font-weight: 600; /* In đậm chữ để nổi bật hơn */
+  border-left: 4px solid #fff; /* Đường viền trắng bên trái để nhấn mạnh */
+  padding-left: 20px !important; /* Điều chỉnh padding do có border */
+}
+
+/* THAY ĐỔI MỚI: Active state cho menu items con (nếu có) */
+nz-menu-item.ant-menu-item-selected .ant-menu-item-selected-icon,
+nz-menu-item.ant-menu-item-selected .ant-menu-item-selected-title {
+  color: #fff !important;
+}
+
+
+/* THAY ĐỔI MỚI: Màu sắc icon và text mặc định của menu item */
+nz-menu-item .anticon,
+nz-menu-item span {
+  color: rgba(255, 255, 255, 0.75); /* Màu chữ và icon nhạt hơn */
+  transition: all 0.3s ease;
+}
+
+/* THAY ĐỔI MỚI: Màu sắc icon và text khi hover */
+nz-menu-item:hover .anticon,
+nz-menu-item:hover span {
+  color: #fff; /* Màu chữ và icon sáng hơn khi hover */
+}
+
+/* THAY ĐỔI MỚI: Styles cho submenu title */
+nz-submenu .ant-menu-submenu-title {
+    color: rgba(255, 255, 255, 0.75);
+    transition: all 0.3s ease;
+}
+
+/* THAY ĐỔI MỚI: Hover state cho submenu title */
+nz-submenu .ant-menu-submenu-title:hover {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* THAY ĐỔI MỚI: Màu sắc icon và text của submenu title khi hover */
+nz-submenu .ant-menu-submenu-title:hover .anticon,
+nz-submenu .ant-menu-submenu-title:hover span {
+  color: #fff;
+}
+
+
+/* THAY ĐỔI MỚI: Styles cho submenu children (ul lồng bên trong) */
+nz-submenu ul.ant-menu-sub {
+  background-color: #243447 !important; /* Nền tối hơn một chút cho submenu con */
+  padding-left: 10px; /* Thụt lề nhẹ cho các mục con */
+}
+
+nz-submenu ul.ant-menu-sub nz-menu-item {
+  border-radius: 0; /* Không bo góc cho các item con */
+  margin-bottom: 0; /* Bỏ khoảng cách giữa các item con */
+}
+
+nz-submenu ul.ant-menu-sub nz-menu-item.ant-menu-item-selected {
+  border-left: 2px solid #1890ff; /* Đường viền màu xanh cho item con được chọn */
+  padding-left: 22px !important; /* Điều chỉnh padding */
+  background-color: rgba(24, 144, 255, 0.2) !important; /* Nền nhạt hơn cho item con được chọn */
+}
+
 
 /* Header */
 nz-header {
@@ -43,8 +144,8 @@ nz-header {
   padding: 0 24px;
   display: flex;
   align-items: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Thêm bóng đổ cho header */
-  z-index: 999; /* Đảm bảo header ở trên nội dung */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 999;
 }
 
 .header-content {
@@ -99,7 +200,6 @@ nz-header {
 /* Content chính */
 nz-content {
   margin: 24px;
-  /* THAY ĐỔI MỚI: Đảm bảo content không bị tràn ra ngoài */
   overflow: auto;
 }
 
@@ -107,8 +207,8 @@ nz-content {
   padding: 24px;
   background: #fff;
   min-height: 360px;
-  border-radius: 8px; /* Thêm bo góc cho inner-content */
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* Thêm bóng đổ nhẹ */
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 /* Message khi không có quyền truy cập */
@@ -117,4 +217,30 @@ nz-content {
   padding: 50px;
   font-size: 18px;
   color: #ff4d4f;
+}
+
+/* THAY ĐỔI MỚI: Điều chỉnh khi sidebar thu gọn */
+.ant-layout-sider-collapsed .logo {
+  margin: 16px auto; /* Căn giữa logo khi thu gọn */
+}
+
+.ant-layout-sider-collapsed nz-menu-item span,
+.ant-layout-sider-collapsed nz-submenu .ant-menu-submenu-title span {
+  opacity: 0; /* Ẩn text khi collapsed */
+  width: 0; /* Để text không chiếm không gian */
+  overflow: hidden;
+  transition: opacity 0.2s ease, width 0.2s ease;
+}
+
+.ant-layout-sider-collapsed nz-menu-item .anticon,
+.ant-layout-sider-collapsed nz-submenu .anticon {
+  font-size: 20px; /* Tăng kích thước icon khi collapsed */
+  margin-right: 0 !important; /* Bỏ margin phải của icon */
+  text-align: center;
+  width: 100%; /* Đảm bảo icon chiếm hết chiều rộng để căn giữa */
+}
+
+/* Đảm bảo tooltip cho collapsed sidebar */
+.ant-layout-sider-collapsed .ant-tooltip-placement-right .ant-tooltip-inner {
+  font-size: 12px;
 }
