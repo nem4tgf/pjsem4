@@ -1,21 +1,90 @@
 <nz-card nzTitle="Manage Flashcards">
-  <div class="filter-controls" style="margin-bottom: 20px;">
-    <nz-form-item>
-      <nz-form-label nzRequired>Select Lesson</nz-form-label>
-      <nz-form-control>
-        <nz-select [(ngModel)]="selectedLessonId" (ngModelChange)="loadFlashcards()" nzPlaceHolder="Select Lesson">
-          <nz-option *ngFor="let lesson of lessons" [nzValue]="lesson.lessonId" [nzLabel]="lesson.title"></nz-option>
-          <nz-option *ngIf="!lessons.length" nzDisabled nzLabel="No lessons available"></nz-option>
-        </nz-select>
-      </nz-form-control>
-    </nz-form-item>
-  </div>
+  <form nz-form [formGroup]="searchForm" (ngSubmit)="searchFlashcards()">
+    <div nz-row [nzGutter]="16">
+      <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
+        <nz-form-item>
+          <nz-form-label nzFor="lessonId">Lesson</nz-form-label>
+          <nz-form-control>
+            <nz-select formControlName="lessonId" nzPlaceHolder="Select Lesson" nzAllowClear>
+              <nz-option *ngFor="let lesson of lessons" [nzValue]="lesson.lessonId" [nzLabel]="lesson.title"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
+        <nz-form-item>
+          <nz-form-label nzFor="word">Word</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="word" placeholder="Enter word" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
+        <nz-form-item>
+          <nz-form-label nzFor="meaning">Meaning</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="meaning" placeholder="Enter meaning" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
+        <nz-form-item>
+          <nz-form-label nzFor="isKnown">Is Known</nz-form-label>
+          <nz-form-control>
+            <nz-select formControlName="isKnown" nzPlaceHolder="Select Status" nzAllowClear>
+              <nz-option [nzValue]="true" nzLabel="Known"></nz-option>
+              <nz-option [nzValue]="false" nzLabel="Unknown"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
+        <nz-form-item>
+          <nz-form-label nzFor="difficultyLevel">Difficulty</nz-form-label>
+          <nz-form-control>
+            <nz-select formControlName="difficultyLevel" nzPlaceHolder="Select Difficulty" nzAllowClear>
+              <nz-option nzValue="EASY" nzLabel="Easy"></nz-option>
+              <nz-option nzValue="MEDIUM" nzLabel="Medium"></nz-option>
+              <nz-option nzValue="HARD" nzLabel="Hard"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="18" class="text-right">
+        <nz-form-item>
+          <nz-form-label></nz-form-label> <nz-form-control>
+            <button nz-button nzType="primary" type="submit">
+              <span nz-icon nzType="search"></span> Search
+            </button>
+            <button nz-button class="ml-2" (click)="resetFilters()">
+              <span nz-icon nzType="reload"></span> Reset
+            </button>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+  </form>
 
+  <nz-divider></nz-divider>
 
-  <nz-table #basicTable [nzData]="flashcards" [nzLoading]="!flashcards.length">
+  <nz-table
+    #basicTable
+    [nzData]="flashcards"
+    [nzLoading]="!flashcards.length && searchForm.get('lessonId')?.value"
+    [nzNoResult]="searchForm.get('lessonId')?.value === null ? 'Please select a lesson to view flashcards.' : 'No flashcards found.'"
+    [nzFrontPagination]="false"
+    [nzTotal]="pageData.totalElements"
+    [nzPageSize]="pageData.size"
+    [nzPageIndex]="pageData.page + 1"
+    (nzPageIndexChange)="onPageChange($event)"
+    (nzPageSizeChange)="onSizeChange($event)"
+  >
     <thead>
       <tr>
-        <th>Word</th>
+        <th
+          [nzSortFn]="true"
+          (nzSortOrderChange)="onSortChange('word', $event === 'ascend' ? 'ASC' : 'DESC')"
+        >Word</th>
         <th>Meaning</th>
         <th>Is Known</th>
         <th>Actions</th>
@@ -32,7 +101,7 @@
         </td>
         <td>
           <a nz-button nzType="link" (click)="toggleIsKnown(flashcard, true)" *ngIf="!flashcard.isKnown">Mark as Known</a>
-          <nz-divider nzType="vertical" *ngIf="!flashcard.isKnown && flashcard.isKnown"></nz-divider> <a nz-button nzType="link" nzDanger (click)="toggleIsKnown(flashcard, false)" *ngIf="flashcard.isKnown">Mark as Unknown</a>
+          <a nz-button nzType="link" nzDanger (click)="toggleIsKnown(flashcard, false)" *ngIf="flashcard.isKnown">Mark as Unknown</a>
         </td>
       </tr>
     </tbody>

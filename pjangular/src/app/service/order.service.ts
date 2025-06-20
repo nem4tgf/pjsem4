@@ -60,6 +60,58 @@ export class OrderService extends ApiService {
     );
   }
 
+  /**
+   * Phương thức tìm kiếm đơn hàng với các tham số tùy chọn.
+   * @param userId ID người dùng
+   * @param status Trạng thái đơn hàng
+   * @param minDate Ngày bắt đầu (ISO string)
+   * @param maxDate Ngày kết thúc (ISO string)
+   * @param minTotalAmount Tổng tiền tối thiểu
+   * @param maxTotalAmount Tổng tiền tối đa
+   * @param username Tên người dùng để tìm kiếm
+   * @returns Observable của mảng Order.
+   */
+  searchOrders(
+    userId?: number | null,
+    status?: OrderStatus | null,
+    minDate?: string | null, // LocalDateTime ở backend, gửi string ISO format
+    maxDate?: string | null, // LocalDateTime ở backend, gửi string ISO format
+    minTotalAmount?: number | null,
+    maxTotalAmount?: number | null,
+    username?: string | null
+  ): Observable<Order[]> {
+    return this.checkAuth().pipe(
+      switchMap(() => {
+        let params = new HttpParams();
+
+        if (userId !== null && userId !== undefined) {
+          params = params.append('userId', userId.toString());
+        }
+        if (status !== null && status !== undefined) {
+          params = params.append('status', status);
+        }
+        if (minDate !== null && minDate !== undefined && minDate !== '') {
+          params = params.append('minDate', minDate);
+        }
+        if (maxDate !== null && maxDate !== undefined && maxDate !== '') {
+          params = params.append('maxDate', maxDate);
+        }
+        if (minTotalAmount !== null && minTotalAmount !== undefined) {
+          params = params.append('minTotalAmount', minTotalAmount.toString());
+        }
+        if (maxTotalAmount !== null && maxTotalAmount !== undefined) {
+          params = params.append('maxTotalAmount', maxTotalAmount.toString());
+        }
+        if (username !== null && username !== undefined && username.trim() !== '') {
+          params = params.append('username', username);
+        }
+
+        return this.http.get<Order[]>(`${this.orderApiUrl}/search`, { params });
+      }),
+      catchError(this.handleError)
+    );
+  }
+
   private handleError(error: any): Observable<never> {
     console.error('An error occurred in OrderService:', error);
     let errorMessage = 'An unknown error occurred!';

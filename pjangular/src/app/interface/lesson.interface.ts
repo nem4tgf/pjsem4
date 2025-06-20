@@ -16,13 +16,44 @@ export enum Skill {
 }
 
 export interface Lesson {
-  // `lessonId` là optional khi tạo mới, bắt buộc khi cập nhật/xóa
   lessonId?: number;
   title: string;
-  description?: string; // Tùy chọn
-  level: Level;
-  skill: Skill;
-  price: number; // THÊM MỚI: Giá của bài học
-  createdAt?: string; // Tùy chọn, thường do backend tạo
-  durationMonths?: number; // Tùy chọn
+  description?: string;
+  level: Level | string;
+  skill: Skill | string;
+  price: number; // Added price
+  createdAt?: string;
+  durationMonths?: number;
+}
+
+// LessonRequest DTO for creating/updating lessons, excluding backend-managed fields like createdAt
+export interface LessonRequest {
+  title: string;
+  description?: string;
+  level: string;
+  skill: string;
+  price: number; // Added price
+}
+
+export interface LessonSearchRequest {
+  title?: string;
+  level?: string;
+  skill?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  page?: number;
+  size?: number;
+  sortBy?: string;
+  sortDir?: 'ASC' | 'DESC';
+}
+
+// Renamed from LessonPage to LessonPageResponse to match backend DTO
+// Adjusted page and size to pageNo and pageSize for consistency with backend
+export interface LessonPageResponse {
+  content: Lesson[];
+  totalElements: number;
+  totalPages: number;
+  pageNo: number; // Changed from 'page'
+  pageSize: number; // Changed from 'size'
+  last?: boolean; // Optional: Backend's Page object often includes 'last'
 }

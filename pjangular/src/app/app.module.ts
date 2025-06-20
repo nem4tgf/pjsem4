@@ -11,8 +11,9 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './admin/components/login/login.component';
 import { AuthInterceptor } from './service/auth.interceptor';
+import { AdminModule } from './admin/admin.module'; // THÊM MODULE NÀY
 
-// Import chỉ các module ng-zorro-antd cần cho AppComponent và LoginComponent
+// Import các module ng-zorro-antd cần cho AppComponent và LoginComponent
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -33,6 +34,7 @@ registerLocaleData(en);
     FormsModule,
     ReactiveFormsModule,
     AppRoutingModule,
+    AdminModule, // THÊM DÒNG NÀY
     NzCardModule,
     NzInputModule,
     NzButtonModule,

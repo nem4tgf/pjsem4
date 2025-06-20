@@ -26,12 +26,12 @@
       </nz-form-control>
     </nz-form-item>
     <nz-form-item>
-      <nz-form-label nzRequired>Skill</nz-form-label>
+      <nz-form-label nzRequired>Activity Type</nz-form-label>
       <nz-form-control
-        [nzErrorTip]="progressForm.get('skill')?.hasError('required') ? 'Skill is required' : ''"
+        [nzErrorTip]="progressForm.get('activityType')?.hasError('required') ? 'Activity type is required' : ''"
       >
-        <nz-select formControlName="skill" nzPlaceHolder="Select a skill">
-          <nz-option *ngFor="let skill of skills" [nzValue]="skill" [nzLabel]="skill"></nz-option>
+        <nz-select formControlName="activityType" nzPlaceHolder="Select an activity type">
+          <nz-option *ngFor="let activityType of activityTypes" [nzValue]="activityType" [nzLabel]="activityType"></nz-option>
         </nz-select>
       </nz-form-control>
     </nz-form-item>
@@ -66,7 +66,7 @@
       <tr>
         <th>User</th>
         <th>Lesson</th>
-        <th>Skill</th>
+        <th>Activity Type</th>
         <th>Status</th>
         <th>Completion %</th>
         <th>Last Updated</th>
@@ -76,7 +76,7 @@
       <tr *ngFor="let progress of basicTable.data">
         <td>{{ getUserUsername(progress.userId) }}</td>
         <td>{{ getLessonTitle(progress.lessonId) }}</td>
-        <td>{{ progress.skill }}</td>
+        <td>{{ progress.activityType }}</td>
         <td>{{ progress.status }}</td>
         <td>{{ progress.completionPercentage }}</td>
         <td>{{ progress.lastUpdated | date: 'medium' }}</td>

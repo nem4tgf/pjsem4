@@ -1,13 +1,12 @@
-// src/app/admin/pages/lessons/lessons.component.ts
+// src/app/admin/lessons/lessons.component.ts
 
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
-// CẬP NHẬT ĐƯỜNG DẪN IMPORT
-import { Lesson, Level, Skill } from '../../../interface/lesson.interface';
-import { ApiService } from '../../../service/api.service';
+import { Lesson, LessonRequest, LessonSearchRequest, LessonPageResponse, Level, Skill } from '../../../interface/lesson.interface'; // Updated import for LessonPageResponse
 import { LessonService } from '../../../service/lesson.service';
+import { ApiService } from '../../../service/api.service';
 
 @Component({
   selector: 'app-lessons',
@@ -19,13 +18,15 @@ export class LessonsComponent implements OnInit {
   isVisible = false;
   isEdit = false;
   lessonForm: FormGroup;
+  searchForm: FormGroup;
   levels = Object.values(Level);
   skills = Object.values(Skill);
   isAdmin: boolean = false;
+  pageData: LessonPageResponse = { content: [], totalElements: 0, totalPages: 0, pageNo: 0, pageSize: 10 }; // Updated type to LessonPageResponse
 
   constructor(
     private lessonService: LessonService,
-    private apiService: ApiService, // Giữ lại apiService để kiểm tra quyền
+    private apiService: ApiService,
     private fb: FormBuilder,
     private modal: NzModalService,
     private notification: NzNotificationService
@@ -34,158 +35,206 @@ export class LessonsComponent implements OnInit {
       lessonId: [null],
       title: ['', [Validators.required, Validators.minLength(3)]],
       description: [''],
-      level: [Level.BEGINNER, Validators.required],
-      skill: [Skill.VOCABULARY, Validators.required],
-      price: [null, [Validators.required, Validators.min(0.01)]], // THÊM MỚI: Price
-      durationMonths: [null, [Validators.min(1)]] // THÊM MỚI: DurationMonths, optional
+      level: [null, Validators.required],
+      skill: [null, Validators.required],
+      price: [null, [Validators.required, Validators.min(0.01)]],
+      durationMonths: [null, [Validators.min(1)]] // durationMonths is derived on backend, but kept in form for user input consistency if needed
+    });
+    this.searchForm = this.fb.group({
+      title: [''],
+      level: [null],
+      skill: [null],
+      minPrice: [null, [Validators.min(0)]],
+      maxPrice: [null, [Validators.min(0)]],
+      pageNo: [0], // Changed from 'page' to 'pageNo'
+      pageSize: [10], // Changed from 'size' to 'pageSize'
+      sortBy: ['lessonId'],
+      sortDir: ['ASC']
     });
   }
 
   ngOnInit(): void {
-    // Bạn cần triển khai logic kiểm tra vai trò admin trong ApiService.checkAuth() hoặc một phương thức riêng
-    // Hiện tại, ApiService.checkAuth() chỉ trả về true, nên sẽ cần điều chỉnh.
-    // Giả định bạn có một phương thức getLoggedInUser hoặc isAdmin() trong AuthService/ApiService của bạn
-    this.apiService.checkAuth().subscribe({ // Gọi checkAuth hoặc một phương thức kiểm tra admin cụ thể
-      next: (isAuthenticated) => {
-        // Đây là nơi bạn sẽ kiểm tra vai trò thực sự của người dùng
-        // Ví dụ: this.authService.isAdmin().subscribe(isAdmin => this.isAdmin = isAdmin);
-        // Tạm thời gán bằng true để test nếu bạn chưa có logic kiểm tra vai trò phức tạp
-        this.isAdmin = true; // THAY ĐỔI: Thay thế bằng logic kiểm tra vai trò thực tế
-        console.log('User is admin:', this.isAdmin);
+    this.apiService.checkAdminRole().subscribe({
+      next: (isAdmin) => {
+        this.isAdmin = isAdmin;
+        this.searchLessons();
       },
       error: (err) => {
-        console.error('Check admin role error:', err);
-        this.isAdmin = false;
-        this.notification.warning('Warning', 'Unable to verify admin role. Some features may be restricted.');
+        this.notification.warning('Warning', 'Unable to verify admin role.');
+        console.error('Admin role check error:', err);
+        this.searchLessons(); // Still attempt to load lessons even if admin check fails
       }
     });
-    this.loadLessons();
   }
 
-  loadLessons(): void {
-    this.lessonService.getAllLessons().subscribe({
-      next: (lessons) => {
-        console.log('Loaded lessons:', lessons);
-        this.lessons = lessons;
+  /**
+   * Performs a lesson search based on the current search form values.
+   */
+  searchLessons(): void {
+    const request: LessonSearchRequest = this.searchForm.value;
+    this.lessonService.searchLessons(request).subscribe({
+      next: (pageData) => {
+        this.pageData = pageData;
+        this.lessons = pageData.content;
       },
       error: (err) => {
         this.notification.error('Error', err.message || 'Failed to load lessons');
-        console.error('Load lessons error:', err);
+        console.error('Search lessons error:', err);
       }
     });
   }
 
+  /**
+   * Handles page index changes from the pagination component.
+   * @param page The new page index (1-based).
+   */
+  onPageChange(page: number): void {
+    this.searchForm.patchValue({ pageNo: page - 1 }); // Update pageNo (0-based)
+    this.searchLessons();
+  }
+
+  /**
+   * Handles page size changes from the pagination component.
+   * @param size The new page size.
+   */
+  onSizeChange(size: number): void {
+    this.searchForm.patchValue({ pageSize: size, pageNo: 0 }); // Update pageSize and reset pageNo to 0
+    this.searchLessons();
+  }
+
+  /**
+   * Handles sort changes from the table headers.
+   * @param sortBy The field to sort by.
+   * @param sortDir The sort direction ('ASC' or 'DESC').
+   */
+  onSortChange(sortBy: string, sortDir: 'ASC' | 'DESC'): void {
+    this.searchForm.patchValue({ sortBy, sortDir, pageNo: 0 }); // Update sort and reset pageNo to 0
+    this.searchLessons();
+  }
+
+  /**
+   * Shows the add/edit lesson modal.
+   * @param isEdit Boolean indicating if the modal is for editing or adding.
+   * @param lesson Optional lesson object to pre-fill the form in edit mode.
+   */
   showModal(isEdit: boolean, lesson?: Lesson): void {
     if (!this.isAdmin) {
       this.notification.error('Error', 'You do not have permission to perform this action');
-      console.error('Show modal blocked: User is not admin');
       return;
     }
     this.isEdit = isEdit;
     if (isEdit && lesson) {
-      console.log('Editing lesson:', lesson);
       this.lessonForm.patchValue({
         lessonId: lesson.lessonId,
         title: lesson.title,
         description: lesson.description || '',
         level: lesson.level,
         skill: lesson.skill,
-        price: lesson.price, // THÊM MỚI
-        durationMonths: lesson.durationMonths // THÊM MỚI
+        price: lesson.price,
+        durationMonths: lesson.durationMonths
       });
     } else {
-      console.log('Opening modal for new lesson');
       this.lessonForm.reset({
         lessonId: null,
         title: '',
         description: '',
         level: Level.BEGINNER,
         skill: Skill.VOCABULARY,
-        price: null, // THÊM MỚI
-        durationMonths: null // THÊM MỚI
+        price: null,
+        durationMonths: null
       });
     }
     this.isVisible = true;
   }
 
+  /**
+   * Handles the OK button click in the add/edit lesson modal.
+   * Creates or updates a lesson based on `isEdit` flag.
+   */
   handleOk(): void {
-    console.log('Form value:', this.lessonForm.value);
-    console.log('Form status:', this.lessonForm.status);
-
     if (this.lessonForm.invalid) {
       this.lessonForm.markAllAsTouched();
       this.notification.error('Error', 'Please fill in all required fields correctly');
       return;
     }
 
-    const lesson: Lesson = {
-      lessonId: this.lessonForm.value.lessonId,
-      title: this.lessonForm.value.title,
-      description: this.lessonForm.value.description || undefined,
-      level: this.lessonForm.value.level,
-      skill: this.lessonForm.value.skill,
-      price: this.lessonForm.value.price, // THÊM MỚI
-      durationMonths: this.lessonForm.value.durationMonths || undefined // THÊM MỚI
-      // createdAt sẽ được backend tạo/cập nhật
+    const formValue = this.lessonForm.value;
+    const lessonRequest: LessonRequest = {
+      title: formValue.title,
+      description: formValue.description || undefined,
+      level: formValue.level,
+      skill: formValue.skill,
+      price: formValue.price
     };
-    console.log('Submitting lesson:', lesson);
 
     if (this.isEdit) {
-      this.lessonService.updateLesson(lesson.lessonId!, lesson).subscribe({
+      const lessonId = formValue.lessonId;
+      if (!lessonId) {
+        this.notification.error('Error', 'Missing lesson ID for update.');
+        return;
+      }
+      this.lessonService.updateLesson(lessonId, lessonRequest).subscribe({
         next: () => {
           this.notification.success('Success', 'Lesson updated successfully');
-          this.loadLessons();
+          this.searchLessons(); // Refresh list after update
           this.isVisible = false;
         },
         error: (err) => {
-          this.notification.error('Error', err.message || 'Failed to update lesson');
+          this.notification.error('Error', err.error?.message || 'Failed to update lesson');
           console.error('Update lesson error:', err);
         }
       });
     } else {
-      this.lessonService.createLesson(lesson).subscribe({
+      this.lessonService.createLesson(lessonRequest).subscribe({
         next: () => {
           this.notification.success('Success', 'Lesson created successfully');
-          this.loadLessons();
+          this.searchLessons(); // Refresh list after creation
           this.isVisible = false;
         },
         error: (err) => {
-          this.notification.error('Error', err.message || 'Failed to create lesson');
+          this.notification.error('Error', err.error?.message || 'Failed to create lesson');
           console.error('Create lesson error:', err);
         }
       });
     }
   }
 
+  /**
+   * Handles the Cancel button click in the add/edit lesson modal.
+   */
   handleCancel(): void {
-    console.log('Modal cancelled');
     this.isVisible = false;
+    this.lessonForm.reset();
   }
 
+  /**
+   * Deletes a lesson after user confirmation.
+   * @param lessonId The ID of the lesson to delete.
+   */
   deleteLesson(lessonId: number | undefined): void {
     if (!this.isAdmin) {
       this.notification.error('Error', 'You do not have permission to perform this action');
-      console.error('Delete blocked: User is not admin');
       return;
     }
-
     if (lessonId === undefined || lessonId === null) {
       this.notification.error('Error', 'Cannot delete lesson: ID is missing.');
-      console.error('Delete lesson error: lessonId is undefined or null');
       return;
     }
 
     this.modal.confirm({
       nzTitle: 'Are you sure?',
       nzContent: 'This action cannot be undone.',
+      nzOkText: 'Delete',
+      nzOkType: 'primary',
+      nzOkDanger: true,
       nzOnOk: () => {
-        this.lessonService.deleteLesson(lessonId!).subscribe({
+        this.lessonService.deleteLesson(lessonId).subscribe({
           next: () => {
             this.notification.success('Success', 'Lesson deleted successfully');
-            this.loadLessons();
+            this.searchLessons(); // Refresh list after deletion
           },
           error: (err) => {
-            this.notification.error('Error', err.message || 'Failed to delete lesson');
+            this.notification.error('Error', err.error?.message || 'Failed to delete lesson');
             console.error('Delete lesson error:', err);
           }
         });

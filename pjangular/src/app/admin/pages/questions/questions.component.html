@@ -1,8 +1,39 @@
 <nz-card nzTitle="Manage Questions">
   <div class="header-controls">
-    <nz-select [(ngModel)]="selectedQuizId" (ngModelChange)="loadQuestions($event)" nzPlaceHolder="Select Quiz" class="quiz-select">
+    <nz-select
+      [(ngModel)]="selectedSearchQuizId"
+      (ngModelChange)="onSearchQuizChange($event)"
+      nzPlaceHolder="Filter by Quiz"
+      nzAllowClear
+      class="search-filter-select"
+    >
       <nz-option *ngFor="let quiz of quizzes" [nzValue]="quiz.quizId" [nzLabel]="quiz.title"></nz-option>
     </nz-select>
+
+    <nz-select
+      [(ngModel)]="selectedSearchSkill"
+      (ngModelChange)="onSearchSkillChange($event)"
+      nzPlaceHolder="Filter by Skill"
+      nzAllowClear
+      class="search-filter-select"
+    >
+      <nz-option *ngFor="let skill of skills" [nzValue]="skill" [nzLabel]="skill"></nz-option>
+    </nz-select>
+
+    <nz-input-group nzSearch [nzAddOnAfter]="suffixIconButton" class="search-input">
+      <input
+        type="text"
+        nz-input
+        placeholder="Search by question text"
+        [(ngModel)]="searchText"
+        (keyup.enter)="onSearchTextChange()"
+      />
+    </nz-input-group>
+    <ng-template #suffixIconButton>
+      <button nz-button nzType="primary" nzSearch (click)="onSearchTextChange()">
+        <span nz-icon nzType="search"></span>
+      </button>
+    </ng-template>
 
     <button nz-button nzType="primary" (click)="showModal(false)" *ngIf="isAdmin">Add Question</button>
   </div>
@@ -46,7 +77,8 @@
     [nzOkType]="'primary'"
     [nzOkDanger]="!isEdit"
     [nzContent]="modalContent" >
-    <ng-template #modalContent> <form nz-form [formGroup]="questionForm">
+    <ng-template #modalContent>
+      <form nz-form [formGroup]="questionForm">
         <nz-form-item>
           <nz-form-label nzRequired>Quiz</nz-form-label>
           <nz-form-control
@@ -76,5 +108,6 @@
           </nz-form-control>
         </nz-form-item>
       </form>
-    </ng-template> </nz-modal>
+    </ng-template>
+  </nz-modal>
 </nz-card>

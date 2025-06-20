@@ -1,25 +1,22 @@
 // src/app/service/question.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http'; // Import HttpParams
 import { Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import { ApiService } from './api.service'; // Đảm bảo đã import ApiService
-import { Question } from '../interface/question.interface'; // Đã cập nhật interface này
+import { ApiService } from './api.service';
+import { Question } from '../interface/question.interface';
+import { Skill } from '../interface/lesson.interface'; // Import Skill để dùng trong tham số tìm kiếm
 
 @Injectable({
   providedIn: 'root'
 })
-export class QuestionService extends ApiService { // Kế thừa ApiService để có checkAdminRole
+export class QuestionService extends ApiService {
   constructor(http: HttpClient) {
     super(http);
   }
 
-  // Các phương thức này sẽ gọi checkAdminRole() từ ApiService (lớp cha)
-  // trước khi thực hiện HTTP request.
   createQuestion(request: Question): Observable<Question> {
     return this.checkAdminRole().pipe(
-      // Khi gửi request, backend chỉ cần quizId, questionText, skill.
-      // Interface Question hiện tại (với quizId: number) là phù hợp.
       switchMap(() => this.http.post<Question>(`${this.apiUrl}/questions`, request))
     );
   }
@@ -33,6 +30,32 @@ export class QuestionService extends ApiService { // Kế thừa ApiService đ�
   getQuestionsByQuizId(quizId: number): Observable<Question[]> {
     return this.checkAdminRole().pipe(
       switchMap(() => this.http.get<Question[]>(`${this.apiUrl}/questions/quiz/${quizId}`))
+    );
+  }
+
+  /**
+   * Phương thức tìm kiếm câu hỏi với các tham số tùy chọn.
+   * @param quizId ID Quiz (tùy chọn)
+   * @param skill Kỹ năng (tùy chọn)
+   * @param questionText Văn bản câu hỏi (tùy chọn)
+   * @returns Observable của mảng Question.
+   */
+  searchQuestions(quizId?: number, skill?: Skill, questionText?: string): Observable<Question[]> {
+    return this.checkAdminRole().pipe(
+      switchMap(() => {
+        let params = new HttpParams();
+        if (quizId) {
+          params = params.append('quizId', quizId.toString());
+        }
+        if (skill) {
+          params = params.append('skill', skill);
+        }
+        if (questionText) {
+          params = params.append('questionText', questionText);
+        }
+        // Gọi endpoint search mới ở backend
+        return this.http.get<Question[]>(`${this.apiUrl}/questions/search`, { params });
+      })
     );
   }
 

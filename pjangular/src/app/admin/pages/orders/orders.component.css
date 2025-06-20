@@ -1,0 +1,28 @@
+/* src/app/admin/pages/orders/orders.component.css */
+
+.table-operations {
+  margin-bottom: 16px;
+}
+
+.search-filters nz-form-item {
+  margin-bottom: 0; /* Loại bỏ margin-bottom mặc định của form-item để các input sát hơn */
+}
+
+/* Điều chỉnh khoảng cách giữa các hàng của form */
+.search-filters nz-row {
+  margin-bottom: 16px;
+}
+
+/* Đảm bảo các input trong nz-input-group hoặc nz-input-number chiếm đủ không gian */
+.search-input-field {
+  width: 100%;
+}
+
+/* Căn chỉnh nút "Tìm kiếm" và "Đặt lại" */
+.general-operations {
+  display: flex;
+  justify-content: flex-start; /* Căn trái */
+  gap: 8px; /* Khoảng cách giữa các nút */
+}
+
+/* Có thể thêm các điều chỉnh khác nếu cần */

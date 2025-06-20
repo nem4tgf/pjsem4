@@ -1,7 +1,79 @@
-nz-card {
-  margin-bottom: 16px;
+/* src/app/admin/pages/flashcards/flashcards.component.css */
+
+/*
+   Sử dụng ::ng-deep để ghi đè các style của Ant Design.
+   Lưu ý: ::ng-deep đang dần bị loại bỏ, nhưng vẫn là cách phổ biến để tinh chỉnh thư viện bên thứ ba.
+   Nếu có thể, hãy sử dụng các class hoặc cấu trúc HTML của Ant Design để giảm thiểu việc dùng ::ng-deep.
+*/
+
+/* 1. Đảm bảo tất cả các form item có chiều cao nhất quán và căn chỉnh nội dung */
+:host ::ng-deep .ant-form-item {
+  margin-bottom: 16px; /* Khoảng cách dưới giữa các hàng của form items */
+  display: flex;
+  flex-direction: column; /* Đảm bảo label nằm trên input/select */
+  justify-content: flex-start; /* Căn chỉnh nội dung lên phía trên */
+
+  /* ĐÂY LÀ ĐIỂM QUAN TRỌNG NHẤT ĐỂ CĂN CHỈNH DỌC: */
+  /* Thiết lập chiều cao tối thiểu cho mỗi form item. Giá trị này cần đủ lớn
+     để chứa label (khoảng 22px), khoảng cách label-input (khoảng 4px),
+     và input/select (khoảng 32px), cùng một chút buffer. */
+  min-height: 70px; /* Thử giá trị này, bạn có thể cần điều chỉnh nhỏ tùy theo font-size */
 }
 
-nz-form {
-  margin-bottom: 16px;
+/* 2. Tinh chỉnh khoảng cách và căn chỉnh cho label */
+:host ::ng-deep .ant-form-item-label {
+  padding: 0; /* Loại bỏ padding mặc định */
+  line-height: 1.5715; /* Chiều cao dòng tiêu chuẩn */
+  margin-bottom: 4px; /* Khoảng cách nhỏ giữa label và input */
+  text-align: left; /* Đảm bảo label căn trái */
+}
+
+/* 3. Đảm bảo input/select chiếm toàn bộ chiều rộng có sẵn */
+:host ::ng-deep .ant-select,
+:host ::ng-deep .ant-input,
+:host ::ng-deep .ant-input-number {
+  width: 100%;
+}
+
+/* 4. Căn chỉnh nội dung bên trong vùng control (đặc biệt quan trọng cho các nút) */
+/* Vùng này chứa input/select hoặc các nút */
+:host ::ng-deep .ant-form-item-control {
+  flex: 1; /* Cho phép vùng control mở rộng để chiếm hết không gian còn lại */
+}
+
+:host ::ng-deep .ant-form-item-control-input-content {
+  display: flex;
+  /* Căn chỉnh nội dung (input, select, hoặc các nút) xuống đáy của vùng control.
+     Điều này giúp các input/select và các nút thẳng hàng ở phía dưới,
+     do các label nằm ở phía trên. */
+  align-items: flex-end;
+  height: 100%; /* Đảm bảo nội dung chiếm toàn bộ chiều cao của container */
+}
+
+/* 5. Căn chỉnh các nút Search và Reset */
+/* Class .text-right được áp dụng cho nz-col chứa các nút */
+:host .text-right {
+  display: flex;
+  justify-content: flex-end; /* Căn các nút sang phải */
+  /* align-items: flex-end; -- đã được xử lý bởi .ant-form-item-control-input-content */
+  /* Remove padding-top here. The empty nz-form-label in HTML will handle the top spacing,
+     and flex-end on content will align buttons. */
+  padding-top: 0 !important; /* Đảm bảo không có padding-top dư thừa làm lệch nút */
+  height: 100%; /* Đảm bảo cột nút chiếm toàn bộ chiều cao của hàng */
+}
+
+/* 6. Khoảng cách giữa các nút */
+:host .ml-2 {
+  margin-left: 8px; /* Khoảng cách giữa nút Search và Reset */
+}
+
+/* 7. Đảm bảo các nút có chiều cao tiêu chuẩn của Ant Design */
+:host ::ng-deep .ant-btn {
+    height: 32px;
+}
+
+/* 8. Căn chỉnh icon trong nút */
+:host ::ng-deep .ant-btn span[nz-icon] {
+    vertical-align: -0.125em; /* Căn chỉnh icon với chữ */
+    margin-right: 4px; /* Khoảng cách giữa icon và chữ */
 }

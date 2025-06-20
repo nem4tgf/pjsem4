@@ -1,5 +1,3 @@
-// src/app/admin/admin.module.ts
-
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
@@ -29,12 +27,11 @@ import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzUploadModule } from 'ng-zorro-antd/upload';
 import { NzTagModule } from 'ng-zorro-antd/tag';
-import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm'; // Thêm module này cho popconfirm
-
-// *** THÊM CÁC MODULE BỊ THIẾU NÀY ***
+import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { NzListModule } from 'ng-zorro-antd/list';
-
+import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
+import { NzMessageModule } from 'ng-zorro-antd/message';
 
 // Import các component
 import { AdminComponent } from './admin.component';
@@ -53,11 +50,8 @@ import { QuizzesComponent } from './pages/quizzes/quizzes.component';
 import { StatsComponent } from './pages/stats/stats.component';
 import { UsersComponent } from './pages/users/users.component';
 import { VocabularyComponent } from './pages/vocabulary/vocabulary.component';
-
-// *** THÊM CÁC COMPONENT MỚI ***
 import { OrdersComponent } from './pages/orders/orders.component';
 import { PaymentsComponent } from './pages/payments/payments.component';
-
 
 @NgModule({
   declarations: [
@@ -77,7 +71,6 @@ import { PaymentsComponent } from './pages/payments/payments.component';
     FlashcardsComponent,
     StatsComponent,
     LessonVocabularyComponent,
-    // *** THÊM CÁC COMPONENT MỚI VÀO ĐÂY ***
     OrdersComponent,
     PaymentsComponent,
   ],
@@ -111,7 +104,9 @@ import { PaymentsComponent } from './pages/payments/payments.component';
     NzTagModule,
     NzPopoverModule,
     NzListModule,
-    NzPopconfirmModule // Thêm vào đây
+    NzPopconfirmModule,
+    NzDatePickerModule,
+    NzMessageModule,
   ],
   exports: [LessonVocabularyComponent],
 })

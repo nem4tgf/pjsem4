@@ -5,7 +5,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 
 import { Lesson } from 'src/app/interface/lesson.interface';
-import { Progress, Status, Skill } from 'src/app/interface/progress.interface';
+// THAY ĐỔI: Import ActivityType thay vì Skill
+import { Progress, Status, ActivityType } from 'src/app/interface/progress.interface';
 import { User } from 'src/app/interface/user.interface';
 
 import { LessonService } from 'src/app/service/lesson.service';
@@ -24,10 +25,11 @@ export class ProgressComponent implements OnInit {
   lessons: Lesson[] = [];
   progressForm: FormGroup;
   statuses = Object.values(Status);
-  skills = Object.values(Skill);
+  // THAY ĐỔI: Đổi tên biến skills thành activityTypes và sử dụng ActivityType enum
+  activityTypes = Object.values(ActivityType);
   isAdmin: boolean = false;
 
-  selectedUserId: number | null = null; // Biến lưu userId đang được chọn
+  selectedUserId: number | null = null;
 
   constructor(
     private progressService: ProgressService,
@@ -40,7 +42,8 @@ export class ProgressComponent implements OnInit {
     this.progressForm = this.fb.group({
       userId: [null, Validators.required],
       lessonId: [null, Validators.required],
-      skill: [null, Validators.required],
+      // THAY ĐỔI: Đổi tên form control 'skill' thành 'activityType'
+      activityType: [null, Validators.required],
       status: [null, Validators.required],
       completionPercentage: [0, [Validators.required, Validators.min(0), Validators.max(100)]]
     });
@@ -59,14 +62,14 @@ export class ProgressComponent implements OnInit {
           this.loadLessons();
         } else {
           this.notification.warning('Warning', 'You do not have administrative privileges to view progress.');
-          this.progressList = []; // Xóa dữ liệu cũ nếu không có quyền
+          this.progressList = [];
         }
       },
       error: (err) => {
         this.notification.error('Error', 'Failed to verify admin role.');
         console.error('Admin role check error:', err);
-        this.isAdmin = false; // Đảm bảo isAdmin là false nếu có lỗi
-        this.progressList = []; // Xóa dữ liệu cũ nếu có lỗi
+        this.isAdmin = false;
+        this.progressList = [];
       }
     });
   }
@@ -78,23 +81,20 @@ export class ProgressComponent implements OnInit {
         this.users = users;
         console.log('Loaded all users:', this.users);
         if (this.users.length > 0) {
-          // Chỉ gán selectedUserId nếu nó chưa được set hoặc không tìm thấy user đó trong danh sách mới
           if (this.selectedUserId === null || !this.users.some(u => u.userId === this.selectedUserId)) {
-            // Đảm bảo userId của user đầu tiên không phải undefined/null trước khi gán
             if (this.users[0].userId !== undefined && this.users[0].userId !== null) {
               this.selectedUserId = this.users[0].userId;
               this.progressForm.get('userId')?.setValue(this.selectedUserId);
-              this.loadProgress(); // Tải tiến độ cho user mặc định
+              this.loadProgress();
             } else {
               console.warn('First user has no userId or it is undefined/null. Cannot set default selected user.');
             }
           } else {
-            // Nếu đã có selectedUserId và nó vẫn tồn tại trong danh sách user mới, chỉ cần tải lại progress
             this.progressForm.get('userId')?.setValue(this.selectedUserId);
             this.loadProgress();
           }
         } else {
-          this.progressList = []; // Không có user nào thì không có progress
+          this.progressList = [];
         }
       },
       error: (err) => {
@@ -140,8 +140,8 @@ export class ProgressComponent implements OnInit {
   }
 
   onUserChange(userId: number): void {
-    this.selectedUserId = userId; // Cập nhật biến selectedUserId
-    this.loadProgress(); // Tải lại kết quả cho user mới chọn
+    this.selectedUserId = userId;
+    this.loadProgress();
   }
 
   updateProgress(): void {
@@ -156,18 +156,19 @@ export class ProgressComponent implements OnInit {
         'Form is invalid. Errors:',
         this.progressForm.controls['userId']?.errors,
         this.progressForm.controls['lessonId']?.errors,
-        this.progressForm.controls['skill']?.errors,
+        // THAY ĐỔI: Kiểm tra lỗi cho 'activityType'
+        this.progressForm.controls['activityType']?.errors,
         this.progressForm.controls['status']?.errors,
         this.progressForm.controls['completionPercentage']?.errors
       );
       return;
     }
 
-    // Tạo đối tượng Progress để gửi đi (chỉ chứa userId và lessonId, không phải User/Lesson object)
     const progressToSend: Progress = {
       userId: this.progressForm.get('userId')?.value,
       lessonId: this.progressForm.get('lessonId')?.value,
-      skill: this.progressForm.get('skill')?.value,
+      // THAY ĐỔI: Đổi 'skill' thành 'activityType'
+      activityType: this.progressForm.get('activityType')?.value,
       status: this.progressForm.get('status')?.value,
       completionPercentage: this.progressForm.get('completionPercentage')?.value
     };
@@ -177,7 +178,7 @@ export class ProgressComponent implements OnInit {
     this.progressService.updateProgress(progressToSend).subscribe({
       next: () => {
         this.notification.success('Success', 'Progress updated successfully!');
-        this.loadProgress(); // Tải lại tiến độ cho user đã chọn
+        this.loadProgress();
       },
       error: (err) => {
         this.notification.error('Error', 'Failed to update progress: ' + (err.error?.message || 'Unknown error'));
