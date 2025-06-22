@@ -1,48 +1,68 @@
-<nz-card nzTitle="Manage Flashcards">
-  <form nz-form [formGroup]="searchForm" (ngSubmit)="searchFlashcards()">
-    <div nz-row [nzGutter]="16">
+<nz-card nzTitle="📚 Manage Flashcards" class="flashcards-card">
+  <form nz-form [formGroup]="searchForm" (ngSubmit)="searchFlashcards()" class="search-form">
+    <div nz-row [nzGutter]="24">
+
+      <!-- Lesson -->
       <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
         <nz-form-item>
-          <nz-form-label nzFor="lessonId">Lesson</nz-form-label>
+          <nz-form-label nzFor="lessonId" class="form-label">
+            <i nz-icon nzType="book" class="form-icon"></i> Lesson
+          </nz-form-label>
           <nz-form-control>
-            <nz-select formControlName="lessonId" nzPlaceHolder="Select Lesson" nzAllowClear>
+            <nz-select formControlName="lessonId" nzPlaceHolder="Select Lesson" nzAllowClear nzShowSearch class="custom-select">
               <nz-option *ngFor="let lesson of lessons" [nzValue]="lesson.lessonId" [nzLabel]="lesson.title"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
       </div>
+
+      <!-- Word -->
       <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
         <nz-form-item>
-          <nz-form-label nzFor="word">Word</nz-form-label>
+          <nz-form-label nzFor="word" class="form-label">
+            <i nz-icon nzType="font-colors" class="form-icon"></i> Word
+          </nz-form-label>
           <nz-form-control>
-            <input nz-input formControlName="word" placeholder="Enter word" />
+            <input nz-input formControlName="word" placeholder="Enter word" class="custom-input"/>
           </nz-form-control>
         </nz-form-item>
       </div>
+
+      <!-- Meaning -->
       <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
         <nz-form-item>
-          <nz-form-label nzFor="meaning">Meaning</nz-form-label>
+          <nz-form-label nzFor="meaning" class="form-label">
+            <i nz-icon nzType="bulb" class="form-icon"></i> Meaning
+          </nz-form-label>
           <nz-form-control>
-            <input nz-input formControlName="meaning" placeholder="Enter meaning" />
+            <input nz-input formControlName="meaning" placeholder="Enter meaning" class="custom-input"/>
           </nz-form-control>
         </nz-form-item>
       </div>
+
+      <!-- Is Known -->
       <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
         <nz-form-item>
-          <nz-form-label nzFor="isKnown">Is Known</nz-form-label>
+          <nz-form-label nzFor="isKnown" class="form-label">
+            <i nz-icon nzType="question-circle" class="form-icon"></i> Is Known
+          </nz-form-label>
           <nz-form-control>
-            <nz-select formControlName="isKnown" nzPlaceHolder="Select Status" nzAllowClear>
+            <nz-select formControlName="isKnown" nzPlaceHolder="Select Status" nzAllowClear class="custom-select">
               <nz-option [nzValue]="true" nzLabel="Known"></nz-option>
               <nz-option [nzValue]="false" nzLabel="Unknown"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
       </div>
+
+      <!-- Difficulty -->
       <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
         <nz-form-item>
-          <nz-form-label nzFor="difficultyLevel">Difficulty</nz-form-label>
+          <nz-form-label nzFor="difficultyLevel" class="form-label">
+            <i nz-icon nzType="bar-chart" class="form-icon"></i> Difficulty
+          </nz-form-label>
           <nz-form-control>
-            <nz-select formControlName="difficultyLevel" nzPlaceHolder="Select Difficulty" nzAllowClear>
+            <nz-select formControlName="difficultyLevel" nzPlaceHolder="Select Difficulty" nzAllowClear class="custom-select">
               <nz-option nzValue="EASY" nzLabel="Easy"></nz-option>
               <nz-option nzValue="MEDIUM" nzLabel="Medium"></nz-option>
               <nz-option nzValue="HARD" nzLabel="Hard"></nz-option>
@@ -50,58 +70,91 @@
           </nz-form-control>
         </nz-form-item>
       </div>
-      <div nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="18" class="text-right">
+
+      <!-- Buttons -->
+      <div nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="18" class="button-col">
         <nz-form-item>
-          <nz-form-label></nz-form-label> <nz-form-control>
-            <button nz-button nzType="primary" type="submit">
-              <span nz-icon nzType="search"></span> Search
+          <nz-form-label></nz-form-label>
+          <nz-form-control>
+            <button nz-button nzType="primary" type="submit" class="search-button">
+              <i nz-icon nzType="search"></i> Search
             </button>
-            <button nz-button class="ml-2" (click)="resetFilters()">
-              <span nz-icon nzType="reload"></span> Reset
+            <button nz-button class="reset-button ml-2" (click)="resetFilters()">
+              <i nz-icon nzType="reload"></i> Reset
             </button>
           </nz-form-control>
         </nz-form-item>
       </div>
+
     </div>
   </form>
 
-  <nz-divider></nz-divider>
+  <nz-divider class="custom-divider"></nz-divider>
 
   <nz-table
     #basicTable
     [nzData]="flashcards"
     [nzLoading]="!flashcards.length && searchForm.get('lessonId')?.value"
-    [nzNoResult]="searchForm.get('lessonId')?.value === null ? 'Please select a lesson to view flashcards.' : 'No flashcards found.'"
+    [nzNoResult]="searchForm.get('lessonId')?.value === null ? '📌 Please select a lesson to view flashcards.' : '📭 No flashcards found.'"
     [nzFrontPagination]="false"
     [nzTotal]="pageData.totalElements"
     [nzPageSize]="pageData.size"
     [nzPageIndex]="pageData.page + 1"
     (nzPageIndexChange)="onPageChange($event)"
     (nzPageSizeChange)="onSizeChange($event)"
+    class="flashcards-table"
   >
     <thead>
       <tr>
-        <th
-          [nzSortFn]="true"
-          (nzSortOrderChange)="onSortChange('word', $event === 'ascend' ? 'ASC' : 'DESC')"
-        >Word</th>
-        <th>Meaning</th>
-        <th>Is Known</th>
-        <th>Actions</th>
+        <th [nzSortFn]="true" (nzSortOrderChange)="onSortChange('word', $event === 'ascend' ? 'ASC' : 'DESC')" class="table-header">
+          <i nz-icon nzType="font-colors"></i> Word
+        </th>
+        <th class="table-header">
+          <i nz-icon nzType="bulb"></i> Meaning
+        </th>
+        <th class="table-header">
+          <i nz-icon nzType="check-circle"></i> Is Known
+        </th>
+        <th class="table-header">
+          <i nz-icon nzType="setting"></i> Actions
+        </th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let flashcard of basicTable.data">
-        <td>{{ flashcard.word }}</td>
-        <td>{{ flashcard.meaning }}</td>
-        <td>
-          <nz-tag [nzColor]="flashcard.isKnown ? 'green' : 'red'">
+      <tr *ngFor="let flashcard of basicTable.data" class="table-row">
+        <td class="table-cell">{{ flashcard.word }}</td>
+        <td class="table-cell">{{ flashcard.meaning }}</td>
+        <td class="table-cell">
+          <nz-tag [nzColor]="flashcard.isKnown ? 'green' : 'red'" class="status-tag">
+            <i nz-icon [nzType]="flashcard.isKnown ? 'check' : 'close'" class="status-icon"></i>
             {{ flashcard.isKnown ? 'Known' : 'Unknown' }}
           </nz-tag>
         </td>
-        <td>
-          <a nz-button nzType="link" (click)="toggleIsKnown(flashcard, true)" *ngIf="!flashcard.isKnown">Mark as Known</a>
-          <a nz-button nzType="link" nzDanger (click)="toggleIsKnown(flashcard, false)" *ngIf="flashcard.isKnown">Mark as Unknown</a>
+        <td class="table-cell actions-cell">
+          <!-- Mark as Known -->
+          <a
+            nz-button
+            nzType="link"
+            (click)="toggleIsKnown(flashcard, true)"
+            *ngIf="!flashcard.isKnown"
+            class="action-button"
+          >
+            <i nz-icon nzType="check-circle" nzTheme="twotone" class="icon-green"></i>
+            Mark as Known
+          </a>
+
+          <!-- Mark as Unknown -->
+          <a
+            nz-button
+            nzType="link"
+            nzDanger
+            (click)="toggleIsKnown(flashcard, false)"
+            *ngIf="flashcard.isKnown"
+            class="action-button"
+          >
+            <i nz-icon nzType="close-circle" nzTheme="twotone" class="icon-red"></i>
+            Mark as Unknown
+          </a>
         </td>
       </tr>
     </tbody>

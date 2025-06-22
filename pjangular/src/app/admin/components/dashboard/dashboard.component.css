@@ -1,7 +1,123 @@
-nz-card {
-  margin-bottom: 16px;
+/* src/app/dashboard/dashboard.component.css */
+.dashboard-card {
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  color: #fff;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-nz-row {
-  margin-bottom: 16px;
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+}
+
+.dashboard-content {
+  padding: 20px;
+}
+
+.stat-grid {
+  margin-bottom: 20px;
+}
+
+.stat-card-col {
+  margin-bottom: 20px;
+  transition: transform 0.3s ease;
+}
+
+.stat-card-col:hover .stat-card {
+  transform: scale(1.05);
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 12px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.stat-title {
+  font-size: 1.2rem;
+  color: #b0c4de;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.stat-value {
+  font-size: 2rem;
+  color: #fff;
+  font-weight: 700;
+  margin: 10px 0;
+  background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.custom-divider {
+  border-color: rgba(255, 255, 255, 0.2);
+  margin: 20px 0;
+}
+
+.chart-container-col {
+  margin-top: 20px;
+}
+
+.chart-card {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  transition: transform 0.3s ease;
+}
+
+.chart-card:hover {
+  transform: translateY(-5px);
+}
+
+.chart-title {
+  font-size: 1.5rem;
+  color: #fff;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.chart-wrapper {
+  padding: 20px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2a5298, #1e3c72);
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #fff;
+}
+
+.custom-spin {
+  margin-bottom: 10px;
+}
+
+.custom-spin::after {
+  border-color: #4ecdc4 transparent !important;
+}
+
+.loading-text {
+  font-size: 1.1rem;
+  color: #b0c4de;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 768px) {
+  .stat-card-col {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  .chart-wrapper {
+    padding: 10px;
+  }
 }

@@ -1,12 +1,129 @@
-nz-card {
-  margin-bottom: 16px;
+.questions-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
-button[nz-button] {
-  margin-bottom: 16px;
-  margin-left: 16px;
+/* ==== Form & Filter ==== */
+.search-form {
+  margin-bottom: 20px;
 }
 
-nz-select {
-  width: 200px;
+.form-label {
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  align-items: center;
+}
+
+.form-label i {
+  margin-right: 8px;
+  font-size: 18px;
+}
+
+.custom-select,
+.search-input input {
+  border-radius: 8px;
+}
+
+.search-input button {
+  border-radius: 0 8px 8px 0;
+}
+
+/* ==== Buttons ==== */
+.add-button {
+  width: 100%;
+  background: #1890ff;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  border-radius: 6px;
+  transition: 0.2s ease-in-out;
+}
+
+.add-button:hover {
+  background-color: #40a9ff;
+}
+
+/* ==== Table ==== */
+.questions-table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+}
+
+.questions-table td {
+  text-align: center;
+  padding: 12px;
+  color: #555;
+}
+
+.table-row:hover {
+  background-color: #f0faff;
+}
+
+.actions-cell a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #1890ff;
+}
+
+.actions-cell a:hover {
+  color: #40a9ff;
+  text-decoration: underline;
+}
+
+/* ==== Modal ==== */
+.modal-form textarea {
+  border-radius: 8px;
+  min-height: 80px;
+}
+
+nz-modal.modal .ant-modal-content {
+  border-radius: 12px;
+  padding: 20px;
+}
+
+/* ==== Icons Styling ==== */
+i[nzType="file-search"] { color: #3f51b5; }
+i[nzType="bulb"] { color: #ff9800; }
+i[nzType="question-circle"] { color: #1890ff; }
+i[nzType="setting"] { color: #607d8b; }
+i[nzType="plus-circle"] { color: white; }
+i[nzType="edit"] { color: #52c41a; }
+i[nzType="delete"] { color: #f5222d; }
+i[nzType="stop"] { color: #cf1322; }
+
+/* ==== No Permission ==== */
+.no-permission-message {
+  background: #fff1f0;
+  color: #cf1322;
+  border: 1px solid #ffa39e;
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+/* ==== Responsive ==== */
+@media (max-width: 768px) {
+  .search-form nz-col {
+    flex: 0 0 100%;
+    max-width: 100%;
+    margin-bottom: 16px;
+  }
+
+  .add-button {
+    width: 100%;
+  }
+
+  .actions-cell a {
+    display: block;
+    margin-bottom: 6px;
+  }
 }

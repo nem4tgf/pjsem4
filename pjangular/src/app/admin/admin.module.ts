@@ -32,6 +32,7 @@ import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { NzListModule } from 'ng-zorro-antd/list';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 import { NzMessageModule } from 'ng-zorro-antd/message';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip'; // ✅ Thêm dòng này
 
 // Import các component
 import { AdminComponent } from './admin.component';
@@ -107,6 +108,7 @@ import { PaymentsComponent } from './pages/payments/payments.component';
     NzPopconfirmModule,
     NzDatePickerModule,
     NzMessageModule,
+    NzToolTipModule, // ✅ Đã thêm
   ],
   exports: [LessonVocabularyComponent],
 })

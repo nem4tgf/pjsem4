@@ -1,82 +1,156 @@
-/* Định dạng cho card chứa toàn bộ component */
-nz-card {
-  margin: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+/* ===== Form Styles ===== */
+.search-form,
+.modal-form {
+  padding: 12px 0;
 }
 
-/* Định dạng nút "Add Vocabulary" */
-nz-button[nzType="primary"] {
-  margin-bottom: 16px;
-  background-color: #1890ff;
-  border-color: #1890ff;
-  transition: background-color 0.3s;
+.form-label,
+.modal-label {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  color: #333;
 }
 
-nz-button[nzType="primary"]:hover {
-  background-color: #40a9ff;
-  border-color: #40a9ff;
+.form-label i,
+.modal-label i {
+  margin-right: 8px;
+  font-size: 18px;
 }
 
-/* Định dạng bảng */
-nz-table {
-  background: #fff;
-  border-radius: 4px;
-  overflow: hidden;
+/* ===== Icon Styling ===== */
+.form-icon,
+.status-icon {
+  font-size: 16px;
+  vertical-align: middle;
 }
 
-nz-table th {
-  background: #fafafa;
-  color: #595959;
-  font-weight: 500;
-}
+/* Màu icon theo chức năng */
+i[nzType="book"] { color: #3f51b5; }          /* Lesson/Vocab */
+i[nzType="bar-chart"] { color: #2196f3; }     /* Level */
+i[nzType="bulb"] { color: #ff9800; }          /* Skill */
+i[nzType="font-colors"] { color: #673ab7; }   /* Word */
+i[nzType="dollar"] { color: #4caf50; }        /* Price */
+i[nzType="info-circle"] { color: #ff5722; }   /* Description */
+i[nzType="setting"] { color: #607d8b; }       /* Action */
+i[nzType="search"] { color: white; }
+i[nzType="reload"] { color: #1890ff; }
+i[nzType="plus-circle"] { color: white; }
+i[nzType="edit"] { color: #52c41a; }
+i[nzType="eye-invisible"] { color: #ff4d4f; }
+i[nzType="delete"] { color: #f5222d; }
 
-nz-table td {
-  color: #262626;
-}
-
-/* Định dạng cột Actions */
-nz-table td a[nz-button][nzType="link"][nzDanger] {
-  color: #ff4d4f;
-}
-
-nz-table td a[nz-button][nzType="link"][nzDanger]:hover {
-  color: #ff7875;
-}
-
-/* Định dạng modal */
-nz-modal {
-  min-width: 400px;
-}
-
-nz-modal nz-form-item {
-  margin-bottom: 16px;
-}
-
-nz-modal nz-form-label {
-  color: #595959;
-  font-weight: 500;
-}
-
-nz-modal nz-select {
+/* ===== Input & Select Styling ===== */
+.custom-input,
+.custom-select,
+.modal-input,
+.modal-select,
+.modal-textarea {
+  border-radius: 6px;
   width: 100%;
 }
 
-/* Định dạng select trong modal */
-nz-select {
-  border-radius: 4px;
+/* ===== Buttons ===== */
+.search-button,
+.add-button {
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 6px;
+  transition: 0.2s ease-in-out;
 }
 
-nz-select:hover {
-  border-color: #40a9ff;
+.search-button:hover,
+.add-button:hover {
+  background-color: #40a9ff;
 }
 
-/* Định dạng thông báo lỗi trong form */
-nz-form-control[nzErrorTip] {
-  color: #ff4d4f;
+.reset-button {
+  background-color: #fff;
+  border: 1px solid #d9d9d9;
+  color: #595959;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 6px;
+  margin-left: 8px;
+  transition: 0.2s ease-in-out;
 }
 
-/* Định dạng loading cho bảng */
-nz-table[nzLoading="true"] {
-  opacity: 0.6;
+.reset-button:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+/* ===== Table Styling ===== */
+.lessons-table,
+.vocab-table {
+  margin-top: 16px;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.table-header {
+  background-color: #fafafa;
+  font-weight: 600;
+  color: #333;
+}
+
+.table-row:hover {
+  background-color: #f5f5f5;
+}
+
+.table-cell {
+  padding: 12px;
+  color: #555;
+}
+
+/* ===== Action Buttons in Table ===== */
+.actions-cell a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  color: #1890ff;
+}
+
+.actions-cell a:hover {
+  text-decoration: underline;
+  color: #40a9ff;
+}
+
+/* ===== Modal ===== */
+nz-modal.modal {
+  border-radius: 12px;
+  background: #fff;
+}
+
+.modal-label {
+  font-weight: 500;
+  color: #333;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  nz-col {
+    flex: 0 0 100%;
+    max-width: 100%;
+    margin-bottom: 16px;
+  }
+
+  .add-button,
+  .search-button,
+  .reset-button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .actions-cell a {
+    display: block;
+    width: 100%;
+    margin-bottom: 6px;
+  }
 }

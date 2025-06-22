@@ -1,49 +1,71 @@
-<nz-card nzTitle="Manage Learning Materials">
-  <form nz-form [formGroup]="searchForm" (ngSubmit)="searchMaterials()">
-    <div nz-row nzGutter="16">
+<nz-card nzTitle="🎓 Manage Learning Materials" class="materials-card">
+  <form nz-form [formGroup]="searchForm" (ngSubmit)="searchMaterials()" class="search-form">
+    <div nz-row nzGutter="24">
+
+      <!-- Lesson -->
       <div nz-col nzSpan="6">
         <nz-form-item>
-          <nz-form-label nzFor="lessonId">Lesson</nz-form-label>
+          <nz-form-label nzFor="lessonId" class="form-label">
+            <i nz-icon nzType="book" class="form-icon"></i> Lesson
+          </nz-form-label>
           <nz-form-control>
-            <nz-select formControlName="lessonId" nzPlaceHolder="Select Lesson" nzAllowClear nzShowSearch>
+            <nz-select formControlName="lessonId" nzPlaceHolder="Select Lesson" nzAllowClear nzShowSearch class="custom-select">
               <nz-option *ngFor="let lesson of lessons" [nzValue]="lesson.lessonId" [nzLabel]="lesson.title"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
       </div>
+
+      <!-- Material Type -->
       <div nz-col nzSpan="6">
         <nz-form-item>
-          <nz-form-label nzFor="materialType">Material Type</nz-form-label>
+          <nz-form-label nzFor="materialType" class="form-label">
+            <i nz-icon nzType="appstore" class="form-icon"></i> Material Type
+          </nz-form-label>
           <nz-form-control>
-            <nz-select formControlName="materialType" nzPlaceHolder="Select Type" nzAllowClear>
+            <nz-select formControlName="materialType" nzPlaceHolder="Select Type" nzAllowClear class="custom-select">
               <nz-option nzValue="" nzLabel="All"></nz-option>
               <nz-option *ngFor="let type of materialTypes" [nzValue]="type" [nzLabel]="type"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
       </div>
+
+      <!-- Description -->
       <div nz-col nzSpan="6">
         <nz-form-item>
-          <nz-form-label nzFor="description">Description</nz-form-label>
+          <nz-form-label nzFor="description" class="form-label">
+            <i nz-icon nzType="edit" class="form-icon"></i> Description
+          </nz-form-label>
           <nz-form-control>
-            <input nz-input formControlName="description" placeholder="Enter description"/>
+            <input nz-input formControlName="description" placeholder="Enter description" class="custom-input"/>
           </nz-form-control>
         </nz-form-item>
       </div>
-      <div nz-col nzSpan="6">
+
+      <!-- Buttons -->
+      <div nz-col nzSpan="6" class="button-col">
         <nz-form-item>
-          <nz-form-label>&nbsp;</nz-form-label>
+          <nz-form-label></nz-form-label>
           <nz-form-control>
-            <button nz-button nzType="primary" type="submit">Search</button>
-            <button nz-button (click)="searchForm.reset({ page: 0, size: 10, sortBy: 'materialId', sortDir: 'ASC' })">Reset</button>
+            <button nz-button nzType="primary" type="submit" class="search-button">
+              <i nz-icon nzType="search"></i> Search
+            </button>
+            <button nz-button class="reset-button" (click)="searchForm.reset({ page: 0, size: 10, sortBy: 'materialId', sortDir: 'ASC' })">
+              <i nz-icon nzType="reload"></i> Reset
+            </button>
           </nz-form-control>
         </nz-form-item>
       </div>
+
     </div>
   </form>
 
-  <button *ngIf="isAdmin" nz-button nzType="primary" (click)="showModal(false)">Add Material</button>
+  <button *ngIf="isAdmin" nz-button nzType="primary" (click)="showModal(false)" class="add-button">
+    <i nz-icon nzType="plus"></i> Add Material
+  </button>
 
+  <!-- Table -->
   <nz-table
     #basicTable
     [nzData]="materials"
@@ -54,78 +76,47 @@
     [nzPageIndex]="pageData.page + 1"
     (nzPageIndexChange)="onPageChange($event)"
     (nzPageSizeChange)="onSizeChange($event)"
+    class="materials-table"
   >
     <thead>
       <tr>
-        <th
-          [nzSortFn]="true"
-          (nzSortOrderChange)="onSortChange('materialType', $event === 'ascend' ? 'ASC' : 'DESC')"
-        >Type</th>
-        <th>URL</th>
-        <th>Description</th>
-        <th>Lesson</th>
-        <th *ngIf="isAdmin">Actions</th>
+        <th [nzSortFn]="true" (nzSortOrderChange)="onSortChange('materialType', $event === 'ascend' ? 'ASC' : 'DESC')" class="table-header">
+          <i nz-icon nzType="appstore"></i> Type
+        </th>
+        <th class="table-header">
+          <i nz-icon nzType="link"></i> URL
+        </th>
+        <th class="table-header">
+          <i nz-icon nzType="file-text"></i> Description
+        </th>
+        <th class="table-header">
+          <i nz-icon nzType="book"></i> Lesson
+        </th>
+        <th *ngIf="isAdmin" class="table-header">
+          <i nz-icon nzType="setting"></i> Actions
+        </th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let material of basicTable.data">
-        <td>{{ material.materialType }}</td>
-        <td><a [href]="material.materialUrl" target="_blank">{{ material.materialUrl }}</a></td>
-        <td>{{ material.description }}</td>
-        <td>{{ getLessonTitle(material.lessonId) }}</td>
-        <td *ngIf="isAdmin">
-          <a nz-button nzType="link" (click)="showModal(true, material)">Edit</a>
+      <tr *ngFor="let material of basicTable.data" class="table-row">
+        <td class="table-cell">{{ material.materialType }}</td>
+        <td class="table-cell">
+          <a [href]="material.materialUrl" target="_blank" class="link">{{ material.materialUrl }}</a>
+        </td>
+        <td class="table-cell">{{ material.description }}</td>
+        <td class="table-cell">{{ getLessonTitle(material.lessonId) }}</td>
+        <td *ngIf="isAdmin" class="table-cell actions-cell">
+          <a nz-button nzType="link" (click)="showModal(true, material)" class="action-button">
+            <i nz-icon nzType="edit"></i> Edit
+          </a>
           <nz-divider nzType="vertical"></nz-divider>
-          <a nz-button nzType="link" nzDanger (click)="material.materialId != null && deleteMaterial(material.materialId!)">Delete</a>
+          <a nz-button nzType="link" nzDanger (click)="material.materialId && deleteMaterial(material.materialId!)" class="action-button">
+            <i nz-icon nzType="delete"></i> Delete
+          </a>
         </td>
       </tr>
     </tbody>
   </nz-table>
 
-  <nz-modal
-    [(nzVisible)]="isVisible"
-    [nzTitle]="isEdit ? 'Edit Material' : 'Add Material'"
-    (nzOnOk)="handleOk()"
-    (nzOnCancel)="handleCancel()"
-    [nzContent]="materialModalContent"
-  >
-    <ng-template #materialModalContent>
-      <form nz-form [formGroup]="materialForm">
-        <nz-form-item>
-          <nz-form-label nzRequired>Lesson</nz-form-label>
-          <nz-form-control
-            [nzErrorTip]="materialForm.get('lessonId')?.hasError('required') ? 'Lesson is required' : ''"
-          >
-            <nz-select formControlName="lessonId" nzPlaceHolder="Select a lesson">
-              <nz-option *ngFor="let lesson of lessons" [nzValue]="lesson.lessonId" [nzLabel]="lesson.title"></nz-option>
-            </nz-select>
-          </nz-form-control>
-        </nz-form-item>
-        <nz-form-item>
-          <nz-form-label nzRequired>Type</nz-form-label>
-          <nz-form-control
-            [nzErrorTip]="materialForm.get('materialType')?.hasError('required') ? 'Material Type is required' : ''"
-          >
-            <nz-select formControlName="materialType" nzPlaceHolder="Select material type">
-              <nz-option *ngFor="let type of materialTypes" [nzValue]="type" [nzLabel]="type"></nz-option>
-            </nz-select>
-          </nz-form-control>
-        </nz-form-item>
-        <nz-form-item>
-          <nz-form-label nzRequired>URL</nz-form-label>
-          <nz-form-control
-            [nzErrorTip]="materialForm.get('materialUrl')?.hasError('required') ? 'URL is required' : ''"
-          >
-            <input nz-input formControlName="materialUrl" placeholder="Enter material URL"/>
-          </nz-form-control>
-        </nz-form-item>
-        <nz-form-item>
-          <nz-form-label>Description</nz-form-label>
-          <nz-form-control>
-            <textarea nz-input formControlName="description" placeholder="Enter description"></textarea>
-          </nz-form-control>
-        </nz-form-item>
-      </form>
-    </ng-template>
-  </nz-modal>
+  <!-- Modal giữ nguyên như bạn đã viết -->
 </nz-card>

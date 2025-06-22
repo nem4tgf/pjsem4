@@ -1,33 +1,39 @@
-<nz-card [nzTitle]="'Manage Vocabulary for Lesson ' + (lessonId || '')">
-  <button *ngIf="isAdmin" nz-button nzType="primary" (click)="showAddModal()">
-    Add Existing Vocabulary
+<nz-card [nzTitle]="'📚 Manage Vocabulary for Lesson ' + (lessonId || '')" class="vocab-card">
+  <button *ngIf="isAdmin" nz-button nzType="primary" (click)="showAddModal()" class="add-button">
+    <i nz-icon nzType="plus-circle"></i> Add Existing Vocabulary
   </button>
+
   <nz-table
     #basicTable
     [nzData]="lessonVocabularies"
     [nzLoading]="!lessonVocabularies.length"
+    [nzFrontPagination]="false"
+    class="vocab-table"
   >
     <thead>
       <tr>
-        <th>Word</th>
-        <th>Meaning</th>
-        <th>Difficulty</th>
-        <th>Actions</th>
+        <th class="table-header"><i nz-icon nzType="font-colors"></i> Word</th>
+        <th class="table-header"><i nz-icon nzType="bulb"></i> Meaning</th>
+        <th class="table-header"><i nz-icon nzType="bar-chart"></i> Difficulty</th>
+        <th class="table-header"><i nz-icon nzType="setting"></i> Actions</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let vocab of basicTable.data">
-        <td>{{ vocab.word || 'N/A' }}</td>
-        <td>{{ vocab.meaning || 'N/A' }}</td>
-        <td>{{ vocab.difficultyLevel || 'N/A' }}</td>
-        <td>
+      <tr *ngFor="let vocab of basicTable.data" class="table-row">
+        <td class="table-cell">{{ vocab.word || 'N/A' }}</td>
+        <td class="table-cell">{{ vocab.meaning || 'N/A' }}</td>
+        <td class="table-cell">{{ vocab.difficultyLevel || 'N/A' }}</td>
+        <td class="table-cell actions-cell">
           <a
             *ngIf="isAdmin"
             nz-button
             nzType="link"
             nzDanger
             (click)="vocab.wordId !== undefined && deleteVocabularyFromLesson(vocab.wordId)"
-          >Remove from Lesson</a>
+            class="action-button"
+          >
+            <i nz-icon nzType="delete"></i> Remove
+          </a>
         </td>
       </tr>
     </tbody>
@@ -38,10 +44,15 @@
     nzTitle="Add Vocabulary to Lesson"
     (nzOnOk)="handleAddOk()"
     (nzOnCancel)="handleCancel()"
-    [nzContent]="addVocabularyModalContent" >
-    <ng-template #addVocabularyModalContent> <form nz-form [formGroup]="vocabularyForm">
+    [nzContent]="addVocabularyModalContent"
+    class="modal"
+  >
+    <ng-template #addVocabularyModalContent>
+      <form nz-form [formGroup]="vocabularyForm" class="modal-form">
         <nz-form-item>
-          <nz-form-label nzRequired>Select Vocabulary</nz-form-label>
+          <nz-form-label nzRequired class="modal-label">
+            <i nz-icon nzType="font-colors" class="form-icon"></i> Select Vocabulary
+          </nz-form-label>
           <nz-form-control
             [nzErrorTip]="vocabularyForm.get('wordId')?.hasError('required') ? 'Please select a vocabulary' : ''"
           >
@@ -49,6 +60,7 @@
               formControlName="wordId"
               nzPlaceHolder="Select an existing vocabulary"
               nzShowSearch
+              class="modal-select"
             >
               <nz-option
                 *ngFor="let vocab of allVocabularies"

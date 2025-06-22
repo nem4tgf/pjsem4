@@ -1,10 +1,9 @@
 // src/app/admin/lessons/lessons.component.ts
-
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
-import { Lesson, LessonRequest, LessonSearchRequest, LessonPageResponse, Level, Skill } from '../../../interface/lesson.interface'; // Updated import for LessonPageResponse
+import { Lesson, LessonRequest, LessonSearchRequest, LessonPageResponse, Level, Skill } from '../../../interface/lesson.interface';
 import { LessonService } from '../../../service/lesson.service';
 import { ApiService } from '../../../service/api.service';
 
@@ -22,7 +21,7 @@ export class LessonsComponent implements OnInit {
   levels = Object.values(Level);
   skills = Object.values(Skill);
   isAdmin: boolean = false;
-  pageData: LessonPageResponse = { content: [], totalElements: 0, totalPages: 0, pageNo: 0, pageSize: 10 }; // Updated type to LessonPageResponse
+  pageData: LessonPageResponse = { content: [], totalElements: 0, totalPages: 0, pageNo: 0, pageSize: 10 };
 
   constructor(
     private lessonService: LessonService,
@@ -37,8 +36,8 @@ export class LessonsComponent implements OnInit {
       description: [''],
       level: [null, Validators.required],
       skill: [null, Validators.required],
-      price: [null, [Validators.required, Validators.min(0.01)]],
-      durationMonths: [null, [Validators.min(1)]] // durationMonths is derived on backend, but kept in form for user input consistency if needed
+      price: [null, [Validators.required, Validators.min(0.01)]]
+      // Loại bỏ durationMonths vì backend tự tính
     });
     this.searchForm = this.fb.group({
       title: [''],
@@ -46,8 +45,8 @@ export class LessonsComponent implements OnInit {
       skill: [null],
       minPrice: [null, [Validators.min(0)]],
       maxPrice: [null, [Validators.min(0)]],
-      pageNo: [0], // Changed from 'page' to 'pageNo'
-      pageSize: [10], // Changed from 'size' to 'pageSize'
+      pageNo: [0],
+      pageSize: [10],
       sortBy: ['lessonId'],
       sortDir: ['ASC']
     });
@@ -62,14 +61,11 @@ export class LessonsComponent implements OnInit {
       error: (err) => {
         this.notification.warning('Warning', 'Unable to verify admin role.');
         console.error('Admin role check error:', err);
-        this.searchLessons(); // Still attempt to load lessons even if admin check fails
+        this.searchLessons();
       }
     });
   }
 
-  /**
-   * Performs a lesson search based on the current search form values.
-   */
   searchLessons(): void {
     const request: LessonSearchRequest = this.searchForm.value;
     this.lessonService.searchLessons(request).subscribe({
@@ -84,39 +80,21 @@ export class LessonsComponent implements OnInit {
     });
   }
 
-  /**
-   * Handles page index changes from the pagination component.
-   * @param page The new page index (1-based).
-   */
   onPageChange(page: number): void {
-    this.searchForm.patchValue({ pageNo: page - 1 }); // Update pageNo (0-based)
+    this.searchForm.patchValue({ pageNo: page - 1 });
     this.searchLessons();
   }
 
-  /**
-   * Handles page size changes from the pagination component.
-   * @param size The new page size.
-   */
   onSizeChange(size: number): void {
-    this.searchForm.patchValue({ pageSize: size, pageNo: 0 }); // Update pageSize and reset pageNo to 0
+    this.searchForm.patchValue({ pageSize: size, pageNo: 0 });
     this.searchLessons();
   }
 
-  /**
-   * Handles sort changes from the table headers.
-   * @param sortBy The field to sort by.
-   * @param sortDir The sort direction ('ASC' or 'DESC').
-   */
   onSortChange(sortBy: string, sortDir: 'ASC' | 'DESC'): void {
-    this.searchForm.patchValue({ sortBy, sortDir, pageNo: 0 }); // Update sort and reset pageNo to 0
+    this.searchForm.patchValue({ sortBy, sortDir, pageNo: 0 });
     this.searchLessons();
   }
 
-  /**
-   * Shows the add/edit lesson modal.
-   * @param isEdit Boolean indicating if the modal is for editing or adding.
-   * @param lesson Optional lesson object to pre-fill the form in edit mode.
-   */
   showModal(isEdit: boolean, lesson?: Lesson): void {
     if (!this.isAdmin) {
       this.notification.error('Error', 'You do not have permission to perform this action');
@@ -130,8 +108,7 @@ export class LessonsComponent implements OnInit {
         description: lesson.description || '',
         level: lesson.level,
         skill: lesson.skill,
-        price: lesson.price,
-        durationMonths: lesson.durationMonths
+        price: lesson.price
       });
     } else {
       this.lessonForm.reset({
@@ -140,17 +117,12 @@ export class LessonsComponent implements OnInit {
         description: '',
         level: Level.BEGINNER,
         skill: Skill.VOCABULARY,
-        price: null,
-        durationMonths: null
+        price: null
       });
     }
     this.isVisible = true;
   }
 
-  /**
-   * Handles the OK button click in the add/edit lesson modal.
-   * Creates or updates a lesson based on `isEdit` flag.
-   */
   handleOk(): void {
     if (this.lessonForm.invalid) {
       this.lessonForm.markAllAsTouched();
@@ -176,7 +148,7 @@ export class LessonsComponent implements OnInit {
       this.lessonService.updateLesson(lessonId, lessonRequest).subscribe({
         next: () => {
           this.notification.success('Success', 'Lesson updated successfully');
-          this.searchLessons(); // Refresh list after update
+          this.searchLessons();
           this.isVisible = false;
         },
         error: (err) => {
@@ -188,7 +160,7 @@ export class LessonsComponent implements OnInit {
       this.lessonService.createLesson(lessonRequest).subscribe({
         next: () => {
           this.notification.success('Success', 'Lesson created successfully');
-          this.searchLessons(); // Refresh list after creation
+          this.searchLessons();
           this.isVisible = false;
         },
         error: (err) => {
@@ -199,43 +171,32 @@ export class LessonsComponent implements OnInit {
     }
   }
 
-  /**
-   * Handles the Cancel button click in the add/edit lesson modal.
-   */
   handleCancel(): void {
     this.isVisible = false;
     this.lessonForm.reset();
   }
 
-  /**
-   * Deletes a lesson after user confirmation.
-   * @param lessonId The ID of the lesson to delete.
-   */
-  deleteLesson(lessonId: number | undefined): void {
-    if (!this.isAdmin) {
-      this.notification.error('Error', 'You do not have permission to perform this action');
-      return;
-    }
-    if (lessonId === undefined || lessonId === null) {
-      this.notification.error('Error', 'Cannot delete lesson: ID is missing.');
+  hideLesson(lessonId: number | undefined): void {
+    if (!this.isAdmin || !lessonId) {
+      this.notification.error('Error', 'You do not have permission or invalid lesson ID');
       return;
     }
 
     this.modal.confirm({
       nzTitle: 'Are you sure?',
-      nzContent: 'This action cannot be undone.',
-      nzOkText: 'Delete',
+      nzContent: 'The lesson will be hidden but can be restored later.',
+      nzOkText: 'Hide',
       nzOkType: 'primary',
       nzOkDanger: true,
       nzOnOk: () => {
-        this.lessonService.deleteLesson(lessonId).subscribe({
+        this.lessonService.hideLesson(lessonId).subscribe({
           next: () => {
-            this.notification.success('Success', 'Lesson deleted successfully');
-            this.searchLessons(); // Refresh list after deletion
+            this.notification.success('Success', 'Lesson hidden successfully');
+            this.searchLessons();
           },
           error: (err) => {
-            this.notification.error('Error', err.error?.message || 'Failed to delete lesson');
-            console.error('Delete lesson error:', err);
+            this.notification.error('Error', err.error?.message || 'Failed to hide lesson');
+            console.error('Hide lesson error:', err);
           }
         });
       }

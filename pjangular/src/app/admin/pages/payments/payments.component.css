@@ -1,0 +1,141 @@
+/* ===== Card & Table ===== */
+.payments-card {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.payments-table {
+  margin-top: 16px;
+  font-size: 14px;
+}
+
+.table-operations {
+  margin-bottom: 16px;
+}
+
+.table-row:hover {
+  background-color: #f5faff;
+}
+
+.actions-cell a {
+  color: #1890ff;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.actions-cell a:hover {
+  color: #40a9ff;
+  text-decoration: underline;
+}
+
+/* ===== Button Style ===== */
+.reload-button {
+  background-color: #52c41a;
+  color: white;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  padding: 6px 14px;
+}
+
+.reload-button:hover {
+  background-color: #389e0d;
+}
+
+/* ===== Modal ===== */
+.modal p {
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.modal i {
+  margin-right: 6px;
+}
+
+/* ===== Icon Coloring by Category ===== */
+.icon-user {
+  color: #3f51b5;
+}
+
+.icon-idcard {
+  color: #fa541c;
+}
+
+.icon-book {
+  color: #722ed1;
+}
+
+.icon-dollar {
+  color: #52c41a;
+}
+
+.icon-calendar {
+  color: #13c2c2;
+}
+
+.icon-home {
+  color: #eb2f96;
+}
+
+.icon-profile {
+  color: #1890ff;
+}
+
+.icon-info {
+  color: #faad14;
+}
+
+.icon-eye {
+  color: #1d39c4;
+}
+
+.icon-delete {
+  color: #f5222d;
+}
+
+.icon-edit {
+  color: #fa8c16;
+}
+
+.icon-reload {
+  color: #389e0d;
+}
+
+/* ===== Tag custom status nếu bạn cần thêm class (nếu không dùng hàm getColor) ===== */
+/*
+.nz-tag-paid {
+  background-color: #f6ffed;
+  color: #389e0d;
+  border-color: #b7eb8f;
+}
+.nz-tag-pending {
+  background-color: #fffbe6;
+  color: #faad14;
+  border-color: #ffe58f;
+}
+.nz-tag-failed {
+  background-color: #fff2f0;
+  color: #f5222d;
+  border-color: #ffccc7;
+}
+*/
+
+/* ===== Responsive fix nếu cần ===== */
+@media (max-width: 768px) {
+  .payments-table {
+    font-size: 12px;
+  }
+
+  .reload-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .modal p {
+    font-size: 13px;
+  }
+}

@@ -1,12 +1,163 @@
-nz-card {
-  margin-bottom: 16px;
+/* Bố cục chung */
+.answer-card {
+  padding: 32px;
+  background: linear-gradient(135deg, #ffffff, #f9f9f9);
+  border-radius: 16px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease-in-out;
 }
 
-button[nz-button] {
-  margin-bottom: 16px;
-  margin-left: 16px;
+/* Form tìm kiếm */
+.search-form {
+  margin-bottom: 32px;
 }
 
-nz-select {
-  width: 200px;
+/* Nhãn form */
+.form-label {
+  font-weight: 600;
+  font-size: 15px;
+  color: #333;
+}
+
+/* Select và Input */
+.custom-select,
+.custom-input {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #d9d9d9;
+  transition: border-color 0.3s ease;
+}
+
+.custom-select:hover,
+.custom-input:hover {
+  border-color: #40a9ff;
+}
+
+/* Nút */
+.search-btn,
+.reset-btn,
+.add-btn {
+  margin-right: 8px;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.search-btn i,
+.reset-btn i,
+.add-btn i {
+  font-size: 16px;
+}
+
+.search-btn:hover,
+.reset-btn:hover,
+.add-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.add-btn {
+  float: right;
+  margin-bottom: 16px;
+  background-color: #52c41a;
+  color: #fff;
+}
+
+.add-btn:hover {
+  background-color: #389e0d;
+}
+
+/* Bảng */
+.custom-table .table-header {
+  font-weight: 600;
+  background-color: #f0f2f5;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.custom-table .table-row:hover {
+  background-color: #f6ffed;
+  transition: background-color 0.3s;
+}
+
+.table-cell {
+  vertical-align: middle;
+  font-size: 14px;
+  padding: 12px 8px;
+}
+
+.disabled-row {
+  background-color: #f5f5f5;
+  opacity: 0.65;
+}
+
+/* Tag trạng thái */
+.status-tag {
+  font-weight: 500;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 13px;
+  text-transform: capitalize;
+}
+
+/* Nút hành động */
+.action-btn {
+  padding: 0 6px;
+  font-size: 14px;
+  transition: color 0.2s ease-in-out;
+}
+
+.edit-btn {
+  color: #1890ff;
+}
+
+.edit-btn:hover {
+  color: #40a9ff;
+}
+
+.toggle-btn {
+  color: #faad14;
+}
+
+.toggle-btn:hover {
+  color: #ffc53d;
+}
+
+.delete-btn {
+  color: #ff4d4f;
+}
+
+.delete-btn:hover {
+  color: #ff7875;
+}
+
+/* Modal */
+.custom-modal .modal-label {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.custom-modal .modal-input,
+.custom-modal .modal-select {
+  border-radius: 8px;
+  border: 1px solid #d9d9d9;
+  transition: border-color 0.3s;
+}
+
+.custom-modal .modal-input:hover,
+.custom-modal .modal-select:hover {
+  border-color: #40a9ff;
+}
+
+.modal-info {
+  margin-top: 20px;
+  color: #faad14;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
 }

@@ -1,5 +1,4 @@
 // src/app/interface/lesson.interface.ts
-
 export enum Level {
   BEGINNER = 'BEGINNER',
   INTERMEDIATE = 'INTERMEDIATE',
@@ -19,41 +18,38 @@ export interface Lesson {
   lessonId?: number;
   title: string;
   description?: string;
-  level: Level | string;
-  skill: Skill | string;
-  price: number; // Added price
+  level: Level;
+  skill: Skill;
+  price: number;
   createdAt?: string;
   durationMonths?: number;
 }
 
-// LessonRequest DTO for creating/updating lessons, excluding backend-managed fields like createdAt
 export interface LessonRequest {
   title: string;
   description?: string;
-  level: string;
-  skill: string;
-  price: number; // Added price
+  level: Level;
+  skill: Skill;
+  price: number;
 }
 
 export interface LessonSearchRequest {
   title?: string;
-  level?: string;
-  skill?: string;
+  level?: Level;
+  skill?: Skill;
   minPrice?: number;
   maxPrice?: number;
-  page?: number;
-  size?: number;
+  pageNo?: number;
+  pageSize?: number;
   sortBy?: string;
   sortDir?: 'ASC' | 'DESC';
 }
 
-// Renamed from LessonPage to LessonPageResponse to match backend DTO
-// Adjusted page and size to pageNo and pageSize for consistency with backend
 export interface LessonPageResponse {
   content: Lesson[];
   totalElements: number;
   totalPages: number;
-  pageNo: number; // Changed from 'page'
-  pageSize: number; // Changed from 'size'
-  last?: boolean; // Optional: Backend's Page object often includes 'last'
+  pageNo: number;
+  pageSize: number;
+  last?: boolean;
 }

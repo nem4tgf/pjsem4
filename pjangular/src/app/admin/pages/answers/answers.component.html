@@ -1,62 +1,84 @@
-<nz-card nzTitle="Manage Answers">
-  <form nz-form [formGroup]="searchForm" (ngSubmit)="searchAnswers()">
+<nz-card nzTitle="🧠 Manage Answers" class="answer-card">
+  <!-- Search Form -->
+  <form nz-form [formGroup]="searchForm" (ngSubmit)="searchAnswers()" class="search-form">
     <div nz-row nzGutter="16">
-      <div nz-col nzSpan="6">
+      <!-- Question -->
+      <div nz-col nzXs="24" nzSm="12" nzMd="6">
         <nz-form-item>
-          <nz-form-label nzFor="questionId">Question</nz-form-label>
+          <nz-form-label nzFor="questionId" class="form-label">📖 Question</nz-form-label>
           <nz-form-control>
-            <nz-select formControlName="questionId" nzPlaceHolder="Select Question" nzAllowClear nzShowSearch>
-              <nz-option *ngFor="let question of questions" [nzValue]="question.questionId" [nzLabel]="question.questionText"></nz-option>
+            <nz-select formControlName="questionId" nzPlaceHolder="Select Question" nzAllowClear nzShowSearch class="custom-select">
+              <nz-option *ngFor="let q of questions" [nzValue]="q.questionId" [nzLabel]="q.questionText"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
       </div>
-      <div nz-col nzSpan="6">
+
+      <!-- Is Correct -->
+      <div nz-col nzXs="24" nzSm="12" nzMd="6">
         <nz-form-item>
-          <nz-form-label nzFor="isCorrect">Is Correct</nz-form-label>
+          <nz-form-label nzFor="isCorrect" class="form-label">✔️ Is Correct</nz-form-label>
           <nz-form-control>
-            <nz-select formControlName="isCorrect" nzPlaceHolder="Select Correctness" nzAllowClear>
+            <nz-select formControlName="isCorrect" nzPlaceHolder="Select Correctness" nzAllowClear class="custom-select">
               <nz-option nzValue="true" nzLabel="Yes"></nz-option>
               <nz-option nzValue="false" nzLabel="No"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
       </div>
-      <div nz-col nzSpan="6">
+
+      <!-- Status -->
+      <div nz-col nzXs="24" nzSm="12" nzMd="6">
         <nz-form-item>
-          <nz-form-label nzFor="isActive">Status</nz-form-label>
+          <nz-form-label nzFor="isActive" class="form-label">🔒 Status</nz-form-label>
           <nz-form-control>
-            <nz-select formControlName="isActive" nzPlaceHolder="Select Status" nzAllowClear>
+            <nz-select formControlName="isActive" nzPlaceHolder="Select Status" nzAllowClear class="custom-select">
               <nz-option nzValue="true" nzLabel="Active"></nz-option>
               <nz-option nzValue="false" nzLabel="Disabled"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
       </div>
-      <div nz-col nzSpan="6">
+
+      <!-- Answer Text -->
+      <div nz-col nzXs="24" nzSm="12" nzMd="6">
         <nz-form-item>
-          <nz-form-label nzFor="answerText">Answer Text</nz-form-label>
+          <nz-form-label nzFor="answerText" class="form-label">✏️ Answer Text</nz-form-label>
           <nz-form-control>
-            <input nz-input formControlName="answerText" placeholder="Enter answer text"/>
+            <input nz-input formControlName="answerText" placeholder="Enter answer text" class="custom-input" />
           </nz-form-control>
         </nz-form-item>
       </div>
-      <div nz-col nzSpan="6">
+
+      <!-- Buttons -->
+      <div nz-col nzXs="24" nzSm="24" nzMd="6">
         <nz-form-item>
-          <nz-form-label> </nz-form-label>
-          <nz-form-control>
-            <button nz-button nzType="primary" type="submit" [disabled]="!isAdmin">Search</button>
-            <button nz-button (click)="searchForm.reset({ page: 0, size: 10, sortBy: 'answerId', sortDir: 'ASC' })" [disabled]="!isAdmin">Reset</button>
+          <nz-form-label>&nbsp;</nz-form-label>
+          <nz-form-control class="action-buttons">
+            <button nz-button nzType="primary" type="submit" [disabled]="!isAdmin" class="search-btn">
+              <i nz-icon nzType="search"></i>
+              <span>Search</span>
+            </button>
+
+            <button nz-button type="button" (click)="searchForm.reset({ page: 0, size: 10, sortBy: 'answerId', sortDir: 'ASC' })" [disabled]="!isAdmin" class="reset-btn">
+              <i nz-icon nzType="reload"></i>
+              <span>Reset</span>
+            </button>
           </nz-form-control>
         </nz-form-item>
       </div>
     </div>
   </form>
 
+  <!-- Add Answer -->
   <div class="header-actions">
-    <button nz-button nzType="primary" (click)="showModal(false)" [disabled]="!isAdmin">Add New Answer (Disabled by Default)</button>
+    <button nz-button nzType="primary" (click)="showModal(false)" [disabled]="!isAdmin" class="add-btn">
+      <i nz-icon nzType="plus"></i>
+      <span>Add New Answer</span>
+    </button>
   </div>
 
+  <!-- Answer Table -->
   <nz-table
     #basicTable
     [nzData]="answers"
@@ -68,42 +90,46 @@
     [nzPageIndex]="pageData.page + 1"
     (nzPageIndexChange)="onPageChange($event)"
     (nzPageSizeChange)="onSizeChange($event)"
+    class="custom-table"
   >
     <thead>
       <tr>
-        <th
-          [nzSortFn]="true"
-          (nzSortOrderChange)="onSortChange('content', $event === 'ascend' ? 'ASC' : 'DESC')"
-        >Answer Text</th>
-        <th>Correct</th>
-        <th>Question</th>
-        <th>Status</th>
-        <th>Actions</th>
+        <th class="table-header" [nzSortFn]="true" (nzSortOrderChange)="onSortChange('content', $event === 'ascend' ? 'ASC' : 'DESC')">Answer Text</th>
+        <th class="table-header">Correct</th>
+        <th class="table-header">Question</th>
+        <th class="table-header">Status</th>
+        <th class="table-header">Actions</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let answer of basicTable.data" [class.disabled-row]="!answer.isActive">
-        <td>{{ answer.content }}</td>
-        <td>
-          <nz-tag [nzColor]="answer.isCorrect ? 'green' : 'red'">
+      <tr *ngFor="let answer of basicTable.data" class="table-row" [class.disabled-row]="!answer.isActive">
+        <td class="table-cell">{{ answer.content }}</td>
+        <td class="table-cell">
+          <nz-tag [nzColor]="answer.isCorrect ? 'green' : 'red'" class="status-tag">
             {{ answer.isCorrect ? 'Yes' : 'No' }}
           </nz-tag>
         </td>
-        <td>{{ getQuestionText(answer.questionId) }}</td>
-        <td>
-          <nz-tag [nzColor]="answer.isActive ? 'green' : 'red'">
+        <td class="table-cell">{{ getQuestionText(answer.questionId) }}</td>
+        <td class="table-cell">
+          <nz-tag [nzColor]="answer.isActive ? 'green' : 'red'" class="status-tag">
             {{ answer.isActive ? 'Active' : 'Disabled' }}
           </nz-tag>
         </td>
-        <td>
-          <button nz-button nzType="link" (click)="showModal(true, answer)" [disabled]="!answer.isActive || !isAdmin">Edit</button>
-          <nz-divider nzType="vertical"></nz-divider>
-          <button nz-button nzType="link" [nzDanger]="answer.isActive" (click)="toggleAnswerStatus(answer)" [disabled]="!isAdmin">
-            {{ answer.isActive ? 'Disable' : 'Enable' }}
+        <td class="table-cell">
+          <button nz-button nzType="link" (click)="showModal(true, answer)" [disabled]="!answer.isActive || !isAdmin" class="action-btn edit-btn">
+            <i nz-icon nzType="edit" nzTheme="twotone"></i>
           </button>
+
           <nz-divider nzType="vertical"></nz-divider>
-          <button nz-button nzType="link" nzDanger (click)="softDeleteAnswer(answer)" [disabled]="!isAdmin">
-            Soft Delete
+
+          <button nz-button nzType="link" [nzDanger]="answer.isActive" (click)="toggleAnswerStatus(answer)" [disabled]="!isAdmin" class="action-btn toggle-btn">
+            <i nz-icon [nzType]="answer.isActive ? 'lock' : 'unlock'" nzTheme="outline"></i>
+          </button>
+
+          <nz-divider nzType="vertical"></nz-divider>
+
+          <button nz-button nzType="link" nzDanger (click)="softDeleteAnswer(answer)" [disabled]="!isAdmin" class="action-btn delete-btn">
+            <i nz-icon nzType="delete" nzTheme="twotone"></i>
           </button>
         </td>
       </tr>
@@ -118,35 +144,40 @@
     [nzOkText]="isEdit ? 'Update' : 'Create'"
     [nzCancelText]="'Cancel'"
     [nzOkDisabled]="answerForm.invalid"
-  >
-    <ng-template #modalContent>
-      <form nz-form [formGroup]="answerForm">
-        <nz-form-item>
-          <nz-form-label nzRequired>Question</nz-form-label>
-          <nz-form-control nzErrorTip="Question is required">
-            <nz-select formControlName="questionId" [nzDisabled]="isEdit">
-              <nz-option *ngFor="let question of questions" [nzValue]="question.questionId" [nzLabel]="question.questionText"></nz-option>
-            </nz-select>
-          </nz-form-control>
-        </nz-form-item>
-        <nz-form-item>
-          <nz-form-label nzRequired>Answer Text</nz-form-label>
-          <nz-form-control
-            [nzErrorTip]="answerForm.get('content')?.hasError('required') ? 'Answer text is required' : (answerForm.get('content')?.hasError('whitespace') ? 'Answer text cannot be just whitespace' : '')"
-          >
-            <input nz-input formControlName="content" placeholder="Enter answer text" />
-          </nz-form-control>
-        </nz-form-item>
-        <nz-form-item *ngIf="isEdit">
-          <nz-form-label nzRequired>Is Correct</nz-form-label>
-          <nz-form-control>
-            <nz-switch formControlName="isCorrect"></nz-switch>
-          </nz-form-control>
-        </nz-form-item>
-        <div *ngIf="!isEdit" class="ant-form-item-explain" style="color: #faad14;">
-          <p><i nz-icon nzType="info-circle" nzTheme="fill"></i> Câu trả lời sẽ được tạo ở trạng thái "Disabled" và cần được kích hoạt thủ công.</p>
-        </div>
-      </form>
-    </ng-template>
-  </nz-modal>
+    [nzContent]="modalContent"
+    class="custom-modal"
+  ></nz-modal>
+
+  <ng-template #modalContent>
+    <form nz-form [formGroup]="answerForm" class="modal-form">
+      <nz-form-item>
+        <nz-form-label nzRequired class="modal-label">Question</nz-form-label>
+        <nz-form-control nzErrorTip="Question is required">
+          <nz-select formControlName="questionId" [nzDisabled]="isEdit" nzPlaceHolder="Select Question" class="modal-select">
+            <nz-option *ngFor="let question of questions" [nzValue]="question.questionId" [nzLabel]="question.questionText"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired class="modal-label">Answer Text</nz-form-label>
+        <nz-form-control
+          [nzErrorTip]="answerForm.get('content')?.hasError('required') ? 'Answer text is required' : (answerForm.get('content')?.hasError('whitespace') ? 'Answer text cannot be just whitespace' : '')">
+          <input nz-input formControlName="content" placeholder="Enter answer text" class="modal-input" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item *ngIf="isEdit">
+        <nz-form-label nzRequired class="modal-label">Is Correct</nz-form-label>
+        <nz-form-control>
+          <nz-switch formControlName="isCorrect" class="modal-switch"></nz-switch>
+        </nz-form-control>
+      </nz-form-item>
+
+      <div *ngIf="!isEdit" class="modal-info">
+        <i nz-icon nzType="info-circle" nzTheme="fill"></i>
+        <span>Answer will be created in \"Disabled\" status and must be activated manually.</span>
+      </div>
+    </form>
+  </ng-template>
 </nz-card>

@@ -1,21 +1,19 @@
-<!-- src/app/admin/lessons/lessons.component.html -->
-
-<nz-card nzTitle="Manage Lessons">
-  <form nz-form [formGroup]="searchForm" (ngSubmit)="searchLessons()">
+<nz-card nzTitle="📘 Manage Lessons" class="lessons-card">
+  <form nz-form [formGroup]="searchForm" (ngSubmit)="searchLessons()" class="search-form">
     <div nz-row nzGutter="16">
       <div nz-col nzSpan="6">
         <nz-form-item>
-          <nz-form-label nzFor="title">Title</nz-form-label>
+          <nz-form-label nzFor="title" class="form-label"><i nz-icon nzType="book"></i> Title</nz-form-label>
           <nz-form-control>
-            <input nz-input formControlName="title" placeholder="Enter lesson title"/>
+            <input nz-input formControlName="title" placeholder="Enter lesson title" class="custom-input"/>
           </nz-form-control>
         </nz-form-item>
       </div>
       <div nz-col nzSpan="6">
         <nz-form-item>
-          <nz-form-label nzFor="level">Level</nz-form-label>
+          <nz-form-label nzFor="level" class="form-label"><i nz-icon nzType="bar-chart"></i> Level</nz-form-label>
           <nz-form-control>
-            <nz-select formControlName="level" nzPlaceHolder="Select Level" nzAllowClear>
+            <nz-select formControlName="level" nzPlaceHolder="Select Level" nzAllowClear class="custom-select">
               <nz-option *ngFor="let level of levels" [nzValue]="level" [nzLabel]="level"></nz-option>
             </nz-select>
           </nz-form-control>
@@ -23,9 +21,9 @@
       </div>
       <div nz-col nzSpan="6">
         <nz-form-item>
-          <nz-form-label nzFor="skill">Skill</nz-form-label>
+          <nz-form-label nzFor="skill" class="form-label"><i nz-icon nzType="bulb"></i> Skill</nz-form-label>
           <nz-form-control>
-            <nz-select formControlName="skill" nzPlaceHolder="Select Skill" nzAllowClear>
+            <nz-select formControlName="skill" nzPlaceHolder="Select Skill" nzAllowClear class="custom-select">
               <nz-option *ngFor="let skill of skills" [nzValue]="skill" [nzLabel]="skill"></nz-option>
             </nz-select>
           </nz-form-control>
@@ -33,35 +31,39 @@
       </div>
       <div nz-col nzSpan="6">
         <nz-form-item>
-          <nz-form-label nzFor="minPrice">Min Price</nz-form-label>
+          <nz-form-label nzFor="minPrice" class="form-label"><i nz-icon nzType="dollar"></i> Min Price</nz-form-label>
           <nz-form-control>
-            <input nz-input type="number" formControlName="minPrice" placeholder="Enter min price"/>
+            <input nz-input type="number" formControlName="minPrice" placeholder="Enter min price" class="custom-input"/>
           </nz-form-control>
         </nz-form-item>
       </div>
       <div nz-col nzSpan="6">
         <nz-form-item>
-          <nz-form-label nzFor="maxPrice">Max Price</nz-form-label>
+          <nz-form-label nzFor="maxPrice" class="form-label"><i nz-icon nzType="dollar"></i> Max Price</nz-form-label>
           <nz-form-control>
-            <input nz-input type="number" formControlName="maxPrice" placeholder="Enter max price"/>
+            <input nz-input type="number" formControlName="maxPrice" placeholder="Enter max price" class="custom-input"/>
           </nz-form-control>
         </nz-form-item>
       </div>
-      <div nz-col nzSpan="6">
+      <div nz-col nzSpan="6" class="button-col">
         <nz-form-item>
-          <nz-form-label>&nbsp;</nz-form-label>
+          <nz-form-label> </nz-form-label>
           <nz-form-control>
-            <button nz-button nzType="primary" type="submit">Search</button>
-            <button nz-button (click)="searchForm.reset({ pageNo: 0, pageSize: 10, sortBy: 'lessonId', sortDir: 'ASC' })">Reset</button>
+            <button nz-button nzType="primary" type="submit" class="search-button">
+              <i nz-icon nzType="search"></i> Search
+            </button>
+            <button nz-button (click)="searchForm.reset({ pageNo: 0, pageSize: 10, sortBy: 'lessonId', sortDir: 'ASC' })" class="reset-button">
+              <i nz-icon nzType="reload"></i> Reset
+            </button>
           </nz-form-control>
         </nz-form-item>
       </div>
     </div>
   </form>
 
-  <div style="margin-bottom: 16px;">
-    <button *ngIf="isAdmin" nz-button nzType="primary" (click)="showModal(false)">Add Lesson</button>
-  </div>
+  <button *ngIf="isAdmin" nz-button nzType="primary" (click)="showModal(false)" class="add-button">
+    <i nz-icon nzType="plus-circle"></i> Add Lesson
+  </button>
 
   <nz-table
     #basicTable
@@ -74,35 +76,33 @@
     [nzPageIndex]="pageData.pageNo + 1"
     (nzPageIndexChange)="onPageChange($event)"
     (nzPageSizeChange)="onSizeChange($event)"
+    class="lessons-table"
   >
     <thead>
       <tr>
-        <th
-          [nzSortFn]="true"
-          (nzSortOrderChange)="onSortChange('title', $event === 'ascend' ? 'ASC' : 'DESC')"
-        >Title</th>
-        <th>Description</th>
-        <th>Level</th>
-        <th>Skill</th>
-        <th>Price</th>
-        <th>Duration (Months)</th>
-        <th *ngIf="isAdmin">Actions</th>
+        <th class="table-header" [nzSortFn]="true" (nzSortOrderChange)="onSortChange('title', $event === 'ascend' ? 'ASC' : 'DESC')">Title</th>
+        <th class="table-header">Description</th>
+        <th class="table-header">Level</th>
+        <th class="table-header">Skill</th>
+        <th class="table-header">Price</th>
+        <th class="table-header">Duration (Months)</th>
+        <th *ngIf="isAdmin" class="table-header">Actions</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let lesson of basicTable.data">
-        <td>{{ lesson.title }}</td>
-        <td>{{ lesson.description || 'N/A' }}</td>
-        <td>{{ lesson.level }}</td>
-        <td>{{ lesson.skill }}</td>
-        <td>{{ lesson.price | currency:'VND':'symbol':'1.0-2' }}</td>
-        <td>{{ lesson.durationMonths || 'N/A' }}</td>
-        <td *ngIf="isAdmin">
-          <a nz-button nzType="link" (click)="showModal(true, lesson)">Edit</a>
+      <tr *ngFor="let lesson of basicTable.data" class="table-row">
+        <td class="table-cell">{{ lesson.title }}</td>
+        <td class="table-cell">{{ lesson.description || 'N/A' }}</td>
+        <td class="table-cell">{{ lesson.level }}</td>
+        <td class="table-cell">{{ lesson.skill }}</td>
+        <td class="table-cell">{{ lesson.price | currency:'VND':'symbol':'1.0-2' }}</td>
+        <td class="table-cell">{{ lesson.durationMonths || 'N/A' }}</td>
+        <td *ngIf="isAdmin" class="table-cell actions-cell">
+          <a nz-button nzType="link" (click)="showModal(true, lesson)" class="action-button"><i nz-icon nzType="edit"></i> Edit</a>
           <nz-divider nzType="vertical"></nz-divider>
-          <a nz-button nzType="link" nzDanger (click)="deleteLesson(lesson.lessonId)">Delete</a>
+          <a nz-button nzType="link" nzDanger (click)="hideLesson(lesson.lessonId)" class="action-button"><i nz-icon nzType="eye-invisible"></i> Hide</a>
           <nz-divider nzType="vertical"></nz-divider>
-          <a nz-button nzType="link" [routerLink]="['/admin/lessons', lesson.lessonId, 'vocabulary']">Manage Vocabulary</a>
+          <a nz-button nzType="link" [routerLink]="['/admin/lessons', lesson.lessonId, 'vocabulary']" class="action-button"><i nz-icon nzType="book"></i> Vocabulary</a>
         </td>
       </tr>
     </tbody>
@@ -116,51 +116,45 @@
     [nzOkText]="isEdit ? 'Update' : 'Create'"
     [nzCancelText]="'Cancel'"
     [nzOkDisabled]="lessonForm.invalid"
+    [nzContent]="modalContent"
+    class="modal"
   >
     <ng-template #modalContent>
-      <form nz-form [formGroup]="lessonForm">
+      <form nz-form [formGroup]="lessonForm" class="modal-form">
         <nz-form-item>
-          <nz-form-label nzRequired>Title</nz-form-label>
-          <nz-form-control
-            [nzErrorTip]="lessonForm.get('title')?.hasError('required') ? 'Title is required' : (lessonForm.get('title')?.hasError('minlength') ? 'Title must be at least 3 characters' : '')"
-          >
-            <input nz-input formControlName="title" placeholder="Enter lesson title"/>
+          <nz-form-label nzRequired class="modal-label"><i nz-icon nzType="book"></i> Title</nz-form-label>
+          <nz-form-control [nzErrorTip]="lessonForm.get('title')?.hasError('required') ? 'Title is required' : (lessonForm.get('title')?.hasError('minlength') ? 'At least 3 characters' : '')">
+            <input nz-input formControlName="title" placeholder="Enter lesson title" class="modal-input"/>
           </nz-form-control>
         </nz-form-item>
         <nz-form-item>
-          <nz-form-label>Description</nz-form-label>
+          <nz-form-label class="modal-label"><i nz-icon nzType="font-colors"></i> Description</nz-form-label>
           <nz-form-control>
-            <textarea nz-input formControlName="description" placeholder="Enter lesson description"></textarea>
+            <textarea nz-input formControlName="description" placeholder="Enter description" class="modal-input"></textarea>
           </nz-form-control>
         </nz-form-item>
         <nz-form-item>
-          <nz-form-label nzRequired>Level</nz-form-label>
+          <nz-form-label nzRequired class="modal-label"><i nz-icon nzType="bar-chart"></i> Level</nz-form-label>
           <nz-form-control nzErrorTip="Level is required">
-            <nz-select formControlName="level" nzPlaceHolder="Select level">
+            <nz-select formControlName="level" nzPlaceHolder="Select level" class="modal-select">
               <nz-option *ngFor="let level of levels" [nzValue]="level" [nzLabel]="level"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
         <nz-form-item>
-          <nz-form-label nzRequired>Skill</nz-form-label>
+          <nz-form-label nzRequired class="modal-label"><i nz-icon nzType="bulb"></i> Skill</nz-form-label>
           <nz-form-control nzErrorTip="Skill is required">
-            <nz-select formControlName="skill" nzPlaceHolder="Select skill">
+            <nz-select formControlName="skill" nzPlaceHolder="Select skill" class="modal-select">
               <nz-option *ngFor="let skill of skills" [nzValue]="skill" [nzLabel]="skill"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
         <nz-form-item>
-          <nz-form-label nzRequired>Price</nz-form-label>
+          <nz-form-label nzRequired class="modal-label"><i nz-icon nzType="dollar"></i> Price</nz-form-label>
           <nz-form-control
-            [nzErrorTip]="lessonForm.get('price')?.hasError('required') ? 'Price is required' : (lessonForm.get('price')?.hasError('min') ? 'Price must be greater than 0' : '')"
+            [nzErrorTip]="lessonForm.get('price')?.hasError('required') ? 'Price is required' : (lessonForm.get('price')?.hasError('min') ? 'Must be > 0' : '')"
           >
-            <nz-input-number formControlName="price" [nzMin]="0.01" [nzStep]="1000" [nzPrecision]="2"></nz-input-number>
-          </nz-form-control>
-        </nz-form-item>
-        <nz-form-item>
-          <nz-form-label>Duration (Months)</nz-form-label>
-          <nz-form-control nzErrorTip="Duration must be at least 1 month">
-            <nz-input-number formControlName="durationMonths" [nzMin]="1" [nzStep]="1"></nz-input-number>
+            <nz-input-number formControlName="price" [nzMin]="0.01" [nzStep]="1000" [nzPrecision]="2" class="modal-input"></nz-input-number>
           </nz-form-control>
         </nz-form-item>
       </form>

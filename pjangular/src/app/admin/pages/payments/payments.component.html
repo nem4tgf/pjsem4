@@ -1,8 +1,7 @@
-<!-- src/app/components/admin/payments/payments.component.html -->
-<nz-card nzTitle="Quản lý Thanh toán">
+<nz-card nzTitle="💳 Quản lý Thanh toán" class="payments-card">
   <div class="table-operations">
-    <button nz-button nzType="primary" (click)="loadPayments()">
-      <span nz-icon nzType="reload"></span> Tải lại
+    <button nz-button nzType="primary" (click)="loadPayments()" class="reload-button">
+      <i nz-icon nzType="reload" class="icon-reload"></i> Tải lại
     </button>
   </div>
 
@@ -13,39 +12,52 @@
     nzShowPagination
     [nzPageSize]="10"
     nzBordered
+    class="payments-table"
   >
     <thead>
       <tr>
-        <th>ID Giao dịch</th>
-        <th>Người dùng</th>
-        <th>ID Đơn hàng</th>
-        <th>Số tiền</th>
-        <th>Ngày thanh toán</th>
-        <th>Phương thức</th>
-        <th>Transaction ID</th>
-        <th>Trạng thái</th>
-        <th>Mô tả</th>
-        <th>Hành động</th>
+        <th><i nz-icon nzType="credit-card" class="icon-dollar"></i> ID Giao dịch</th>
+        <th><i nz-icon nzType="user" class="icon-user"></i> Người dùng</th>
+        <th><i nz-icon nzType="file-done" class="icon-idcard"></i> ID Đơn hàng</th>
+        <th><i nz-icon nzType="dollar" class="icon-dollar"></i> Số tiền</th>
+        <th><i nz-icon nzType="calendar" class="icon-calendar"></i> Ngày thanh toán</th>
+        <th><i nz-icon nzType="bank" class="icon-home"></i> Phương thức</th>
+        <th><i nz-icon nzType="key" class="icon-profile"></i> Transaction ID</th>
+        <th><i nz-icon nzType="info-circle" class="icon-info"></i> Trạng thái</th>
+        <th><i nz-icon nzType="file-text" class="icon-book"></i> Mô tả</th>
+        <th><i nz-icon nzType="tool" class="icon-edit"></i> Hành động</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let payment of paymentTable.data">
+      <tr *ngFor="let payment of paymentTable.data" class="table-row">
         <td>{{ payment.paymentId }}</td>
-        <td>{{ payment.user?.fullName }} ({{ payment.user?.email }})</td> <!-- Sử dụng optional chaining nếu user có thể null -->
+        <td>{{ payment.user?.fullName }} ({{ payment.user?.email }})</td>
         <td>{{ payment.orderId }}</td>
         <td>{{ payment.amount | currency:'VND':'symbol':'1.0-0' }}</td>
         <td>{{ payment.paymentDate | date: 'short' }}</td>
         <td>{{ payment.paymentMethod }}</td>
         <td>{{ payment.transactionId }}</td>
         <td>
-          <nz-tag [nzColor]="getPaymentStatusTagColor(payment.status)">{{ payment.status }}</nz-tag>
+          <nz-tag [nzColor]="getPaymentStatusTagColor(payment.status)">
+            {{ payment.status }}
+          </nz-tag>
         </td>
         <td>{{ payment.description || 'N/A' }}</td>
-        <td>
-          <a (click)="showPaymentDetailModal(payment)">Xem chi tiết</a>
+        <td class="actions-cell">
+          <a (click)="showPaymentDetailModal(payment)">
+            <i nz-icon nzType="eye" class="icon-eye"></i> Xem chi tiết
+          </a>
           <nz-divider nzType="vertical"></nz-divider>
-          <a nz-popconfirm nzPopconfirmTitle="Bạn có chắc chắn muốn xóa không?" (nzOnConfirm)="deletePayment(payment.paymentId)" nzPopconfirmPlacement="left" nzOkText="Xóa" nzCancelText="Hủy">
-            Xóa
+          <a
+            nz-popconfirm
+            nzPopconfirmTitle="Bạn có chắc chắn muốn xóa không?"
+            (nzOnConfirm)="deletePayment(payment.paymentId)"
+            nzPopconfirmPlacement="left"
+            nzOkText="Xóa"
+            nzCancelText="Hủy"
+            nzOkDanger
+          >
+            <i nz-icon nzType="delete" class="icon-delete"></i> Xóa
           </a>
         </td>
       </tr>
@@ -55,23 +67,28 @@
 
 <nz-modal
   [(nzVisible)]="isVisible"
-  nzTitle="Chi tiết Thanh toán #{{ selectedPayment?.paymentId }}"
+  nzTitle="🧾 Chi tiết Thanh toán #{{ selectedPayment?.paymentId }}"
   [nzFooter]="null"
   (nzOnCancel)="handleCancel()"
   (nzOnOk)="handleOk()"
   [nzWidth]="800"
+  class="modal"
 >
   <div *nzModalContent>
     <div *ngIf="selectedPayment">
-      <p><b>ID Giao dịch:</b> {{ selectedPayment.paymentId }}</p>
-      <p><b>Người dùng:</b> {{ selectedPayment.user?.fullName }} ({{ selectedPayment.user?.email }})</p>
-      <p><b>ID Đơn hàng:</b> {{ selectedPayment.orderId }}</p>
-      <p><b>Số tiền:</b> {{ selectedPayment.amount | currency:'VND':'symbol':'1.0-0' }}</p>
-      <p><b>Ngày thanh toán:</b> {{ selectedPayment.paymentDate | date: 'medium' }}</p>
-      <p><b>Phương thức:</b> {{ selectedPayment.paymentMethod }}</p>
-      <p><b>Transaction ID:</b> {{ selectedPayment.transactionId }}</p>
-      <p><b>Trạng thái:</b> <nz-tag [nzColor]="getPaymentStatusTagColor(selectedPayment.status)">{{ selectedPayment.status }}</nz-tag></p>
-      <p><b>Mô tả:</b> {{ selectedPayment.description || 'Chưa có' }}</p>
+      <p><i nz-icon nzType="credit-card" class="icon-dollar"></i> <b>ID Giao dịch:</b> {{ selectedPayment.paymentId }}</p>
+      <p><i nz-icon nzType="user" class="icon-user"></i> <b>Người dùng:</b> {{ selectedPayment.user?.fullName }} ({{ selectedPayment.user?.email }})</p>
+      <p><i nz-icon nzType="file-done" class="icon-idcard"></i> <b>ID Đơn hàng:</b> {{ selectedPayment.orderId }}</p>
+      <p><i nz-icon nzType="dollar" class="icon-dollar"></i> <b>Số tiền:</b> {{ selectedPayment.amount | currency:'VND':'symbol':'1.0-0' }}</p>
+      <p><i nz-icon nzType="calendar" class="icon-calendar"></i> <b>Ngày thanh toán:</b> {{ selectedPayment.paymentDate | date: 'medium' }}</p>
+      <p><i nz-icon nzType="bank" class="icon-home"></i> <b>Phương thức:</b> {{ selectedPayment.paymentMethod }}</p>
+      <p><i nz-icon nzType="key" class="icon-profile"></i> <b>Transaction ID:</b> {{ selectedPayment.transactionId }}</p>
+      <p><i nz-icon nzType="info-circle" class="icon-info"></i> <b>Trạng thái:</b>
+        <nz-tag [nzColor]="getPaymentStatusTagColor(selectedPayment.status)">
+          {{ selectedPayment.status }}
+        </nz-tag>
+      </p>
+      <p><i nz-icon nzType="file-text" class="icon-book"></i> <b>Mô tả:</b> {{ selectedPayment.description || 'Chưa có' }}</p>
     </div>
   </div>
 </nz-modal>

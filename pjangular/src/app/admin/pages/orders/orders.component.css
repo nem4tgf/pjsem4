@@ -1,28 +1,196 @@
-/* src/app/admin/pages/orders/orders.component.css */
-
-.table-operations {
-  margin-bottom: 16px;
+/* ===== Card ===== */
+.orders-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04);
+  padding: 12px;
 }
 
-.search-filters nz-form-item {
-  margin-bottom: 0; /* Loại bỏ margin-bottom mặc định của form-item để các input sát hơn */
+/* ===== Form Styles ===== */
+.search-form {
+  padding: 12px 0;
 }
 
-/* Điều chỉnh khoảng cách giữa các hàng của form */
-.search-filters nz-row {
-  margin-bottom: 16px;
-}
-
-/* Đảm bảo các input trong nz-input-group hoặc nz-input-number chiếm đủ không gian */
-.search-input-field {
-  width: 100%;
-}
-
-/* Căn chỉnh nút "Tìm kiếm" và "Đặt lại" */
-.general-operations {
+.form-label {
+  font-weight: 600;
   display: flex;
-  justify-content: flex-start; /* Căn trái */
-  gap: 8px; /* Khoảng cách giữa các nút */
+  align-items: center;
+  color: #333;
 }
 
-/* Có thể thêm các điều chỉnh khác nếu cần */
+.form-label i {
+  margin-right: 8px;
+  font-size: 18px;
+}
+
+/* ===== Icon Coloring (thematic) ===== */
+i[nzType="user"] { color: #3f51b5; }           /* User */
+i[nzType="idcard"] { color: #6a1b9a; }         /* ID */
+i[nzType="profile"] { color: #ff9800; }        /* Status */
+i[nzType="calendar"] { color: #2196f3; }       /* Date */
+i[nzType="dollar"] { color: #4caf50; }         /* Money */
+i[nzType="info-circle"] { color: #ff5722; }    /* Info */
+i[nzType="home"] { color: #607d8b; }           /* Address */
+i[nzType="eye"] { color: #1890ff; }            /* View */
+i[nzType="edit"] { color: #52c41a; }           /* Edit */
+i[nzType="delete"] { color: #f5222d; }         /* Delete */
+i[nzType="search"] { color: white; }
+i[nzType="reload"] { color: #1890ff; }
+
+/* ===== Input & Select Styling ===== */
+.custom-input,
+.custom-select {
+  width: 100%;
+  border-radius: 6px;
+}
+
+/* ===== Buttons ===== */
+.search-button,
+.reload-button {
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-weight: 500;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.search-button:hover,
+.reload-button:hover {
+  background-color: #40a9ff;
+}
+
+.reset-button {
+  background-color: #fff;
+  border: 1px solid #d9d9d9;
+  color: #595959;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 6px;
+  margin-left: 8px;
+  font-weight: 500;
+  padding: 6px 16px;
+  transition: 0.2s ease-in-out;
+}
+
+.reset-button:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+/* ===== Table Styling ===== */
+.orders-table {
+  margin-top: 16px;
+  background-color: #fff;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.table-row:hover {
+  background-color: #f5f5f5;
+}
+
+.actions-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.actions-cell a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #1890ff;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.actions-cell a:hover {
+  color: #40a9ff;
+  text-decoration: underline;
+}
+
+/* ===== Modal Styling ===== */
+nz-modal.modal {
+  border-radius: 12px;
+  background-color: #ffffff;
+}
+
+nz-modal.modal .ant-modal-body {
+  font-size: 14px;
+  color: #333;
+}
+
+nz-modal.modal p {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+
+nz-modal.modal p i {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+nz-modal .ant-divider {
+  margin: 16px 0 12px;
+}
+
+/* ===== Table in Modal ===== */
+nz-modal .ant-table {
+  margin-top: 8px;
+}
+
+nz-modal .ant-table-thead > tr > th {
+  background-color: #f0f2f5;
+  font-weight: 600;
+  color: #333;
+}
+
+nz-modal .ant-table-tbody > tr > td {
+  padding: 8px;
+  color: #555;
+}
+
+/* ===== Form Actions Row ===== */
+.form-actions {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 768px) {
+  nz-col {
+    flex: 0 0 100%;
+    max-width: 100%;
+    margin-bottom: 12px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-button,
+  .reset-button,
+  .reload-button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .actions-cell {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .actions-cell a {
+    width: 100%;
+  }
+}
