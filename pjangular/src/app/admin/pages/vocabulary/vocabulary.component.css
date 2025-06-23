@@ -1,0 +1,108 @@
+.vocab-card {
+  padding: 24px;
+  background: linear-gradient(to top left, #ffffff, #f0f2f5);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.header-actions {
+  text-align: right;
+  margin-bottom: 16px;
+}
+
+.add-btn {
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 6px 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #52c41a;
+  color: #fff;
+}
+
+.add-btn:hover {
+  background-color: #389e0d;
+}
+
+.add-btn i[nz-icon] > svg {
+  color: #fff;
+}
+
+/* Table Styling */
+.vocab-table .ant-table-thead > tr > th {
+  background-color: #fafafa;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: 0.4px;
+  padding: 12px 8px;
+}
+
+.vocab-table .ant-table-tbody > tr:hover {
+  background-color: #e6f7ff;
+}
+
+.vocab-table i[nz-icon][nzType="book"] > svg {
+  color: #722ed1;
+}
+
+.vocab-table i[nz-icon][nzType="bulb"] > svg {
+  color: #faad14;
+}
+
+.vocab-table i[nz-icon][nzType="bar-chart"] > svg {
+  color: #13c2c2;
+}
+
+.vocab-table i[nz-icon][nzType="setting"] > svg {
+  color: #595959;
+}
+
+/* Action Buttons */
+.action-btn {
+  font-size: 14px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 6px;
+}
+
+.edit-btn i[nz-icon] > svg {
+  color: #1890ff;
+}
+
+.edit-btn:hover i[nz-icon] > svg {
+  color: #40a9ff;
+}
+
+.delete-btn i[nz-icon] > svg {
+  color: #ff4d4f;
+}
+
+.delete-btn:hover i[nz-icon] > svg {
+  color: #ff7875;
+}
+
+/* Modal Styling */
+.vocab-modal .modal-form {
+  margin-top: 12px;
+}
+
+.modal-input,
+.modal-select {
+  border-radius: 6px;
+  border: 1px solid #d9d9d9;
+  transition: border-color 0.3s;
+}
+
+.modal-input:hover,
+.modal-select:hover {
+  border-color: #40a9ff;
+}
+
+.modal-input:focus,
+.modal-select:focus-within {
+  box-shadow: 0 0 4px rgba(24, 144, 255, 0.3);
+}

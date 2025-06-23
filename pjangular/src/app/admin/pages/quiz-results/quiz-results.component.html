@@ -1,55 +1,67 @@
-<nz-card nzTitle="Manage Quiz Results">
-  <form nz-form [formGroup]="resultForm" *ngIf="isAdmin">
-    <nz-form-item>
-      <nz-form-label nzRequired>User</nz-form-label>
-      <nz-form-control
-        [nzErrorTip]="resultForm.get('userId')?.hasError('required') && resultForm.get('userId')?.touched ? 'User is required' : ''"
-      >
-        <nz-select
-          formControlName="userId"
-          [(ngModel)]="selectedUserId"
-          (ngModelChange)="onUserChange($event)"
-          nzPlaceHolder="Select a user"
-          nzShowSearch
-          >
-          <nz-option *ngFor="let user of users" [nzValue]="user.userId" [nzLabel]="user.username"></nz-option>
-        </nz-select>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-label nzRequired>Quiz</nz-form-label>
-      <nz-form-control
-        [nzErrorTip]="resultForm.get('quizId')?.hasError('required') && resultForm.get('quizId')?.touched ? 'Quiz is required' : ''"
-      >
-        <nz-select formControlName="quizId" nzPlaceHolder="Select a quiz" nzShowSearch
-          >
-          <nz-option *ngFor="let quiz of quizzes" [nzValue]="quiz.quizId" [nzLabel]="quiz.title"></nz-option>
-        </nz-select>
-      </nz-form-control>
-    </nz-form-item>
-    <nz-form-item>
-      <nz-form-label nzRequired>Score</nz-form-label>
-      <nz-form-control
-        [nzErrorTip]="
-          (resultForm.get('score')?.hasError('required') && resultForm.get('score')?.touched) ? 'Score is required' :
-          (resultForm.get('score')?.hasError('min') || resultForm.get('score')?.hasError('max')) ? 'Score must be between 0 and 100' : ''
-        "
-      >
-        <nz-input-number formControlName="score" [nzMin]="0" [nzMax]="100" nzPlaceHolder="Enter score"></nz-input-number>
-      </nz-form-control>
-    </nz-form-item>
-    <button nz-button nzType="primary" (click)="saveResult()">Save Result</button>
+<nz-card nzTitle="📊 Quản lý Kết quả Bài kiểm tra" class="quiz-results-card">
+  <!-- Form nhập kết quả -->
+  <form nz-form [formGroup]="resultForm" *ngIf="isAdmin" class="quiz-form">
+    <div nz-row nzGutter="16">
+      <div nz-col nzSpan="8">
+        <nz-form-item class="form-item">
+          <nz-form-label nzRequired>
+            <i nz-icon nzType="user" nzTheme="fill" class="icon-user"></i> Người dùng
+          </nz-form-label>
+          <nz-form-control [nzErrorTip]="resultForm.get('userId')?.touched && resultForm.get('userId')?.hasError('required') ? 'Bắt buộc' : undefined">
+            <nz-select
+              formControlName="userId"
+              nzPlaceHolder="Chọn người dùng"
+              nzShowSearch
+              class="custom-select"
+            >
+              <nz-option *ngFor="let user of users" [nzValue]="user.userId" [nzLabel]="user.username"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col nzSpan="8">
+        <nz-form-item class="form-item">
+          <nz-form-label nzRequired>
+            <i nz-icon nzType="file-done" nzTheme="fill" class="icon-quiz"></i> Bài kiểm tra
+          </nz-form-label>
+          <nz-form-control [nzErrorTip]="resultForm.get('quizId')?.touched && resultForm.get('quizId')?.hasError('required') ? 'Bắt buộc' : undefined">
+            <nz-select formControlName="quizId" nzPlaceHolder="Chọn bài kiểm tra" nzShowSearch class="custom-select">
+              <nz-option *ngFor="let quiz of quizzes" [nzValue]="quiz.quizId" [nzLabel]="quiz.title"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col nzSpan="6">
+        <nz-form-item class="form-item">
+          <nz-form-label nzRequired>
+            <i nz-icon nzType="number" nzTheme="fill" class="icon-score"></i> Điểm số
+          </nz-form-label>
+          <nz-form-control [nzErrorTip]="resultForm.get('score')?.touched ? (resultForm.get('score')?.hasError('required') ? 'Bắt buộc' : resultForm.get('score')?.hasError('min') || resultForm.get('score')?.hasError('max') ? 'Điểm phải từ 0 - 100' : undefined) : undefined">
+            <nz-input-number formControlName="score" [nzMin]="0" [nzMax]="100" nzPlaceHolder="Nhập điểm"></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col nzSpan="2" class="button-col">
+        <button nz-button nzType="primary" (click)="saveResult()" class="save-button">
+          <i nz-icon nzType="save" nzTheme="fill" class="icon-save"></i> Lưu
+        </button>
+      </div>
+    </div>
   </form>
 
   <nz-divider *ngIf="isAdmin"></nz-divider>
 
-  <nz-table #basicTable [nzData]="results" [nzLoading]="!results.length" *ngIf="isAdmin">
+  <!-- Bảng kết quả -->
+  <nz-table #basicTable [nzData]="results" [nzLoading]="!results.length" *ngIf="isAdmin" class="quiz-results-table">
     <thead>
       <tr>
-        <th>User</th>
-        <th>Quiz</th>
-        <th>Score</th>
-        <th>Completed At</th>
+        <th><i nz-icon nzType="user" nzTheme="fill" class="icon-user"></i> Người dùng</th>
+        <th><i nz-icon nzType="file-done" nzTheme="fill" class="icon-quiz"></i> Bài kiểm tra</th>
+        <th><i nz-icon nzType="number" nzTheme="fill" class="icon-score"></i> Điểm số</th>
+        <th><i nz-icon nzType="clock-circle" nzTheme="outline" class="icon-time"></i> Hoàn thành lúc</th>
       </tr>
     </thead>
     <tbody>
@@ -63,6 +75,6 @@
   </nz-table>
 
   <div *ngIf="!isAdmin" class="no-permission-message">
-    <p>Bạn không có quyền truy cập trang quản lý kết quả bài kiểm tra.</p>
+    <i nz-icon nzType="stop" nzTheme="fill"></i> Bạn không có quyền truy cập kết quả bài kiểm tra.
   </div>
 </nz-card>

@@ -2,7 +2,6 @@
   <form nz-form [formGroup]="searchForm" (ngSubmit)="searchMaterials()" class="search-form">
     <div nz-row nzGutter="24">
 
-      <!-- Lesson -->
       <div nz-col nzSpan="6">
         <nz-form-item>
           <nz-form-label nzFor="lessonId" class="form-label">
@@ -16,7 +15,6 @@
         </nz-form-item>
       </div>
 
-      <!-- Material Type -->
       <div nz-col nzSpan="6">
         <nz-form-item>
           <nz-form-label nzFor="materialType" class="form-label">
@@ -31,7 +29,6 @@
         </nz-form-item>
       </div>
 
-      <!-- Description -->
       <div nz-col nzSpan="6">
         <nz-form-item>
           <nz-form-label nzFor="description" class="form-label">
@@ -43,7 +40,6 @@
         </nz-form-item>
       </div>
 
-      <!-- Buttons -->
       <div nz-col nzSpan="6" class="button-col">
         <nz-form-item>
           <nz-form-label></nz-form-label>
@@ -65,7 +61,6 @@
     <i nz-icon nzType="plus"></i> Add Material
   </button>
 
-  <!-- Table -->
   <nz-table
     #basicTable
     [nzData]="materials"
@@ -117,6 +112,63 @@
       </tr>
     </tbody>
   </nz-table>
-
-  <!-- Modal giữ nguyên như bạn đã viết -->
 </nz-card>
+
+<nz-modal
+  [(nzVisible)]="isVisible"
+  [nzTitle]="isEdit ? 'Edit Learning Material' : 'Add Learning Material'"
+  (nzOnCancel)="handleCancel()"
+  (nzOnOk)="handleOk()"
+  [nzOkLoading]="false"
+  [nzWidth]="600"
+>
+  <ng-container *nzModalContent>
+    <form nz-form [formGroup]="materialForm" nzLayout="vertical">
+      <nz-form-item *ngIf="isEdit">
+        <nz-form-control>
+          <input type="hidden" formControlName="materialId" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired nzFor="lessonId">
+          <i nz-icon nzType="book"></i> Lesson
+        </nz-form-label>
+        <nz-form-control [nzErrorTip]="(materialForm.get('lessonId')?.invalid && materialForm.get('lessonId')?.touched) ? 'Please select a lesson!' : undefined">
+          <nz-select formControlName="lessonId" nzPlaceHolder="Select Lesson" nzAllowClear nzShowSearch>
+            <nz-option *ngFor="let lesson of lessons" [nzValue]="lesson.lessonId" [nzLabel]="lesson.title"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired nzFor="materialType">
+          <i nz-icon nzType="appstore"></i> Material Type
+        </nz-form-label>
+        <nz-form-control [nzErrorTip]="(materialForm.get('materialType')?.invalid && materialForm.get('materialType')?.touched) ? 'Please select a material type!' : undefined">
+          <nz-select formControlName="materialType" nzPlaceHolder="Select Type">
+            <nz-option *ngFor="let type of materialTypes" [nzValue]="type" [nzLabel]="type"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired nzFor="materialUrl">
+          <i nz-icon nzType="link"></i> Material URL
+        </nz-form-label>
+        <nz-form-control [nzErrorTip]="(materialForm.get('materialUrl')?.invalid && materialForm.get('materialUrl')?.touched) ? 'Please enter the material URL!' : undefined">
+          <input nz-input formControlName="materialUrl" placeholder="Enter URL" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzFor="description">
+          <i nz-icon nzType="file-text"></i> Description
+        </nz-form-label>
+        <nz-form-control>
+          <textarea nz-input formControlName="description" placeholder="Enter description" nzAutosize></textarea>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+</nz-modal>

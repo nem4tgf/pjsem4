@@ -5,8 +5,8 @@ import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { LearningMaterial, MaterialType, LearningMaterialSearchRequest, LearningMaterialPage } from 'src/app/interface/learning-material.interface';
 import { Lesson } from 'src/app/interface/lesson.interface';
 import { LearningMaterialService } from 'src/app/service/learning-material.service';
-import { LessonService } from 'src/app/service/lesson.service';
 import { ApiService } from 'src/app/service/api.service';
+import { LessonService } from 'src/app/service/lesson.service';
 
 @Component({
   selector: 'app-learning-materials',
@@ -201,6 +201,8 @@ export class LearningMaterialsComponent implements OnInit {
           next: () => {
             this.notification.success('Success', 'Material deleted successfully!');
             this.searchMaterials();
+            this.isVisible = false; // Close modal if open (though unlikely for delete)
+            this.materialForm.reset(); // Reset form (good practice)
           },
           error: (err) => {
             this.notification.error('Error', 'Failed to delete material: ' + (err.error?.message || err.message));

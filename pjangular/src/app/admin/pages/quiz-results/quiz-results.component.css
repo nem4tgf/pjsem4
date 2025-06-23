@@ -1,0 +1,111 @@
+.quiz-results-card {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+/* ==== Form ==== */
+.quiz-form {
+  margin-bottom: 20px;
+}
+
+.form-item {
+  margin-bottom: 0;
+}
+
+.form-item .ant-form-label {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.custom-select {
+  border-radius: 8px;
+  width: 100%;
+}
+
+.button-col {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.save-button {
+  background-color: #1890ff;
+  color: white;
+  border-radius: 8px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 16px;
+}
+
+.save-button:hover {
+  background-color: #40a9ff;
+}
+
+/* ==== Table ==== */
+.quiz-results-table th {
+  background-color: #f0f5ff;
+  font-weight: 600;
+  text-align: center;
+  color: #333;
+}
+
+.quiz-results-table td {
+  text-align: center;
+  padding: 12px;
+  color: #555;
+}
+
+/* ==== Icon Styling ==== */
+.icon-user {
+  color: #1890ff;
+}
+.icon-quiz {
+  color: #9254de;
+}
+.icon-score {
+  color: #faad14;
+}
+.icon-time {
+  color: #13c2c2;
+}
+.icon-save {
+  color: #52c41a;
+}
+i[nzType="stop"] {
+  color: #cf1322;
+}
+
+/* ==== No Permission ==== */
+.no-permission-message {
+  background-color: #fff1f0;
+  border: 1px solid #ffa39e;
+  color: #cf1322;
+  padding: 20px;
+  text-align: center;
+  border-radius: 10px;
+  margin-top: 16px;
+  font-weight: 500;
+}
+
+/* ==== Responsive ==== */
+@media (max-width: 768px) {
+  .quiz-form nz-col {
+    flex: 0 0 100%;
+    max-width: 100%;
+    margin-bottom: 12px;
+  }
+
+  .button-col {
+    justify-content: center;
+  }
+
+  .save-button {
+    width: 100%;
+  }
+}

@@ -1,18 +1,25 @@
-<nz-card nzTitle="Manage Vocabulary">
-  <button nz-button nzType="primary" (click)="showModal(false)">
-    Add Vocabulary
-  </button>
+<nz-card nzTitle="📚 Manage Vocabulary" class="vocab-card">
+  <!-- Nút Add Vocabulary -->
+  <div class="header-actions">
+    <button nz-button nzType="primary" (click)="showModal(false)" class="add-btn">
+      <i nz-icon nzType="plus-circle" nzTheme="fill"></i>
+      <span>Add Vocabulary</span>
+    </button>
+  </div>
+
+  <!-- Bảng Vocabulary -->
   <nz-table
     #basicTable
     [nzData]="vocabularies"
     [nzLoading]="!vocabularies.length"
+    class="vocab-table"
   >
     <thead>
       <tr>
-        <th>Word</th>
-        <th>Meaning</th>
-        <th>Difficulty</th>
-        <th>Actions</th>
+        <th><i nz-icon nzType="book" nzTheme="outline"></i> Word</th>
+        <th><i nz-icon nzType="bulb" nzTheme="twotone"></i> Meaning</th>
+        <th><i nz-icon nzType="bar-chart" nzTheme="twotone"></i> Difficulty</th>
+        <th><i nz-icon nzType="setting" nzTheme="outline"></i> Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -21,74 +28,87 @@
         <td>{{ vocab.meaning }}</td>
         <td>{{ vocab.difficultyLevel }}</td>
         <td>
-          <a nz-button nzType="link" (click)="showModal(true, vocab)">Edit</a>
+          <button nz-button nzType="link" (click)="showModal(true, vocab)" class="action-btn edit-btn">
+            <i nz-icon nzType="edit" nzTheme="twotone"></i> Edit
+          </button>
           <nz-divider nzType="vertical"></nz-divider>
-          <a
+          <button
             nz-button
             nzType="link"
             nzDanger
             (click)="vocab.wordId !== undefined && deleteVocabulary(vocab.wordId)"
-          >Delete</a>
+            class="action-btn delete-btn"
+          >
+            <i nz-icon nzType="delete" nzTheme="twotone"></i> Delete
+          </button>
         </td>
       </tr>
     </tbody>
   </nz-table>
 
+  <!-- Modal Add/Edit -->
   <nz-modal
     [(nzVisible)]="isVisible"
     [nzTitle]="isEdit ? 'Edit Vocabulary' : 'Add Vocabulary'"
     (nzOnOk)="handleOk()"
     (nzOnCancel)="handleCancel()"
     [nzContent]="modalContent"
+    class="vocab-modal"
   >
     <ng-template #modalContent>
-      <form nz-form [formGroup]="vocabularyForm">
+      <form nz-form [formGroup]="vocabularyForm" class="modal-form">
         <nz-form-item>
           <nz-form-label nzRequired>Word</nz-form-label>
           <nz-form-control
             [nzErrorTip]="vocabularyForm.get('word')?.hasError('required') ? 'Word is required' : ''"
           >
-            <input nz-input formControlName="word" placeholder="Enter word" />
+            <input nz-input formControlName="word" placeholder="Enter word" class="modal-input" />
           </nz-form-control>
         </nz-form-item>
+
         <nz-form-item>
           <nz-form-label nzRequired>Meaning</nz-form-label>
           <nz-form-control
             [nzErrorTip]="vocabularyForm.get('meaning')?.hasError('required') ? 'Meaning is required' : ''"
           >
-            <input nz-input formControlName="meaning" placeholder="Enter meaning" />
+            <input nz-input formControlName="meaning" placeholder="Enter meaning" class="modal-input" />
           </nz-form-control>
         </nz-form-item>
+
         <nz-form-item>
           <nz-form-label>Example Sentence</nz-form-label>
           <nz-form-control>
-            <textarea nz-input formControlName="exampleSentence" placeholder="Enter example sentence"></textarea>
+            <textarea nz-input formControlName="exampleSentence" class="modal-input" rows="2"></textarea>
           </nz-form-control>
         </nz-form-item>
+
         <nz-form-item>
           <nz-form-label>Pronunciation</nz-form-label>
           <nz-form-control>
-            <input nz-input formControlName="pronunciation" placeholder="Enter pronunciation (e.g., /ˈwɜːrd/)" />
+            <input nz-input formControlName="pronunciation" placeholder="e.g. /ˈwɜːrd/" class="modal-input" />
           </nz-form-control>
         </nz-form-item>
+
         <nz-form-item>
           <nz-form-label>Audio URL</nz-form-label>
           <nz-form-control>
-            <input nz-input formControlName="audioUrl" placeholder="Enter audio URL" />
+            <input nz-input formControlName="audioUrl" placeholder="Enter audio URL" class="modal-input" />
           </nz-form-control>
         </nz-form-item>
+
         <nz-form-item>
           <nz-form-label>Writing Prompt</nz-form-label>
           <nz-form-control>
-            <input nz-input formControlName="writingPrompt" placeholder="Enter writing prompt" />
+            <input nz-input formControlName="writingPrompt" placeholder="Enter writing prompt" class="modal-input" />
           </nz-form-control>
         </nz-form-item>
+
         <nz-form-item>
           <nz-form-label nzRequired>Difficulty Level</nz-form-label>
           <nz-form-control
             [nzErrorTip]="vocabularyForm.get('difficultyLevel')?.hasError('required') ? 'Difficulty level is required' : ''"
           >
-            <nz-select formControlName="difficultyLevel" nzPlaceHolder="Select difficulty level">
+            <nz-select formControlName="difficultyLevel" nzPlaceHolder="Select difficulty level" class="modal-select">
               <nz-option
                 *ngFor="let level of difficultyLevels"
                 [nzValue]="level"

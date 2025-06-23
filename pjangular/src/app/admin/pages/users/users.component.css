@@ -1,0 +1,182 @@
+/* ==== Card Container ==== */
+.user-card {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  margin: 16px;
+}
+
+/* ==== Add Button ==== */
+.user-card .header-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: 16px 0;
+}
+
+.user-card .add-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  border-radius: 8px;
+  background-color: #52c41a; /* Green for add button */
+  color: white;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.user-card .add-btn:hover {
+  background-color: #73d13d; /* Lighter green on hover */
+}
+
+.user-card .add-btn i[nz-icon][nzType="user-add"] {
+  color: #ffffff; /* White icon for add button */
+  font-size: 16px;
+}
+
+/* ==== Table Styling ==== */
+.user-card .user-table .ant-table-thead > tr > th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+  text-align: center;
+  color: #333;
+}
+
+.user-card .user-table .ant-table-tbody > tr > td {
+  text-align: center;
+  padding: 12px;
+  color: #555;
+}
+
+/* ==== Icon for Table Headers ==== */
+.user-card .user-table th i[nz-icon] {
+  margin-right: 4px;
+  font-size: 14px;
+}
+
+.user-card .user-table th:nth-child(1) i[nz-icon][nzType="user"] {
+  color: #1890ff; /* Blue for username icon */
+}
+
+.user-card .user-table th:nth-child(2) i[nz-icon][nzType="mail"] {
+  color: #fa8c16; /* Orange for email icon */
+}
+
+.user-card .user-table th:nth-child(3) i[nz-icon][nzType="idcard"] {
+  color: #eb2f96; /* Pink for full name icon */
+}
+
+.user-card .user-table th:nth-child(4) i[nz-icon][nzType="safety-certificate"] {
+  color: #722ed1; /* Purple for role icon */
+}
+
+.user-card .user-table th:nth-child(5) i[nz-icon][nzType="calendar"] {
+  color: #13c2c2; /* Cyan for created at icon */
+}
+
+.user-card .user-table th:nth-child(6) i[nz-icon][nzType="setting"] {
+  color: #595959; /* Gray for actions icon */
+}
+
+/* ==== Role Tags ==== */
+.user-card .user-table nz-tag[nzColor="red"] {
+  background-color: #fff1f0;
+  color: #ff4d4f;
+  border: 1px solid #ffa39e;
+  border-radius: 8px;
+}
+
+.user-card .user-table nz-tag[nzColor="blue"] {
+  background-color: #e6f7ff;
+  color: #1890ff;
+  border: 1px solid #91d5ff;
+  border-radius: 8px;
+}
+
+/* ==== Action Buttons ==== */
+.user-card .user-table .action-btn i[nz-icon] {
+  font-size: 14px;
+}
+
+.user-card .user-table .edit-btn i[nz-icon][nzType="edit"] {
+  color: #faad14; /* Yellow for edit icon */
+}
+
+.user-card .user-table .edit-btn:hover i[nz-icon][nzType="edit"] {
+  color: #ffc107; /* Lighter yellow on hover */
+}
+
+.user-card .user-table .delete-btn i[nz-icon][nzType="delete"] {
+  color: #f5222d; /* Red for delete icon */
+}
+
+.user-card .user-table .delete-btn:hover i[nz-icon][nzType="delete"] {
+  color: #ff4d4f; /* Lighter red on hover */
+}
+
+/* ==== No Permission Message ==== */
+.user-card .no-permission-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #f5222d;
+  font-size: 16px;
+  padding: 16px;
+  background: #fff1f0;
+  border-radius: 8px;
+}
+
+.user-card .no-permission-message i[nz-icon][nzType="stop"] {
+  color: #f5222d; /* Red for stop icon */
+  font-size: 18px;
+}
+
+/* ==== Modal Styling ==== */
+.user-card .user-modal .ant-modal-body {
+  padding-top: 16px;
+}
+
+.user-card .user-modal .modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.user-card .user-modal .modal-input,
+.user-card .user-modal .modal-select {
+  border-radius: 8px;
+  width: 100%;
+}
+
+.user-card .user-modal .modal-input {
+  height: 40px;
+  padding: 8px;
+}
+
+.user-card .user-modal .modal-input:focus,
+.user-card .user-modal .modal-select:focus {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+/* ==== Responsive ==== */
+@media (max-width: 768px) {
+  .user-card .user-table .ant-table-thead > tr > th,
+  .user-card .user-table .ant-table-tbody > tr > td {
+    font-size: 14px;
+  }
+
+  .user-card .user-table .action-btn i[nz-icon] {
+    font-size: 12px;
+  }
+
+  .user-card .add-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .user-card .header-actions {
+    justify-content: center;
+  }
+}
