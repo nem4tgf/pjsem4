@@ -1,11 +1,13 @@
 // src/app/service/question.service.ts
+
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http'; // Import HttpParams
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { switchMap, catchError } from 'rxjs/operators'; // Thêm catchError
 import { ApiService } from './api.service';
-import { Question } from '../interface/question.interface';
-import { Skill } from '../interface/lesson.interface'; // Import Skill để dùng trong tham số tìm kiếm
+import { Question, QuestionRequest, QuestionSearchRequest, QuestionPageResponse } from '../interface/question.interface'; // Cập nhật import
+// Không cần import Skill từ lesson.interface.ts nữa nếu không dùng trực tiếp trong search parameters
+// import { Skill } from '../interface/lesson.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -15,59 +17,93 @@ export class QuestionService extends ApiService {
     super(http);
   }
 
-  createQuestion(request: Question): Observable<Question> {
+  /**
+   * Tạo một câu hỏi mới.
+   * Yêu cầu quyền ADMIN.
+   * Endpoint Backend: POST /api/questions
+   * @param request DTO QuestionRequest chứa thông tin câu hỏi.
+   * @returns Observable<Question> của câu hỏi đã tạo.
+   */
+  createQuestion(request: QuestionRequest): Observable<Question> { // Thay đổi kiểu tham số
     return this.checkAdminRole().pipe(
-      switchMap(() => this.http.post<Question>(`${this.apiUrl}/questions`, request))
-    );
-  }
-
-  getQuestionById(questionId: number): Observable<Question> {
-    return this.checkAdminRole().pipe(
-      switchMap(() => this.http.get<Question>(`${this.apiUrl}/questions/${questionId}`))
-    );
-  }
-
-  getQuestionsByQuizId(quizId: number): Observable<Question[]> {
-    return this.checkAdminRole().pipe(
-      switchMap(() => this.http.get<Question[]>(`${this.apiUrl}/questions/quiz/${quizId}`))
+      switchMap(() => this.http.post<Question>(`${this.apiUrl}/questions`, request)),
+      catchError(this.handleError) // Sử dụng handleError từ ApiService
     );
   }
 
   /**
-   * Phương thức tìm kiếm câu hỏi với các tham số tùy chọn.
-   * @param quizId ID Quiz (tùy chọn)
-   * @param skill Kỹ năng (tùy chọn)
-   * @param questionText Văn bản câu hỏi (tùy chọn)
-   * @returns Observable của mảng Question.
+   * Lấy thông tin một câu hỏi theo ID.
+   * Có thể truy cập công khai (theo backend controller).
+   * Endpoint Backend: GET /api/questions/{questionId}
+   * @param questionId ID của câu hỏi.
+   * @returns Observable<Question>
    */
-  searchQuestions(quizId?: number, skill?: Skill, questionText?: string): Observable<Question[]> {
-    return this.checkAdminRole().pipe(
-      switchMap(() => {
-        let params = new HttpParams();
-        if (quizId) {
-          params = params.append('quizId', quizId.toString());
-        }
-        if (skill) {
-          params = params.append('skill', skill);
-        }
-        if (questionText) {
-          params = params.append('questionText', questionText);
-        }
-        // Gọi endpoint search mới ở backend
-        return this.http.get<Question[]>(`${this.apiUrl}/questions/search`, { params });
-      })
+  getQuestionById(questionId: number): Observable<Question> {
+    // Backend controller cho phép truy cập công khai (không @PreAuthorize),
+    // nên không cần checkAdminRole() hay checkAuth() ở đây.
+    return this.http.get<Question>(`${this.apiUrl}/questions/${questionId}`).pipe(
+      catchError(this.handleError) // Sử dụng handleError từ ApiService
     );
   }
 
-  updateQuestion(questionId: number, request: Question): Observable<Question> {
-    return this.checkAdminRole().pipe(
-      switchMap(() => this.http.put<Question>(`${this.apiUrl}/questions/${questionId}`, request))
+  /**
+   * Lấy danh sách các câu hỏi thuộc một bài quiz cụ thể.
+   * Có thể truy cập công khai (theo backend controller).
+   * Endpoint Backend: GET /api/questions/quiz/{quizId}
+   * @param quizId ID của bài quiz.
+   * @returns Observable<Question[]>
+   */
+  getQuestionsByQuizId(quizId: number): Observable<Question[]> {
+    // Backend controller cho phép truy cập công khai (không @PreAuthorize),
+    // nên không cần checkAdminRole() hay checkAuth() ở đây.
+    return this.http.get<Question[]>(`${this.apiUrl}/questions/quiz/${quizId}`).pipe(
+      catchError(this.handleError) // Sử dụng handleError từ ApiService
     );
   }
 
+  /**
+   * Tìm kiếm và phân trang câu hỏi dựa trên các tiêu chí tùy chọn.
+   * Có thể truy cập công khai (theo backend controller).
+   * Endpoint Backend: GET /api/questions/search
+   * @param request DTO QuestionSearchRequest chứa các tiêu chí tìm kiếm và thông tin phân trang/sắp xếp.
+   * @returns Observable<QuestionPageResponse> của trang kết quả.
+   */
+  searchQuestions(request: QuestionSearchRequest): Observable<QuestionPageResponse> {
+    // Backend controller cho phép truy cập công khai (không @PreAuthorize),
+    // và sử dụng @ModelAttribute để ánh xạ query params vào DTO.
+    // Angular HttpClient.get có thể nhận một đối tượng làm giá trị cho 'params',
+    // nó sẽ tự động chuyển đổi các thuộc tính của đối tượng đó thành query parameters.
+    return this.http.get<QuestionPageResponse>(`${this.apiUrl}/questions/search`, { params: request as any }).pipe(
+      catchError(this.handleError) // Sử dụng handleError từ ApiService
+    );
+  }
+
+  /**
+   * Cập nhật thông tin một câu hỏi.
+   * Yêu cầu quyền ADMIN.
+   * Endpoint Backend: PUT /api/questions/{questionId}
+   * @param questionId ID của câu hỏi.
+   * @param request DTO QuestionRequest chứa thông tin cập nhật.
+   * @returns Observable<Question>
+   */
+  updateQuestion(questionId: number, request: QuestionRequest): Observable<Question> { // Thay đổi kiểu tham số
+    return this.checkAdminRole().pipe(
+      switchMap(() => this.http.put<Question>(`${this.apiUrl}/questions/${questionId}`, request)),
+      catchError(this.handleError) // Sử dụng handleError từ ApiService
+    );
+  }
+
+  /**
+   * Xóa một câu hỏi.
+   * Yêu cầu quyền ADMIN.
+   * Endpoint Backend: DELETE /api/questions/{questionId}
+   * @param questionId ID của câu hỏi.
+   * @returns Observable<void>
+   */
   deleteQuestion(questionId: number): Observable<void> {
     return this.checkAdminRole().pipe(
-      switchMap(() => this.http.delete<void>(`${this.apiUrl}/questions/${questionId}`))
+      switchMap(() => this.http.delete<void>(`${this.apiUrl}/questions/${questionId}`)),
+      catchError(this.handleError) // Sử dụng handleError từ ApiService
     );
   }
 }

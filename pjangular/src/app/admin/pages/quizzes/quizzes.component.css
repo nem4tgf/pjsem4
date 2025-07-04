@@ -1,139 +1,283 @@
-/* ==== Card Container ==== */
-.quiz-card {
-  background-color: #fff;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+/* src/app/admin/pages/quizzes/quizzes.component.css */
+
+/* Tổng thể container */
+.quizzes-container {
+  padding: 24px; /* Tạo khoảng trống xung quanh nội dung */
+  background-color: #f0f2f5; /* Màu nền nhẹ cho toàn trang, thường là xám nhạt */
+  min-height: calc(100vh - 64px); /* Đảm bảo chiều cao tối thiểu, trừ đi chiều cao header Ant Design mặc định */
+  font-family: 'Inter', sans-serif; /* Sử dụng font hiện đại, ví dụ Inter hoặc Roboto */
 }
 
-/* ==== Filter Form ==== */
-.filter-form {
-  margin-bottom: 20px;
+/* Tiêu đề trang */
+.site-page-header {
+  background-color: #fff; /* Nền trắng cho header */
+  border-radius: 8px; /* Bo góc nhẹ nhàng */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Đổ bóng sâu hơn một chút, tạo cảm giác nổi bật */
+  margin-bottom: 24px; /* Khoảng cách dưới tiêu đề */
+  padding: 16px 24px; /* Điều chỉnh padding */
+}
+
+.site-page-header .ant-page-header-heading-title {
+  font-size: 24px; /* Cỡ chữ lớn hơn cho tiêu đề */
+  font-weight: 700; /* Đậm hơn */
+  color: #2c3e50; /* Màu chữ tối hơn, chuyên nghiệp hơn */
+}
+
+.site-page-header .ant-breadcrumb {
+  font-size: 14px; /* Cỡ chữ cho breadcrumb */
+  color: #7f8c8d; /* Màu xám cho breadcrumb */
+}
+
+/* --- */
+
+/* Thẻ tìm kiếm & lọc */
+.search-filter-card {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Đổ bóng nhẹ nhàng hơn */
+  border-radius: 8px;
+}
+
+.search-form .ant-form-item {
+  margin-bottom: 0; /* Loại bỏ margin-bottom mặc định của form item trong form tìm kiếm */
+}
+
+.filter-item {
+  margin-bottom: 16px; /* Khoảng cách giữa các mục lọc */
 }
 
 .form-label {
-  font-weight: 600;
+  font-weight: 600; /* Đậm hơn cho label */
+  color: #34495e; /* Màu chữ đậm hơn */
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Khoảng cách giữa icon và text */
+  margin-bottom: 4px; /* Khoảng cách nhỏ giữa label và input */
+}
+
+.custom-input,
+.custom-select .ant-select-selector {
+  border-radius: 6px !important; /* Bo góc nhẹ nhàng cho input/select */
+  border: 1px solid #d9d9d9;
+}
+
+.custom-input:focus,
+.custom-input:hover,
+.custom-select .ant-select-selector:focus,
+.custom-select .ant-select-selector:hover {
+  border-color: #1890ff !important; /* Màu border khi focus/hover */
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2) !important; /* Hiệu ứng đổ bóng nhẹ khi focus */
+}
+
+.filter-buttons {
+  display: flex;
+  justify-content: flex-end; /* Căn phải các button */
+  gap: 12px; /* Khoảng cách giữa các button */
+  padding-top: 8px; /* Khoảng cách trên cho các button */
+}
+
+.search-button, .reset-button {
+  border-radius: 6px;
+  font-weight: 500;
   display: flex;
   align-items: center;
   gap: 6px;
+  height: 36px; /* Chiều cao cố định cho button */
+  padding: 0 16px;
 }
 
-.custom-select {
-  width: 100%;
-  border-radius: 8px;
+.search-button {
+  background-color: #1890ff;
+  border-color: #1890ff;
+}
+.search-button:hover {
+  background-color: #40a9ff;
+  border-color: #40a9ff;
 }
 
-/* ==== Add Button ==== */
-.header-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin: 16px 0;
-}
-
-.add-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 600;
-  border-radius: 8px;
-  background-color: #52c41a;
-  color: white;
-  border: none;
-}
-
-.add-btn:hover {
-  background-color: #73d13d;
-}
-
-/* ==== Table Styling ==== */
-.custom-table .ant-table-thead > tr > th {
-  background-color: #f5f5f5;
-  font-weight: 600;
-  text-align: center;
-  color: #333;
-}
-
-.custom-table .ant-table-tbody > tr > td {
-  text-align: center;
-  padding: 12px;
+.reset-button {
   color: #555;
+  border-color: #d9d9d9;
+}
+.reset-button:hover {
+  color: #1890ff;
+  border-color: #1890ff;
 }
 
-.status-tag {
-  background-color: #e6f7ff;
-  color: #1890ff;
-  border: 1px solid #91d5ff;
+/* --- */
+
+/* Danh sách Bài Kiểm Tra (bảng) */
+.quizzes-list-card {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Đổ bóng nhẹ nhàng hơn */
   border-radius: 8px;
-  font-weight: 500;
 }
 
-/* ==== Icon for Table Headers ==== */
-.table-icon {
-  margin-right: 4px;
-  color: #1890ff;
-}
-
-/* ==== Actions ==== */
-.actions-cell a {
-  color: #1890ff;
-  font-weight: 500;
-}
-
-.actions-cell a:hover {
-  text-decoration: underline;
-}
-
-.actions-cell i[nzType="edit"] {
-  color: #faad14;
-}
-
-.actions-cell i[nzType="delete"] {
-  color: #f5222d;
-}
-
-/* ==== Modal Styling ==== */
-.custom-modal .ant-modal-body {
-  padding-top: 16px;
-}
-
-.modal-form {
+.table-actions {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  justify-content: flex-end; /* Căn phải button thêm mới */
+  margin-bottom: 16px; /* Khoảng cách dưới button */
 }
 
-.modal-label {
-  font-weight: 600;
+.add-button {
+  border-radius: 6px;
+  font-weight: 500;
   display: flex;
   align-items: center;
   gap: 6px;
+  height: 36px;
+  padding: 0 16px;
 }
 
-.modal-select,
-.modal-input {
-  border-radius: 8px;
-  width: 100%;
+.quiz-table .ant-table-thead > tr > th {
+  background-color: #e6f7ff; /* Nền xanh nhạt cho header bảng */
+  font-weight: 600; /* Đậm hơn */
+  color: #2c3e50; /* Màu chữ đậm */
+  border-bottom: 1px solid #aed6f1; /* Đường kẻ dưới đậm hơn */
+  text-align: center; /* Căn giữa tiêu đề cột */
 }
 
-.modal-input {
-  height: 40px;
-  padding: 8px;
+.quiz-table .ant-table-tbody > tr > td {
+  text-align: center; /* Căn giữa nội dung cột */
+  vertical-align: middle; /* Căn giữa theo chiều dọc */
 }
 
-/* ==== Responsive ==== */
+.table-row:hover {
+  background-color: #f5f5f5 !important; /* Màu nền khi hover vào hàng */
+}
+
+.table-header {
+  font-size: 15px; /* Kích thước chữ cho header bảng */
+}
+
+.actions-cell {
+  white-space: nowrap; /* Ngăn không cho các button hành động xuống dòng */
+}
+
+.actions-cell .ant-btn-link {
+  font-size: 14px;
+  padding: 0 8px; /* Điều chỉnh padding cho button link */
+}
+
+/* Tùy chỉnh màu sắc cho tag loại bài kiểm tra */
+nz-tag {
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 5px; /* Bo góc nhiều hơn */
+  text-transform: uppercase; /* Chữ hoa */
+  letter-spacing: 0.5px; /* Khoảng cách giữa các ký tự */
+  min-width: 90px; /* Chiều rộng tối thiểu để đồng bộ */
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* --- */
+
+/* Modal Form */
+.modal .ant-modal-content {
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); /* Đổ bóng rõ hơn cho modal */
+}
+
+.modal .ant-modal-header {
+  border-bottom: 1px solid #f0f0f0;
+  padding: 16px 24px;
+  border-radius: 10px 10px 0 0;
+}
+
+.modal .ant-modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.modal-form .ant-form-item {
+  margin-bottom: 20px; /* Khoảng cách giữa các form item trong modal */
+}
+
+.modal-item .ant-form-label label {
+  font-weight: 600;
+  color: #34495e;
+  font-size: 14px;
+}
+.modal-item .ant-form-label label.ant-form-item-required:before {
+  color: #ff4d4f; /* Màu đỏ cho dấu sao yêu cầu */
+}
+
+/* --- */
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .search-filter-card .ant-row > div[nz-col] {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+  .button-col-full {
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+    text-align: left !important;
+  }
+  .filter-buttons {
+    justify-content: flex-start;
+  }
+}
+
 @media (max-width: 768px) {
-  .custom-select,
-  .modal-select,
-  .modal-input {
-    width: 100%;
+  .quizzes-container {
+    padding: 16px;
   }
 
-  .header-actions {
-    justify-content: center;
+  .site-page-header {
+    margin-bottom: 16px;
+    padding: 12px 16px;
   }
 
-  .add-btn {
-    width: 100%;
-    justify-content: center;
+  .site-page-header .ant-page-header-heading-title {
+    font-size: 20px;
+  }
+
+  /* Mỗi cột chiếm 100% chiều rộng trên màn hình nhỏ */
+  .search-filter-card .ant-row > div[nz-col] {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .text-right {
+    text-align: left; /* Căn trái các button trên màn hình nhỏ */
+  }
+
+  .table-actions {
+    justify-content: center; /* Căn giữa button thêm mới trên mobile */
+  }
+
+  .quiz-table .ant-table-thead > tr > th,
+  .quiz-table .ant-table-tbody > tr > td {
+    padding: 12px 8px; /* Giảm padding trong bảng */
+  }
+
+  /* Ẩn các cột ít quan trọng trên mobile để bảng gọn hơn */
+  .quiz-table th:nth-child(2), /* Ẩn cột Bài Học trên mobile */
+  .quiz-table td:nth-child(2),
+  .quiz-table th:nth-child(5), /* Ẩn cột Ngày tạo trên mobile */
+  .quiz-table td:nth-child(5) {
+    display: none;
+  }
+}
+
+/* Smallest screens */
+@media (max-width: 576px) {
+  .filter-buttons {
+    flex-direction: column;
+    align-items: stretch; /* Kéo dài button ra toàn bộ chiều rộng */
+  }
+  .search-button, .reset-button {
+    width: 100%; /* Button chiếm toàn bộ chiều rộng */
+  }
+  .actions-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
+  }
+  .actions-cell .ant-divider-vertical {
+    display: none; /* Ẩn divider giữa các button hành động */
   }
 }

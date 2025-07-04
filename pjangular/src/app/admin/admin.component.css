@@ -244,3 +244,31 @@ nz-content {
 .ant-layout-sider-collapsed .ant-tooltip-placement-right .ant-tooltip-inner {
   font-size: 12px;
 }
+/* admin.component.css hoặc file CSS toàn cục */
+
+/* Cách 1: Áp dụng trực tiếp lên .ant-layout-sider-children */
+/* Đây là class mà Ant Design tạo ra bên trong nz-sider để chứa nội dung menu */
+.ant-layout-sider-children {
+  overflow-y: auto !important; /* Đảm bảo thanh cuộn luôn xuất hiện nếu nội dung dài */
+  height: 100%; /* Đảm bảo nó chiếm đủ chiều cao của sider */
+}
+
+/* Cách 2: Nếu cách trên không hoạt động, thử áp dụng cho nz-sider */
+nz-sider {
+  overflow-y: auto !important; /* Buộc sider có thanh cuộn */
+}
+
+/*
+Nếu bạn có một div .logo cố định, hãy đảm bảo tính toán chiều cao cho menu
+ví dụ: height: calc(100% - var(--logo-height));
+*/
+.logo {
+  height: 64px; /* Giả sử chiều cao của logo là 64px */
+  background: rgba(255, 255, 255, 0.2);
+  margin: 16px;
+}
+
+ul.ant-menu-dark { /* Selector cho menu */
+  height: calc(100% - 96px); /* 64px cho logo + 16px*2 margin = 96px */
+  overflow-y: auto; /* Bật cuộn cho menu */
+}

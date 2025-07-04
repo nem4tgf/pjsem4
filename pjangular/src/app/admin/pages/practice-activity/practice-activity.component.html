@@ -1,0 +1,189 @@
+<!-- src/app/admin/pages/practice-activity/practice-activity.component.html -->
+<nz-card nzTitle="📚 Quản lý Hoạt động Luyện tập" class="practice-activity-card">
+  <div *ngIf="isAdmin; else noPermission">
+    <!-- Phần tìm kiếm và bộ lọc -->
+    <form nz-form [formGroup]="searchForm" (ngSubmit)="applySearchFilters()" class="search-form">
+      <div nz-row nzGutter="16">
+        <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
+          <nz-form-item class="search-item">
+            <nz-form-label class="form-label">ID Bài học</nz-form-label>
+            <nz-form-control>
+              <nz-input-number formControlName="lessonId" nzPlaceHolder="ID Bài học" [nzMin]="1"></nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
+          <nz-form-item class="search-item">
+            <nz-form-label class="form-label">Tiêu đề</nz-form-label>
+            <nz-form-control>
+              <input nz-input formControlName="title" placeholder="Tiêu đề hoạt động" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
+          <nz-form-item class="search-item">
+            <nz-form-label class="form-label">Kỹ năng</nz-form-label>
+            <nz-form-control>
+              <nz-select formControlName="skill" nzPlaceHolder="Chọn kỹ năng" nzAllowClear>
+                <nz-option *ngFor="let skill of getEnumKeys(activitySkills)" [nzValue]="skill" [nzLabel]="skill"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
+          <nz-form-item class="search-item">
+            <nz-form-label class="form-label">Loại hoạt động</nz-form-label>
+            <nz-form-control>
+              <nz-select formControlName="activityType" nzPlaceHolder="Chọn loại hoạt động" nzAllowClear>
+                <nz-option *ngFor="let type of getEnumKeys(activityTypes)" [nzValue]="type" [nzLabel]="type"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col nzXs="24" nzSm="24" nzMd="8" nzLg="6" class="button-col">
+          <div class="search-buttons">
+            <button nz-button nzType="primary" htmlType="submit" [nzLoading]="loading" class="search-button">
+              <i nz-icon nzType="search"></i> Tìm kiếm
+            </button>
+            <button nz-button (click)="resetSearchFilters()" class="reset-button">
+              <i nz-icon nzType="reload"></i> Đặt lại
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <nz-divider></nz-divider>
+
+    <!-- Nút thêm mới -->
+    <div class="table-actions">
+      <button nz-button nzType="primary" (click)="openCreateModal()" class="add-button">
+        <i nz-icon nzType="plus"></i> Thêm Hoạt động Mới
+      </button>
+    </div>
+
+    <!-- Bảng hiển thị hoạt động luyện tập -->
+    <nz-table
+      #basicTable
+      [nzData]="activities"
+      [nzLoading]="loading"
+      [nzNoResult]="'Không tìm thấy hoạt động luyện tập nào.'"
+      [nzTotal]="total"
+      [nzPageIndex]="pageIndex"
+      [nzPageSize]="pageSize"
+      [nzShowPagination]="true"
+      [nzShowSizeChanger]="true"
+      [nzPageSizeOptions]="[5, 10, 20, 50]"
+      (nzPageIndexChange)="onPageIndexChange($event)"
+      (nzPageSizeChange)="onPageSizeChange($event)"
+      nzBordered
+      class="activities-table"
+    >
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>ID Bài học</th>
+          <th>Tiêu đề</th>
+          <th>Mô tả</th>
+          <th>Kỹ năng</th>
+          <th>Loại</th>
+          <th>URL Nội dung</th>
+          <th>Ngày tạo</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let activity of basicTable.data">
+          <td>{{ activity.activityId }}</td>
+          <td>{{ activity.lessonId }}</td>
+          <td>{{ activity.title }}</td>
+          <td>{{ activity.description }}</td>
+          <td>{{ activity.activitySkill }}</td>
+          <td>{{ activity.activityType }}</td>
+          <td>
+            <a *ngIf="activity.contentUrl" [href]="activity.contentUrl" target="_blank" class="content-link">
+              <i nz-icon nzType="link"></i> Xem nội dung
+            </a>
+            <span *ngIf="!activity.contentUrl">N/A</span>
+          </td>
+          <td>{{ activity.createdAt | date: 'medium' }}</td>
+          <td class="actions-cell">
+            <a (click)="openEditModal(activity)" nz-tooltip nzTooltipTitle="Chỉnh sửa hoạt động">
+              <i nz-icon nzType="edit"></i> Chỉnh sửa
+            </a>
+            <nz-divider nzType="vertical"></nz-divider>
+            <a nz-popconfirm nzPopconfirmTitle="Bạn có chắc muốn xóa?" (nzOnConfirm)="deleteActivity(activity.activityId!)" nzOkText="Xóa" nzCancelText="Hủy" nzOkDanger nz-tooltip nzTooltipTitle="Xóa hoạt động này">
+              <i nz-icon nzType="delete"></i> Xóa
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </div>
+
+  <ng-template #noPermission>
+    <div class="no-permission-message">
+      <i nz-icon nzType="stop" nzTheme="fill"></i> Bạn không có quyền truy cập trang quản lý hoạt động luyện tập.
+    </div>
+  </ng-template>
+
+  <!-- Modal thêm/chỉnh sửa hoạt động -->
+  <nz-modal
+    [(nzVisible)]="isModalVisible"
+    [nzTitle]="isEditMode ? 'Chỉnh sửa Hoạt động Luyện tập' : 'Thêm Hoạt động Luyện tập Mới'"
+    [nzOkText]="isEditMode ? 'Cập nhật' : 'Thêm mới'"
+    nzCancelText="Hủy"
+    (nzOnOk)="handleOk()"
+    (nzOnCancel)="handleCancel()"
+    [nzMaskClosable]="false"
+    [nzClosable]="false"
+  >
+    <form nz-form [formGroup]="activityForm">
+      <nz-form-item>
+        <nz-form-label nzRequired nzFor="lessonId">ID Bài học</nz-form-label>
+        <nz-form-control nzErrorTip="Vui lòng nhập ID bài học hợp lệ (số nguyên dương)">
+          <nz-input-number id="lessonId" formControlName="lessonId" nzPlaceHolder="Nhập ID bài học" [nzMin]="1"></nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired nzFor="title">Tiêu đề</nz-form-label>
+        <nz-form-control nzErrorTip="Vui lòng nhập tiêu đề (tối đa 255 ký tự)">
+          <input nz-input id="title" formControlName="title" placeholder="Nhập tiêu đề hoạt động" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired nzFor="description">Mô tả</nz-form-label>
+        <nz-form-control nzErrorTip="Vui lòng nhập mô tả">
+          <textarea nz-input id="description" formControlName="description" placeholder="Nhập mô tả hoạt động" nzAutosize></textarea>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired nzFor="activitySkill">Kỹ năng</nz-form-label>
+        <nz-form-control nzErrorTip="Vui lòng chọn kỹ năng">
+          <nz-select id="activitySkill" formControlName="activitySkill" nzPlaceHolder="Chọn kỹ năng">
+            <nz-option *ngFor="let skill of getEnumKeys(activitySkills)" [nzValue]="skill" [nzLabel]="skill"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired nzFor="activityType">Loại hoạt động</nz-form-label>
+        <nz-form-control nzErrorTip="Vui lòng chọn loại hoạt động">
+          <nz-select id="activityType" formControlName="activityType" nzPlaceHolder="Chọn loại hoạt động">
+            <nz-option *ngFor="let type of getEnumKeys(activityTypes)" [nzValue]="type" [nzLabel]="type"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzFor="contentUrl">URL Nội dung</nz-form-label>
+        <nz-form-control>
+          <input nz-input id="contentUrl" formControlName="contentUrl" placeholder="Nhập URL nội dung (tùy chọn)" />
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </nz-modal>
+</nz-card>

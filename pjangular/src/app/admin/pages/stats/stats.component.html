@@ -1,11 +1,103 @@
-<nz-card nzTitle="Statistics">
-  <div *ngIf="stats; else loading">
-    <p>User Count: {{ stats.userCount }}</p>
-    <p>Vocabulary Count: {{ stats.vocabularyCount }}</p>
-    <p>Lesson Count: {{ stats.lessonCount }}</p>
-    <p>Quiz Count: {{ stats.quizCount }}</p>
+<!-- src/app/stats/stats.component.html -->
+<nz-card nzTitle="📊 Thống kê Hệ thống" class="stats-card">
+  <div *ngIf="isAdmin; else noPermission">
+    <div *ngIf="stats; else loadingData" class="stats-content">
+      <div nz-row nzGutter="24">
+        <!-- Tổng quan các số lượng -->
+        <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
+          <nz-card nzTitle="Người dùng" nzHoverable class="stat-item-card">
+            <p class="stat-value"><i nz-icon nzType="user-add" nzTheme="outline" class="icon-stat"></i> {{ stats.userCount }}</p>
+          </nz-card>
+        </div>
+        <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
+          <nz-card nzTitle="Từ vựng" nzHoverable class="stat-item-card">
+            <p class="stat-value"><i nz-icon nzType="book" nzTheme="outline" class="icon-stat"></i> {{ stats.vocabularyCount }}</p>
+          </nz-card>
+        </div>
+        <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
+          <nz-card nzTitle="Bài học" nzHoverable class="stat-item-card">
+            <p class="stat-value"><i nz-icon nzType="read" nzTheme="outline" class="icon-stat"></i> {{ stats.lessonCount }}</p>
+          </nz-card>
+        </div>
+        <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
+          <nz-card nzTitle="Bài kiểm tra" nzHoverable class="stat-item-card">
+            <p class="stat-value"><i nz-icon nzType="form" nzTheme="outline" class="icon-stat"></i> {{ stats.quizCount }}</p>
+          </nz-card>
+        </div>
+        <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
+          <nz-card nzTitle="Câu hỏi" nzHoverable class="stat-item-card">
+            <p class="stat-value"><i nz-icon nzType="question-circle" nzTheme="outline" class="icon-stat"></i> {{ stats.questionCount }}</p>
+          </nz-card>
+        </div>
+        <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
+          <nz-card nzTitle="Kết quả Quiz" nzHoverable class="stat-item-card">
+            <p class="stat-value"><i nz-icon nzType="trophy" nzTheme="outline" class="icon-stat"></i> {{ stats.quizResultCount }}</p>
+          </nz-card>
+        </div>
+      </div>
+
+      <nz-divider nzText="Phân phối dữ liệu"></nz-divider>
+
+      <div nz-row nzGutter="24">
+        <!-- Phân phối theo vai trò người dùng -->
+        <div nz-col nzXs="24" nzSm="12" nzMd="12" nzLg="6" *ngIf="stats.userRoleDistribution && getKeys(stats.userRoleDistribution).length > 0">
+          <nz-card nzTitle="Vai trò người dùng" nzHoverable class="distribution-card">
+            <ul class="distribution-list">
+              <li *ngFor="let role of getKeys(stats.userRoleDistribution)">
+                <span class="distribution-label">{{ role | titlecase }}:</span>
+                <span class="distribution-value">{{ stats.userRoleDistribution[role] }}</span>
+              </li>
+            </ul>
+          </nz-card>
+        </div>
+
+        <!-- Phân phối theo độ khó từ vựng -->
+        <div nz-col nzXs="24" nzSm="12" nzMd="12" nzLg="6" *ngIf="stats.vocabularyDifficultyDistribution && getKeys(stats.vocabularyDifficultyDistribution).length > 0">
+          <nz-card nzTitle="Độ khó Từ vựng" nzHoverable class="distribution-card">
+            <ul class="distribution-list">
+              <li *ngFor="let difficulty of getKeys(stats.vocabularyDifficultyDistribution)">
+                <span class="distribution-label">{{ difficulty | titlecase }}:</span>
+                <span class="distribution-value">{{ stats.vocabularyDifficultyDistribution[difficulty] }}</span>
+              </li>
+            </ul>
+          </nz-card>
+        </div>
+
+        <!-- Phân phối theo cấp độ bài học -->
+        <div nz-col nzXs="24" nzSm="12" nzMd="12" nzLg="6" *ngIf="stats.lessonLevelDistribution && getKeys(stats.lessonLevelDistribution).length > 0">
+          <nz-card nzTitle="Cấp độ Bài học" nzHoverable class="distribution-card">
+            <ul class="distribution-list">
+              <li *ngFor="let level of getKeys(stats.lessonLevelDistribution)">
+                <span class="distribution-label">{{ level | titlecase }}:</span>
+                <span class="distribution-value">{{ stats.lessonLevelDistribution[level] }}</span>
+              </li>
+            </ul>
+          </nz-card>
+        </div>
+
+        <!-- Phân phối theo kỹ năng bài học -->
+        <div nz-col nzXs="24" nzSm="12" nzMd="12" nzLg="6" *ngIf="stats.lessonSkillDistribution && getKeys(stats.lessonSkillDistribution).length > 0">
+          <nz-card nzTitle="Kỹ năng Bài học" nzHoverable class="distribution-card">
+            <ul class="distribution-list">
+              <li *ngFor="let skill of getKeys(stats.lessonSkillDistribution)">
+                <span class="distribution-label">{{ skill | titlecase }}:</span>
+                <span class="distribution-value">{{ stats.lessonSkillDistribution[skill] }}</span>
+              </li>
+            </ul>
+          </nz-card>
+        </div>
+      </div>
+    </div>
+    <ng-template #loadingData>
+      <div class="loading-container">
+        <nz-spin nzSimple></nz-spin>
+        <p>Đang tải dữ liệu thống kê...</p>
+      </div>
+    </ng-template>
   </div>
-  <ng-template #loading>
-    <nz-spin nzSimple></nz-spin>
+  <ng-template #noPermission>
+    <div class="no-permission-message">
+      <p><i nz-icon nzType="stop" nzTheme="fill"></i> Bạn không có quyền truy cập trang thống kê.</p>
+    </div>
   </ng-template>
 </nz-card>

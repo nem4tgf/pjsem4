@@ -1,21 +1,30 @@
-<nz-card [nzTitle]="'📚 Manage Vocabulary for Lesson ' + (lessonId || '')" class="vocab-card">
-  <button *ngIf="isAdmin" nz-button nzType="primary" (click)="showAddModal()" class="add-button">
-    <i nz-icon nzType="plus-circle"></i> Add Existing Vocabulary
-  </button>
+<nz-card [nzTitle]="'📚 Quản lý Từ vựng cho Bài học ' + (lessonId || '')" class="vocab-card">
+  <div class="header-actions">
+    <button nz-button nzType="default" routerLink="/admin/lessons" class="back-button">
+      <i nz-icon nzType="arrow-left"></i> Quay lại Danh sách Bài học
+    </button>
+
+    <button *ngIf="isAdmin" nz-button nzType="primary" (click)="showAddModal()" class="add-button">
+      <i nz-icon nzType="plus-circle"></i> Thêm từ vựng có sẵn
+    </button>
+  </div>
+
+  <nz-divider></nz-divider>
 
   <nz-table
     #basicTable
     [nzData]="lessonVocabularies"
-    [nzLoading]="!lessonVocabularies.length"
+    [nzLoading]="isLoadingVocabularies"
     [nzFrontPagination]="false"
+    [nzNoResult]="!isAdmin ? 'Bạn không có quyền xem từ vựng của bài học này.' : (lessonVocabularies.length === 0 ? 'Bài học này chưa có từ vựng nào.' : '')"
     class="vocab-table"
   >
     <thead>
       <tr>
-        <th class="table-header"><i nz-icon nzType="font-colors"></i> Word</th>
-        <th class="table-header"><i nz-icon nzType="bulb"></i> Meaning</th>
-        <th class="table-header"><i nz-icon nzType="bar-chart"></i> Difficulty</th>
-        <th class="table-header"><i nz-icon nzType="setting"></i> Actions</th>
+        <th class="table-header"><i nz-icon nzType="font-colors"></i> Từ</th>
+        <th class="table-header"><i nz-icon nzType="bulb"></i> Nghĩa</th>
+        <th class="table-header"><i nz-icon nzType="bar-chart"></i> Độ khó</th>
+        <th *ngIf="isAdmin" class="table-header"><i nz-icon nzType="setting"></i> Thao tác</th>
       </tr>
     </thead>
     <tbody>
@@ -23,16 +32,19 @@
         <td class="table-cell">{{ vocab.word || 'N/A' }}</td>
         <td class="table-cell">{{ vocab.meaning || 'N/A' }}</td>
         <td class="table-cell">{{ vocab.difficultyLevel || 'N/A' }}</td>
-        <td class="table-cell actions-cell">
+        <td *ngIf="isAdmin" class="table-cell actions-cell">
           <a
-            *ngIf="isAdmin"
+            nz-popconfirm
+            nzPopconfirmTitle="Bạn có chắc chắn muốn xóa từ vựng này khỏi bài học?"
+            nzOkText="Đồng ý"
+            nzCancelText="Hủy"
+            nzOkDanger
+            (nzOnConfirm)="vocab.wordId !== undefined && deleteVocabularyFromLesson(vocab.wordId)"
             nz-button
             nzType="link"
-            nzDanger
-            (click)="vocab.wordId !== undefined && deleteVocabularyFromLesson(vocab.wordId)"
             class="action-button"
           >
-            <i nz-icon nzType="delete"></i> Remove
+            <i nz-icon nzType="delete"></i> Xóa
           </a>
         </td>
       </tr>
@@ -41,29 +53,31 @@
 
   <nz-modal
     [(nzVisible)]="isAddModalVisible"
-    nzTitle="Add Vocabulary to Lesson"
+    nzTitle="Thêm Từ vựng vào Bài học"
+    [nzOkText]="isAddingVocabulary ? 'Đang thêm...' : 'Thêm'"
+    [nzOkLoading]="isAddingVocabulary"
     (nzOnOk)="handleAddOk()"
     (nzOnCancel)="handleCancel()"
-    [nzContent]="addVocabularyModalContent"
     class="modal"
   >
-    <ng-template #addVocabularyModalContent>
+    <ng-container *nzModalContent>
       <form nz-form [formGroup]="vocabularyForm" class="modal-form">
         <nz-form-item>
           <nz-form-label nzRequired class="modal-label">
-            <i nz-icon nzType="font-colors" class="form-icon"></i> Select Vocabulary
+            <i nz-icon nzType="font-colors" class="form-icon"></i> Chọn từ vựng
           </nz-form-label>
           <nz-form-control
-            [nzErrorTip]="vocabularyForm.get('wordId')?.hasError('required') ? 'Please select a vocabulary' : ''"
+            [nzErrorTip]="(vocabularyForm.get('wordId')?.invalid && vocabularyForm.get('wordId')?.touched) ? 'Vui lòng chọn một từ vựng!' : undefined"
           >
             <nz-select
               formControlName="wordId"
-              nzPlaceHolder="Select an existing vocabulary"
+              nzPlaceHolder="Chọn từ vựng có sẵn"
               nzShowSearch
+              [nzFilterOption]="customFilterOption"
               class="modal-select"
             >
               <nz-option
-                *ngFor="let vocab of allVocabularies"
+                *ngFor="let vocab of availableVocabularies"
                 [nzValue]="vocab.wordId"
                 [nzLabel]="vocab.word + ' (' + vocab.meaning + ')'"
               ></nz-option>
@@ -71,6 +85,6 @@
           </nz-form-control>
         </nz-form-item>
       </form>
-    </ng-template>
+    </ng-container>
   </nz-modal>
 </nz-card>

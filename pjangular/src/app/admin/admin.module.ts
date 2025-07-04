@@ -1,11 +1,11 @@
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { AdminRoutingModule } from './admin-routing.module';
 
-// Import các module ng-zorro-antd cần thiết
+// Import các module NG-ZORRO cụ thể
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzBadgeModule } from 'ng-zorro-antd/badge';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -32,7 +32,9 @@ import { NzPopoverModule } from 'ng-zorro-antd/popover';
 import { NzListModule } from 'ng-zorro-antd/list';
 import { NzDatePickerModule } from 'ng-zorro-antd/date-picker';
 import { NzMessageModule } from 'ng-zorro-antd/message';
-import { NzToolTipModule } from 'ng-zorro-antd/tooltip'; // ✅ Thêm dòng này
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
+import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
+import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
 
 // Import các component
 import { AdminComponent } from './admin.component';
@@ -47,12 +49,36 @@ import { LessonsComponent } from './pages/lessons/lessons.component';
 import { ProgressComponent } from './pages/progress/progress.component';
 import { QuestionsComponent } from './pages/questions/questions.component';
 import { QuizResultsComponent } from './pages/quiz-results/quiz-results.component';
-import { QuizzesComponent } from './pages/quizzes/quizzes.component';
 import { StatsComponent } from './pages/stats/stats.component';
 import { UsersComponent } from './pages/users/users.component';
 import { VocabularyComponent } from './pages/vocabulary/vocabulary.component';
 import { OrdersComponent } from './pages/orders/orders.component';
 import { PaymentsComponent } from './pages/payments/payments.component';
+import { QuizzesComponent } from './pages/quizzes/quizzes.component';
+import { UserListeningAttemptsComponent } from './pages/user-listening/user-listening-attempts.component';
+import { UserSpeakingAttemptsComponent } from './pages/user-speaking/user-speaking-attempts.component';
+import { UserWritingAttemptsComponent } from './pages/user-writting/user-writing-attempts.component';
+// Import component mới
+import { PracticeActivityComponent } from './pages/practice-activity/practice-activity.component';
+
+
+// Import các service
+import { FlashcardService } from '../service/flashcard.service';
+import { FlashcardSetService } from '../service/flashcard-set.service';
+import { ApiService } from '../service/api.service';
+import { AuthService } from '../service/auth.service';
+import { AuthInterceptor } from '../service/auth.interceptor';
+import { UserListeningAttemptService } from '../service/user-listening-attempt.service';
+import { UserService } from '../service/user.service';
+import { QuestionService } from '../service/question.service';
+import { OrderService } from '../service/order.service';
+import { PaymentService } from '../service/payment.service';
+import { QuizService } from '../service/quiz.service';
+import { UserSpeakingAttemptService } from '../service/user-speaking-attempt.interface';
+import { UserWritingAttemptService } from '../service/user-writting-attempt.service';
+import { PracticeActivityService } from '../service/pratice-activity.service';
+// Điều chỉnh import này, cần đảm bảo đường dẫn và tên đúng với service của bạn
+
 
 @NgModule({
   declarations: [
@@ -64,7 +90,6 @@ import { PaymentsComponent } from './pages/payments/payments.component';
     VocabularyComponent,
     LessonsComponent,
     ProgressComponent,
-    QuizzesComponent,
     QuestionsComponent,
     AnswersComponent,
     QuizResultsComponent,
@@ -74,6 +99,11 @@ import { PaymentsComponent } from './pages/payments/payments.component';
     LessonVocabularyComponent,
     OrdersComponent,
     PaymentsComponent,
+    QuizzesComponent,
+    UserListeningAttemptsComponent,
+    UserSpeakingAttemptsComponent,
+    UserWritingAttemptsComponent,
+    PracticeActivityComponent, // Đã thêm component mới vào đây
   ],
   imports: [
     CommonModule,
@@ -82,34 +112,53 @@ import { PaymentsComponent } from './pages/payments/payments.component';
     HttpClientModule,
     AdminRoutingModule,
     NgApexchartsModule,
-    NzLayoutModule,
-    NzTableModule,
-    NzInputModule,
-    NzModalModule,
-    NzFormModule,
-    NzCardModule,
-    NzProgressModule,
-    NzDividerModule,
-    NzIconModule,
-    NzBadgeModule,
-    NzDropDownModule,
     NzAvatarModule,
-    NzNotificationModule,
-    NzSelectModule,
-    NzUploadModule,
-    NzMenuModule,
-    NzSwitchModule,
+    NzBadgeModule,
     NzButtonModule,
-    NzSpinModule,
+    NzCardModule,
+    NzDividerModule,
+    NzDropDownModule,
+    NzFormModule,
+    NzIconModule,
+    NzInputModule,
     NzInputNumberModule,
+    NzLayoutModule,
+    NzMenuModule,
+    NzModalModule,
+    NzNotificationModule,
+    NzProgressModule,
+    NzSelectModule,
+    NzSpinModule,
+    NzSwitchModule,
+    NzTableModule,
+    NzUploadModule,
     NzTagModule,
+    NzPopconfirmModule,
     NzPopoverModule,
     NzListModule,
-    NzPopconfirmModule,
     NzDatePickerModule,
     NzMessageModule,
-    NzToolTipModule, // ✅ Đã thêm
+    NzToolTipModule,
+    NzPageHeaderModule,
+    NzBreadCrumbModule,
+  ],
+  providers: [
+    FlashcardService,
+    FlashcardSetService,
+    ApiService,
+    AuthService,
+    UserService,
+    QuestionService,
+    UserListeningAttemptService,
+    UserSpeakingAttemptService,
+    UserWritingAttemptService,
+    PracticeActivityService, // Đã thêm service mới vào đây
+    OrderService,
+    PaymentService,
+    QuizService,
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
   ],
   exports: [LessonVocabularyComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AdminModule {}

@@ -1,25 +1,25 @@
 <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f0f2f5;">
-  <nz-card nzTitle="Admin Login" [nzBordered]="false" style="width: 400px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+  <nz-card nzTitle="Đăng nhập Admin" [nzBordered]="false" style="width: 400px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 8px;">
     <form nz-form [formGroup]="loginForm" (ngSubmit)="onLogin()">
       <nz-form-item>
-        <nz-form-control nzErrorTip="Please enter your username">
-          <nz-form-label nzFor="username" nzRequired>Username</nz-form-label>
+        <nz-form-control nzErrorTip="Vui lòng nhập tên người dùng của bạn">
+          <nz-form-label nzFor="username" nzRequired>Tên người dùng</nz-form-label>
           <nz-input-group>
-            <input nz-input id="username" formControlName="username" />
+            <input nz-input id="username" formControlName="username" placeholder="Nhập tên người dùng"/>
           </nz-input-group>
         </nz-form-control>
       </nz-form-item>
       <nz-form-item>
-        <nz-form-control nzErrorTip="Please enter your password">
-          <nz-form-label nzFor="password" nzRequired>Password</nz-form-label>
+        <nz-form-control nzErrorTip="Vui lòng nhập mật khẩu của bạn">
+          <nz-form-label nzFor="password" nzRequired>Mật khẩu</nz-form-label>
           <nz-input-group>
-            <input nz-input id="password" type="password" formControlName="password" />
+            <input nz-input id="password" type="password" formControlName="password" placeholder="Nhập mật khẩu"/>
           </nz-input-group>
         </nz-form-control>
       </nz-form-item>
       <nz-form-item>
         <button nz-button nzType="primary" type="submit" nzBlock [nzLoading]="loading" [disabled]="loginForm.invalid">
-          {{ loading ? 'Logging in...' : 'Login' }}
+          {{ loading ? 'Đang đăng nhập...' : 'Đăng nhập' }}
         </button>
       </nz-form-item>
     </form>

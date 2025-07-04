@@ -1,38 +1,84 @@
 /* ===== Card & Table ===== */
 .payments-card {
   background-color: #fff;
-  border-radius: 8px;
-  padding: 16px;
+  border-radius: 12px; /* Consistent with orders-card */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04); /* Consistent with orders-card */
+  padding: 12px; /* Consistent with orders-card */
 }
 
-.payments-table {
-  margin-top: 16px;
-  font-size: 14px;
+/* ===== Form Styles ===== */
+.search-form {
+  padding: 12px 0; /* Consistent with orders-card */
 }
 
-.table-operations {
-  margin-bottom: 16px;
+.form-label {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  color: #333;
 }
 
-.table-row:hover {
-  background-color: #f5faff;
+.form-label i {
+  margin-right: 8px;
+  font-size: 18px;
 }
 
-.actions-cell a {
-  color: #1890ff;
+/* ===== Input & Select Styling ===== */
+.custom-input,
+.custom-select {
+  width: 100%;
+  border-radius: 6px;
+}
+
+/* ===== Buttons ===== */
+.search-button {
+  background-color: #1890ff; /* Changed to primary blue for consistency */
+  color: white;
+  border: none;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-weight: 500;
+  transition: background-color 0.2s ease-in-out;
 }
 
-.actions-cell a:hover {
-  color: #40a9ff;
-  text-decoration: underline;
+.search-button:hover {
+  background-color: #40a9ff;
 }
 
-/* ===== Button Style ===== */
+.reset-button {
+  background-color: #fff;
+  border: 1px solid #d9d9d9;
+  color: #595959;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 6px;
+  margin-left: 8px;
+  font-weight: 500;
+  padding: 6px 16px;
+  transition: 0.2s ease-in-out;
+}
+
+.reset-button:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+/* Remove .table-operations if it only contained the reload button and now has a search form */
+.table-operations {
+  margin-bottom: 0; /* Remove margin if search form handles spacing */
+  display: flex; /* Ensure actions are aligned if more than one */
+  gap: 8px; /* Spacing between buttons */
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+/* Updated reload-button for consistency with search-button */
 .reload-button {
-  background-color: #52c41a;
+  background-color: #1890ff; /* Changed to primary blue */
   color: white;
   border-radius: 6px;
   display: inline-flex;
@@ -43,99 +89,121 @@
 }
 
 .reload-button:hover {
-  background-color: #389e0d;
+  background-color: #40a9ff; /* Darker blue on hover */
+}
+
+
+.payments-table {
+  margin-top: 16px;
+  font-size: 14px;
+  background-color: #fff; /* Ensure white background for table */
+  border-radius: 8px; /* Consistent with orders-table */
+}
+
+.table-header {
+  font-weight: 600;
+  color: #333;
+}
+
+.table-row:hover {
+  background-color: #f5f5f5; /* Consistent hover color */
+}
+
+.actions-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* Consistent with orders actions */
+}
+
+.actions-cell a {
+  color: #1890ff;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px; /* Consistent with orders actions */
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.actions-cell a:hover {
+  color: #40a9ff;
+  text-decoration: underline;
 }
 
 /* ===== Modal ===== */
-.modal p {
-  margin-bottom: 10px;
+nz-modal.modal {
+  border-radius: 12px;
+  background-color: #ffffff;
+}
+
+nz-modal.modal .ant-modal-body {
   font-size: 14px;
+  color: #333;
+  padding: 24px;
 }
 
-.modal i {
-  margin-right: 6px;
+nz-modal.modal p {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  line-height: 1.5;
 }
 
-/* ===== Icon Coloring by Category ===== */
-.icon-user {
-  color: #3f51b5;
+nz-modal.modal p b {
+  margin-right: 8px;
+  min-width: 120px; /* Adjusted for payment details, might need more for longer labels */
 }
 
-.icon-idcard {
-  color: #fa541c;
+nz-modal.modal p i {
+  margin-right: 8px;
+  font-size: 16px;
+  color: inherit; /* Kế thừa màu từ icon thematic */
 }
 
-.icon-book {
-  color: #722ed1;
+nz-modal .ant-divider {
+  margin: 16px 0 12px;
+  border-color: #e8e8e8;
 }
 
-.icon-dollar {
-  color: #52c41a;
-}
+/* Existing icon colors are fine */
+/* No changes needed for .icon-user, .icon-idcard, etc. */
 
-.icon-calendar {
-  color: #13c2c2;
-}
-
-.icon-home {
-  color: #eb2f96;
-}
-
-.icon-profile {
-  color: #1890ff;
-}
-
-.icon-info {
-  color: #faad14;
-}
-
-.icon-eye {
-  color: #1d39c4;
-}
-
-.icon-delete {
-  color: #f5222d;
-}
-
-.icon-edit {
-  color: #fa8c16;
-}
-
-.icon-reload {
-  color: #389e0d;
-}
-
-/* ===== Tag custom status nếu bạn cần thêm class (nếu không dùng hàm getColor) ===== */
-/*
-.nz-tag-paid {
-  background-color: #f6ffed;
-  color: #389e0d;
-  border-color: #b7eb8f;
-}
-.nz-tag-pending {
-  background-color: #fffbe6;
-  color: #faad14;
-  border-color: #ffe58f;
-}
-.nz-tag-failed {
-  background-color: #fff2f0;
-  color: #f5222d;
-  border-color: #ffccc7;
-}
-*/
-
-/* ===== Responsive fix nếu cần ===== */
+/* ===== Responsive Design ===== */
 @media (max-width: 768px) {
-  .payments-table {
-    font-size: 12px;
+  nz-col {
+    flex: 0 0 100%;
+    max-width: 100%;
+    margin-bottom: 12px;
   }
 
+  .form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-button,
+  .reset-button,
   .reload-button {
     width: 100%;
-    justify-content: center;
+    margin-bottom: 10px;
+    margin-left: 0 !important; /* Override margin-left for reset button */
   }
 
-  .modal p {
-    font-size: 13px;
+  .actions-cell {
+    flex-direction: column;
+    align-items: flex-start;
   }
+
+  .actions-cell a {
+    width: 100%;
+  }
+
+  nz-modal.modal .ant-modal-body {
+    padding: 16px;
+  }
+
+  nz-modal.modal p b {
+    min-width: 80px;
+  }
+
+  /* No explicit tables in modals for payments, but keep general modal table styles if applicable */
 }

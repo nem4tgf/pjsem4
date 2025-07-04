@@ -1,70 +1,92 @@
-<nz-layout>
-  <nz-sider [nzCollapsed]="isCollapsed" [nzCollapsible]="true" (nzCollapsedChange)="toggleCollapsed()">
-    <div class="logo"></div>
+<nz-layout class="admin-layout">
+  <nz-sider [nzCollapsed]="isCollapsed" [nzCollapsible]="true" (nzCollapsedChange)="toggleCollapsed()" nzWidth="200px">
+    <div class="logo">
+      <img src="assets/logo.png" alt="Logo" *ngIf="!isCollapsed">
+      <span *ngIf="isCollapsed">AD</span>
+    </div>
     <ul nz-menu nzTheme="dark" nzMode="inline">
       <li nz-submenu nzTitle="Dashboard" nzIcon="dashboard">
         <ul>
-          <li nz-menu-item routerLink="/admin/dashboard">Tổng quan</li>
+          <li nz-menu-item routerLink="/admin/dashboard" routerLinkActive="ant-menu-item-selected">Overview</li>
         </ul>
       </li>
-      <li nz-menu-item routerLink="/admin/learning-materials" nzIcon="book">Tài liệu học tập</li>
-      <li nz-menu-item routerLink="/admin/flashcards" nzIcon="file-text">Flashcards</li>
-      <li nz-menu-item routerLink="/admin/lessons" nzIcon="read">Bài học</li>
-      <li nz-menu-item routerLink="/admin/progress" nzIcon="sync">Tiến độ</li>
-      <li nz-menu-item routerLink="/admin/questions" nzIcon="question-circle">Câu hỏi</li>
-      <li nz-menu-item routerLink="/admin/answers" nzIcon="message">Trả lời</li>
-      <li nz-menu-item routerLink="/admin/quiz-results" nzIcon="check-circle">Kết quả Quiz</li>
-      <li nz-menu-item routerLink="/admin/quizzes" nzIcon="form">Bài kiểm tra</li>
-      <li nz-menu-item routerLink="/admin/users" nzIcon="user">Người dùng</li>
-      <li nz-menu-item routerLink="/admin/vocabulary" nzIcon="book">Từ vựng</li>
-      <li nz-menu-item routerLink="/admin/orders" nzIcon="shopping-cart">Đơn hàng</li>
-      <li nz-menu-item routerLink="/admin/payments" nzIcon="transaction">Thanh toán</li>
+
+      <li nz-menu-item routerLink="/admin/learning-materials" nzIcon="book" routerLinkActive="ant-menu-item-selected">Learning Materials</li>
+      <li nz-menu-item routerLink="/admin/flashcards" nzIcon="file-text" routerLinkActive="ant-menu-item-selected">Flashcards</li>
+      <li nz-menu-item routerLink="/admin/lessons" nzIcon="read" routerLinkActive="ant-menu-item-selected">Lessons</li>
+      <li nz-menu-item routerLink="/admin/progress" nzIcon="sync" routerLinkActive="ant-menu-item-selected">Progress</li>
+      <li nz-menu-item routerLink="/admin/questions" nzIcon="question-circle" routerLinkActive="ant-menu-item-selected">Questions</li>
+      <li nz-menu-item routerLink="/admin/answers" nzIcon="message" routerLinkActive="ant-menu-item-selected">Answers</li>
+      <li nz-menu-item routerLink="/admin/quiz-results" nzIcon="check-circle" routerLinkActive="ant-menu-item-selected">Quiz Results</li>
+      <li nz-menu-item routerLink="/admin/quizzes" nzIcon="form" routerLinkActive="ant-menu-item-selected">Quizzes</li>
+      <li nz-menu-item routerLink="/admin/users" nzIcon="user" routerLinkActive="ant-menu-item-selected">Users</li>
+      <li nz-menu-item routerLink="/admin/vocabulary" nzIcon="book" routerLinkActive="ant-menu-item-selected">Vocabulary</li>
+      <li nz-menu-item routerLink="/admin/orders" nzIcon="shopping-cart" routerLinkActive="ant-menu-item-selected">Orders</li>
+      <li nz-menu-item routerLink="/admin/payments" nzIcon="transaction" routerLinkActive="ant-menu-item-selected">Payments</li>
+
+      <!-- Thêm mục menu cho Practice Activities -->
+      <li nz-menu-item routerLink="/admin/practice-activities" nzIcon="experiment" routerLinkActive="ant-menu-item-selected">Practice Activities</li>
+
+      <li nz-submenu nzTitle="User Attempts" nzIcon="audit">
+        <ul>
+          <li nz-menu-item routerLink="/admin/listening-attempts" routerLinkActive="ant-menu-item-selected">Listening</li>
+          <li nz-menu-item routerLink="/admin/speaking-attempts" routerLinkActive="ant-menu-item-selected">Speaking</li>
+          <li nz-menu-item routerLink="/admin/writing-attempts" routerLinkActive="ant-menu-item-selected">Writing</li>
+        </ul>
+      </li>
     </ul>
   </nz-sider>
+
   <nz-layout>
-    <nz-header>
+    <nz-header class="admin-header">
       <div class="header-content">
-        <span>Bảng điều khiển Admin</span>
+        <span class="dashboard-title">Admin Dashboard</span>
         <div class="right-header-section">
           <ng-container *ngIf="currentUser && currentUser.role === 'ROLE_ADMIN'">
             <div class="notification-bell">
               <span nz-popover
                     nzPopoverTrigger="click"
                     nzPopoverPlacement="bottomRight"
-                    [nzPopoverTitle]="expiringEnrollments.length > 0 ? 'Các khóa học sắp hết hạn/đã hết hạn' : 'Không có thông báo mới'"
+                    [nzPopoverTitle]="(expiringEnrollments && expiringEnrollments.length > 0) ? 'Expiring/Expired Enrollments' : 'No New Notifications'"
                     [nzPopoverContent]="expiringEnrollmentsContent"
-                    (nzVisibleChange)="loadExpiringEnrollments()"> <i nz-icon nzType="bell" nzTheme="outline" class="bell-icon"></i>
-                <nz-badge [nzCount]="expiringEnrollments.length" [nzOffset]="[-10, 5]"></nz-badge>
+                    (nzVisibleChange)="loadExpiringEnrollments()">
+                <i nz-icon nzType="bell" nzTheme="outline" class="bell-icon"></i>
+                <nz-badge [nzCount]="expiringEnrollments ? expiringEnrollments.length : 0" [nzOffset]="[-10, 5]"></nz-badge>
               </span>
 
               <ng-template #expiringEnrollmentsContent>
-                <div *ngIf="expiringEnrollments.length > 0; else noNotifications">
+                <div *ngIf="expiringEnrollments && expiringEnrollments.length > 0; else noNotifications">
                   <nz-list nzSize="small">
                     <nz-list-item *ngFor="let enrollment of expiringEnrollments">
                       <nz-list-item-meta
-                        [nzTitle]="enrollment.lessonTitle"
-                        [nzDescription]="'Người dùng: ' + enrollment.userName + ' | Hết hạn: ' + (enrollment.expiryDate | date: 'shortDate')">
+                        [nzTitle]="enrollment.lesson?.title || 'N/A'"
+                        [nzDescription]="'User: ' + (enrollment.userName || 'N/A') + ' | Expires: ' + (enrollment.expiryDate ? (enrollment.expiryDate | date: 'shortDate') : 'N/A')">
                       </nz-list-item-meta>
                     </nz-list-item>
                   </nz-list>
                 </div>
                 <ng-template #noNotifications>
-                  <p style="text-align: center; padding: 10px;">Không có khóa học nào sắp hết hạn hoặc đã hết hạn.</p>
+                  <p style="text-align: center; padding: 10px;">No expiring or expired enrollments.</p>
                 </ng-template>
               </ng-template>
             </div>
           </ng-container>
 
           <div class="user-info" *ngIf="currentUser">
-            <nz-avatar [nzSrc]="currentUser.avatarUrl" [nzText]="currentUser.username[0] | uppercase" [nzSize]="32"></nz-avatar>
-            <span class="username">{{ currentUser.username }}</span>
-            <button nz-button nzType="link" (click)="logout()">Đăng xuất</button>
+            <nz-avatar
+              [nzSrc]="currentUser.avatarUrl"
+              [nzText]="currentUser.username ? (currentUser.username.charAt(0) | uppercase) : 'U'"
+              [nzSize]="32">
+            </nz-avatar>
+            <span class="username">{{ currentUser.username || 'N/A' }}</span>
+            <button nz-button nzType="link" (click)="logout()">Logout</button>
           </div>
         </div>
       </div>
     </nz-header>
-    <nz-content>
-      <div class="inner-content">
+
+    <nz-content class="inner-content">
+      <div class="content-padding">
         <router-outlet></router-outlet>
       </div>
     </nz-content>

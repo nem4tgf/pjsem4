@@ -3,7 +3,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { switchMap, catchError } from 'rxjs/operators'; // Thêm catchError
 import { ApiService } from './api.service';
 import { Stats } from '../interface/stats.interface'; // Import interface Stats đầy đủ
 
@@ -15,11 +15,16 @@ export class StatsService extends ApiService {
     super(http);
   }
 
-  // Cập nhật kiểu trả về của getStats() để sử dụng interface Stats
-  // Và cập nhật kiểu generic cho http.get()
+  /**
+   * Lấy các số liệu thống kê toàn diện về hệ thống.
+   * Yêu cầu quyền ADMIN.
+   * Endpoint Backend: GET /api/stats
+   * @returns Observable<Stats> chứa các số liệu thống kê.
+   */
   getStats(): Observable<Stats> {
     return this.checkAdminRole().pipe(
-      switchMap(() => this.http.get<Stats>(`${this.apiUrl}/stats`)) // Dùng <Stats> ở đây
+      switchMap(() => this.http.get<Stats>(`${this.apiUrl}/stats`)), // Dùng <Stats> ở đây
+      catchError(this.handleError) // Sử dụng handleError từ ApiService
     );
   }
 }

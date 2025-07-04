@@ -1,140 +1,148 @@
 <nz-card nzTitle="📦 Quản lý Đơn hàng" class="orders-card">
-  <form nz-form [formGroup]="searchForm" (ngSubmit)="submitSearchForm()" class="search-form">
-    <div nz-row nzGutter="16">
-      <div nz-col nzSpan="6">
+  <form *ngIf="isAdmin" nz-form [formGroup]="searchForm" (ngSubmit)="searchOrders()" class="search-form">
+    <div nz-row [nzGutter]="16">
+      <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
         <nz-form-item>
-          <nz-form-label class="form-label"><i nz-icon nzType="user"></i> Tên người dùng</nz-form-label>
+          <nz-form-label><i nz-icon nzType="user"></i> Tên người dùng</nz-form-label>
           <nz-form-control>
-            <input nz-input formControlName="username" placeholder="Nhập tên người dùng" class="custom-input" />
+            <input nz-input formControlName="username" placeholder="Nhập tên người dùng" />
           </nz-form-control>
         </nz-form-item>
       </div>
-      <div nz-col nzSpan="6">
+      <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
         <nz-form-item>
-          <nz-form-label class="form-label"><i nz-icon nzType="idcard"></i> ID người dùng</nz-form-label>
+          <nz-form-label><i nz-icon nzType="profile"></i> Trạng thái</nz-form-label>
           <nz-form-control>
-            <nz-input-number formControlName="userId" [nzMin]="1" [nzStep]="1" placeholder="Nhập ID người dùng" class="custom-input"></nz-input-number>
-          </nz-form-control>
-        </nz-form-item>
-      </div>
-      <div nz-col nzSpan="6">
-        <nz-form-item>
-          <nz-form-label class="form-label"><i nz-icon nzType="profile"></i> Trạng thái</nz-form-label>
-          <nz-form-control>
-            <nz-select formControlName="status" nzPlaceHolder="Chọn trạng thái" nzAllowClear class="custom-select">
+            <nz-select formControlName="status" nzPlaceHolder="Chọn trạng thái" nzAllowClear>
               <nz-option *ngFor="let status of statusOptions" [nzValue]="status" [nzLabel]="status"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
       </div>
-      <div nz-col nzSpan="6">
+      <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
         <nz-form-item>
-          <nz-form-label class="form-label"><i nz-icon nzType="calendar"></i> Ngày đặt hàng</nz-form-label>
+          <nz-form-label><i nz-icon nzType="calendar"></i> Ngày từ</nz-form-label>
           <nz-form-control>
-            <nz-date-picker formControlName="orderDate" nzPlaceHolder="Chọn ngày" class="custom-input"></nz-date-picker>
+            <nz-date-picker formControlName="minDate" nzPlaceHolder="Chọn ngày bắt đầu" class="custom-input"></nz-date-picker>
           </nz-form-control>
         </nz-form-item>
       </div>
-    </div>
-    <div class="form-actions">
-      <button nz-button nzType="primary" [nzLoading]="loading" htmlType="submit" class="search-button">
-        <i nz-icon nzType="search"></i> Tìm kiếm
-      </button>
-      <button nz-button (click)="resetFilters()" class="reset-button">
-        <i nz-icon nzType="reload"></i> Đặt lại
-      </button>
+      <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
+        <nz-form-item>
+          <nz-form-label><i nz-icon nzType="calendar"></i> Ngày đến</nz-form-label>
+          <nz-form-control>
+            <nz-date-picker formControlName="maxDate" nzPlaceHolder="Chọn ngày kết thúc" class="custom-input"></nz-date-picker>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzXs="24" class="button-col-full">
+        <div class="filter-buttons">
+          <button nz-button nzType="primary" [nzLoading]="loading" htmlType="submit">
+            <i nz-icon nzType="search"></i> Tìm kiếm
+          </button>
+          <button nz-button (click)="resetFilters()">
+            <i nz-icon nzType="reload"></i> Đặt lại
+          </button>
+        </div>
+      </div>
     </div>
   </form>
 
-  <button nz-button nzType="default" (click)="loadOrders()" class="reload-button">
-    <i nz-icon nzType="reload"></i> Tải lại đơn hàng
-  </button>
+  <nz-divider *ngIf="isAdmin"></nz-divider>
 
   <nz-table
     #orderTable
     [nzData]="orders"
     [nzLoading]="loading"
-    [nzPageSize]="10"
-    [nzShowPagination]="true"
+    [nzNoResult]="'Không tìm thấy đơn hàng nào phù hợp.'"
+    [nzFrontPagination]="false"
+    [nzTotal]="pageData.totalElements"
+    [nzPageSize]="pageData.size"
+    [nzPageIndex]="pageData.number + 1"
+    (nzQueryParams)="onQueryParamsChange($event)"
     nzBordered
     class="orders-table"
   >
     <thead>
       <tr>
-        <th>ID</th>
+        <th [nzSortFn]="true" nzColumnKey="orderId">ID</th>
         <th>Người đặt hàng</th>
-        <th>Ngày đặt</th>
-        <th>Tổng tiền</th>
-        <th>Trạng thái</th>
+        <th [nzSortFn]="true" nzColumnKey="orderDate">Ngày đặt</th>
+        <th [nzSortFn]="true" nzColumnKey="totalAmount">Tổng tiền</th>
+        <th [nzSortFn]="true" nzColumnKey="status">Trạng thái</th>
         <th>Địa chỉ</th>
-        <th>Hành động</th>
+        <th *ngIf="isAdmin">Hành động</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let order of orderTable.data" class="table-row">
+      <tr *ngFor="let order of orderTable.data">
         <td>{{ order.orderId }}</td>
         <td>
-          <i nz-icon nzType="user" class="form-icon user-icon"></i>
-          {{ order.user.fullName }} ({{ order.user.email }})
+          <i nz-icon nzType="user" class="user-icon"></i>
+          {{ order.user?.fullName || 'N/A' }} ({{ order.user?.email || 'N/A' }})
         </td>
-        <td>{{ order.orderDate | date: 'short' }}</td>
-        <td>{{ order.totalAmount | currency:'VND':'symbol':'1.0-0' }}</td>
+        <td>{{ order.orderDate | date: 'dd/MM/yyyy HH:mm' }}</td>
+        <td>{{ order.totalAmount | currency:'VND':'symbol-narrow' }}</td>
         <td>
           <nz-tag [nzColor]="getStatusTagColor(order.status)">{{ order.status }}</nz-tag>
         </td>
         <td>{{ order.shippingAddress || 'N/A' }}</td>
-        <td class="actions-cell">
+        <td *ngIf="isAdmin" class="actions-cell">
           <a (click)="showOrderDetailModal(order)"><i nz-icon nzType="eye"></i> Xem</a>
           <nz-divider nzType="vertical"></nz-divider>
           <a (click)="showUpdateStatusModal(order)"><i nz-icon nzType="edit"></i> Sửa</a>
           <nz-divider nzType="vertical"></nz-divider>
-          <a nz-popconfirm nzPopconfirmTitle="Bạn có chắc chắn muốn xóa không?" (nzOnConfirm)="deleteOrder(order.orderId)" nzOkText="Xóa" nzCancelText="Hủy" nzOkDanger>
-            <i nz-icon nzType="delete"></i> Xóa
-          </a>
+          <a (click)="deleteOrder(order.orderId)"><i nz-icon nzType="delete"></i> Xóa</a>
         </td>
       </tr>
     </tbody>
   </nz-table>
 </nz-card>
 
-<nz-modal
-  [(nzVisible)]="isVisible"
-  nzTitle="🧾 Chi tiết đơn hàng #{{ selectedOrder?.orderId }}"
-  [nzFooter]="null"
-  (nzOnCancel)="handleCancel()"
-  [nzWidth]="800"
-  class="modal"
->
-  <ng-template *nzModalContent>
-    <div *ngIf="selectedOrder">
-      <p><i nz-icon nzType="user"></i> <b>Người đặt:</b> {{ selectedOrder.user.fullName }} ({{ selectedOrder.user.email }})</p>
-      <p><i nz-icon nzType="calendar"></i> <b>Ngày đặt:</b> {{ selectedOrder.orderDate | date: 'medium' }}</p>
-      <p><i nz-icon nzType="dollar"></i> <b>Tổng tiền:</b> {{ selectedOrder.totalAmount | currency:'VND':'symbol':'1.0-0' }}</p>
-      <p><i nz-icon nzType="info-circle"></i> <b>Trạng thái:</b> <nz-tag [nzColor]="getStatusTagColor(selectedOrder.status)">{{ selectedOrder.status }}</nz-tag></p>
-      <p><i nz-icon nzType="home"></i> <b>Địa chỉ:</b> {{ selectedOrder.shippingAddress || 'Chưa cung cấp' }}</p>
+<ng-template #orderDetailModalContent>
+  <div *ngIf="selectedOrder">
+    <p><i nz-icon nzType="user"></i> <b>Người đặt:</b> {{ selectedOrder.user?.fullName || 'N/A' }} ({{ selectedOrder.user?.email || 'N/A' }})</p>
+    <p><i nz-icon nzType="calendar"></i> <b>Ngày đặt:</b> {{ selectedOrder.orderDate | date: 'dd/MM/yyyy HH:mm:ss' }}</p>
+    <p><i nz-icon nzType="dollar"></i> <b>Tổng tiền:</b> {{ selectedOrder.totalAmount | currency:'VND':'symbol-narrow' }}</p>
+    <p><i nz-icon nzType="info-circle"></i> <b>Trạng thái:</b> <nz-tag [nzColor]="getStatusTagColor(selectedOrder.status)">{{ selectedOrder.status }}</nz-tag></p>
+    <p><i nz-icon nzType="home"></i> <b>Địa chỉ:</b> {{ selectedOrder.shippingAddress || 'Chưa cung cấp' }}</p>
 
-      <nz-divider nzText="📚 Sản phẩm trong đơn hàng"></nz-divider>
+    <nz-divider nzText="📚 Sản phẩm trong đơn hàng"></nz-divider>
 
-      <nz-table [nzData]="selectedOrder.items" nzSize="small" [nzShowPagination]="false" nzBordered>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>ID Bài học</th>
-            <th>Tiêu đề</th>
-            <th>Số lượng</th>
-            <th>Giá tại thời điểm</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let item of selectedOrder.items">
-            <td>{{ item.orderDetailId }}</td>
-            <td>{{ item.lesson.lessonId }}</td>
-            <td>{{ item.lesson.title }}</td>
-            <td>{{ item.quantity }}</td>
-            <td>{{ item.priceAtPurchase | currency:'VND':'symbol':'1.0-0' }}</td>
-          </tr>
-        </tbody>
-      </nz-table>
-    </div>
-  </ng-template>
-</nz-modal>
+    <nz-table [nzData]="selectedOrder.items || []" nzSize="small" [nzShowPagination]="false" nzBordered>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>ID Bài học</th>
+          <th>Tiêu đề</th>
+          <th>Số lượng</th>
+          <th>Giá tại thời điểm</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of selectedOrder.items">
+          <td>{{ item.orderDetailId }}</td>
+          <td>{{ item.lesson?.lessonId || 'N/A' }}</td>
+          <td>{{ item.lesson?.title || 'N/A' }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>{{ item.priceAtPurchase | currency:'VND':'symbol-narrow' }}</td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </div>
+</ng-template>
+
+<ng-template #updateStatusModalContent>
+  <form *ngIf="orderToUpdateStatus" [formGroup]="updateStatusForm">
+    <p>Mã đơn hàng: <b>#{{ orderToUpdateStatus.orderId }}</b></p>
+    <p>Trạng thái hiện tại: <nz-tag [nzColor]="getStatusTagColor(orderToUpdateStatus.status)">{{ orderToUpdateStatus.status }}</nz-tag></p>
+    <nz-form-item>
+      <nz-form-label>Chọn trạng thái mới</nz-form-label>
+      <nz-form-control nzErrorTip="Vui lòng chọn trạng thái mới">
+        <nz-select formControlName="newStatus" nzPlaceHolder="Chọn trạng thái...">
+          <nz-option *ngFor="let status of statusOptions" [nzValue]="status" [nzLabel]="status"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+</ng-template>

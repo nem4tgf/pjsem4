@@ -1,17 +1,23 @@
 // src/app/admin/pages/quiz-results/quiz-results.component.ts
-
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { NzModalService } from 'ng-zorro-antd/modal';
 
-import { QuizResult } from 'src/app/interface/quiz-result.interface';
+import {
+  QuizResult,
+  QuizResultRequest,
+  QuizResultSearchRequest,
+  QuizResultPageResponse
+} from 'src/app/interface/quiz-result.interface';
 import { User } from 'src/app/interface/user.interface';
-import { Quiz } from 'src/app/interface/quiz.interface'; // Đảm bảo bạn có interface Quiz này
+import { Quiz } from 'src/app/interface/quiz.interface';
 
 import { QuizResultService } from 'src/app/service/quiz-result.service';
 import { UserService } from 'src/app/service/user.service';
-import { QuizService } from 'src/app/service/quiz.service'; // Đảm bảo bạn có QuizService này
-import { ApiService } from 'src/app/service/api.service'; // Đảm bảo bạn có ApiService này
+import { QuizService } from 'src/app/service/quiz.service';
+import { ApiService } from 'src/app/service/api.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-quiz-results',
@@ -22,25 +28,44 @@ export class QuizResultsComponent implements OnInit {
   results: QuizResult[] = [];
   users: User[] = [];
   quizzes: Quiz[] = [];
-  resultForm: FormGroup;
-  isAdmin: boolean = false;
+  resultForm: FormGroup; // Form để thêm/sửa một kết quả
+  searchForm: FormGroup; // Form cho các bộ lọc tìm kiếm, phân trang và sắp xếp
 
-  // Biến để lưu userId đang được chọn từ dropdown
-  selectedUserId: number | null = null;
+  isAdmin: boolean = false;
+  loading = false; // Trạng thái loading cho bảng
+
+  // Biến cho Modal
+  isVisible: boolean = false;
+  isEdit: boolean = false; // Xác định đang ở chế độ sửa hay thêm mới
+  currentResultId: number | null = null; // Lưu ID của kết quả đang sửa
+
+  pageData: QuizResultPageResponse = { content: [], totalElements: 0, totalPages: 0, currentPage: 0, pageSize: 10 };
 
   constructor(
     private resultService: QuizResultService,
     private userService: UserService,
-    private quizService: QuizService, // Inject QuizService
+    private quizService: QuizService,
     private fb: FormBuilder,
     private notification: NzNotificationService,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private modal: NzModalService
   ) {
     this.resultForm = this.fb.group({
-      // resultId không cần thiết trong form khi tạo/lưu
-      userId: [null, Validators.required],
-      quizId: [null, Validators.required],
-      score: [0, [Validators.required, Validators.min(0), Validators.max(100)]]
+      userId: [{ value: null, disabled: false }, Validators.required], // THAY ĐỔI: Thêm `disabled` để quản lý khi sửa
+      quizId: [{ value: null, disabled: false }, Validators.required], // THAY ĐỔI: Thêm `disabled` để quản lý khi sửa
+      score: [0, [Validators.required, Validators.min(0), Validators.max(100)]],
+      durationSeconds: [null, [Validators.min(0)]]
+    });
+
+    this.searchForm = this.fb.group({
+      userId: [null],
+      quizId: [null],
+      minScore: [null, [Validators.min(0), Validators.max(100)]],
+      maxScore: [null, [Validators.min(0), Validators.max(100)]],
+      page: [0],
+      size: [10],
+      sortBy: ['completedAt'],
+      sortDir: ['DESC']
     });
   }
 
@@ -55,164 +80,251 @@ export class QuizResultsComponent implements OnInit {
         if (this.isAdmin) {
           this.loadUsers();
           this.loadQuizzes();
-          // loadResults() sẽ được gọi sau khi users được tải và selectedUserId được set
+          this.searchQuizResults();
         } else {
-          this.notification.warning('Warning', 'You do not have administrative privileges to view quiz results.');
-          this.results = []; // Xóa dữ liệu cũ nếu không có quyền
+          this.notification.warning('Cảnh báo', 'Bạn không có quyền quản trị để xem kết quả bài kiểm tra.');
+          this.results = [];
+          this.pageData = { content: [], totalElements: 0, totalPages: 0, currentPage: 0, pageSize: 10 };
         }
       },
       error: (err) => {
-        this.notification.error('Error', 'Failed to verify admin role.');
-        console.error('Admin role check error:', err);
-        this.isAdmin = false; // Đảm bảo isAdmin là false nếu có lỗi
-        this.results = []; // Xóa dữ liệu cũ nếu có lỗi
+        this.notification.error('Lỗi', 'Không thể xác minh quyền quản trị.');
+        console.error('Lỗi kiểm tra quyền Admin:', err);
+        this.isAdmin = false;
+        this.results = [];
+        this.pageData = { content: [], totalElements: 0, totalPages: 0, currentPage: 0, pageSize: 10 };
       }
     });
   }
 
   loadUsers(): void {
-    if (!this.isAdmin) return; // Chỉ tải nếu là admin
+    if (!this.isAdmin) return;
     this.userService.getAllUsers().subscribe({
       next: (users) => {
         this.users = users;
-        console.log('Loaded all users:', this.users);
-        if (this.users.length > 0) {
-          // Nếu chưa có user nào được chọn hoặc user đã chọn không còn trong danh sách mới
-          if (this.selectedUserId === null || !this.users.some(u => u.userId === this.selectedUserId)) {
-            // SỬA LỖI TẠI ĐÂY: Kiểm tra kỹ userId của user đầu tiên trước khi gán
-            if (this.users[0].userId !== undefined && this.users[0].userId !== null) {
-              this.selectedUserId = this.users[0].userId; // CHỌN USER ĐẦU TIÊN LÀM MẶC ĐỊNH
-              this.resultForm.get('userId')?.setValue(this.selectedUserId); // Đặt giá trị cho form control
-              this.loadResults(); // GỌI loadResults() SAU KHI CÓ userId MẶC ĐỊNH
-            } else {
-              console.warn('First user in the list has a null or undefined userId. Cannot set as default selected user.');
-              this.selectedUserId = null; // Đảm bảo selectedUserId là null nếu không thể gán
-              this.resultForm.get('userId')?.setValue(null); // Reset form control
-              this.results = []; // Không có user để load
-              this.notification.info('Info', 'No valid user ID found to load quiz results by default.');
-            }
-          } else {
-            // Nếu selectedUserId đã có và hợp lệ, chỉ cần cập nhật form và load lại results
-            this.resultForm.get('userId')?.setValue(this.selectedUserId);
-            this.loadResults();
-          }
-        } else {
-          this.results = []; // Không có user nào thì không có kết quả
-          this.selectedUserId = null; // Đảm bảo selectedUserId là null khi không có user
-          this.resultForm.get('userId')?.setValue(null); // Reset form control
-          this.notification.info('Info', 'No users available to display quiz results.');
-        }
+        console.log('Đã tải tất cả người dùng:', this.users);
       },
       error: (err) => {
-        this.notification.error('Error', 'Failed to load users.');
-        console.error('Load users error:', err);
+        this.notification.error('Lỗi', 'Không thể tải người dùng.');
+        console.error('Lỗi tải người dùng:', err);
       }
     });
   }
 
   loadQuizzes(): void {
-    if (!this.isAdmin) return; // Chỉ tải nếu là admin
-    this.quizService.getAllQuizzes().subscribe({ // Gọi API để lấy tất cả quiz
+    if (!this.isAdmin) return;
+    this.quizService.getAllQuizzes().subscribe({
       next: (quizzes) => {
         this.quizzes = quizzes;
-        console.log('Loaded all quizzes:', this.quizzes);
+        console.log('Đã tải tất cả bài kiểm tra:', this.quizzes);
       },
       error: (err) => {
-        this.notification.error('Error', 'Failed to load quizzes.');
-        console.error('Load quizzes error:', err);
+        this.notification.error('Lỗi', 'Không thể tải bài kiểm tra.');
+        console.error('Lỗi tải bài kiểm tra:', err);
       }
     });
   }
 
-  loadResults(): void {
+  searchQuizResults(): void {
     if (!this.isAdmin) {
-      this.notification.error('Error', 'You do not have permission to view quiz results.');
+      this.results = [];
+      this.pageData = { content: [], totalElements: 0, totalPages: 0, currentPage: 0, pageSize: 10 };
       return;
     }
-    // Lấy userId từ biến selectedUserId hoặc từ form control
-    const userIdToLoad = this.selectedUserId; // Luôn dùng selectedUserId vì nó được cập nhật qua dropdown
-    if (userIdToLoad !== null && userIdToLoad !== undefined) {
-      this.resultService.getQuizResultsByUser(userIdToLoad).subscribe({
-        next: (results) => {
-          this.results = results;
-          console.log(`Loaded results for user ${userIdToLoad}:`, this.results);
+
+    this.loading = true;
+    const formValues = this.searchForm.value;
+
+    const request: QuizResultSearchRequest = {
+      userId: formValues.userId || undefined,
+      quizId: formValues.quizId || undefined,
+      minScore: formValues.minScore !== null ? formValues.minScore : undefined,
+      maxScore: formValues.maxScore !== null ? formValues.maxScore : undefined,
+      page: formValues.page,
+      size: formValues.size,
+      sortBy: formValues.sortBy,
+      sortDir: formValues.sortDir
+    };
+
+    this.resultService.searchQuizResults(request).pipe(
+      finalize(() => this.loading = false)
+    ).subscribe({
+      next: (pageData: QuizResultPageResponse) => {
+        this.pageData = {
+          content: pageData.content,
+          totalElements: pageData.totalElements,
+          totalPages: pageData.totalPages,
+          currentPage: pageData.currentPage,
+          pageSize: pageData.pageSize
+        };
+        this.results = pageData.content;
+        console.log('Kết quả tìm kiếm:', this.pageData);
+      },
+      error: (err: any) => {
+        this.notification.error('Lỗi', 'Lỗi khi tìm kiếm kết quả bài kiểm tra: ' + (err.error?.message || err.message));
+        console.error('Lỗi tìm kiếm kết quả bài kiểm tra:', err);
+        this.results = [];
+        this.pageData = { content: [], totalElements: 0, totalPages: 0, currentPage: 0, pageSize: 10 };
+      }
+    });
+  }
+
+  onPageIndexChange(page: number): void {
+    this.searchForm.patchValue({ page: page - 1 });
+    this.searchQuizResults();
+  }
+
+  onPageSizeChange(size: number): void {
+    this.searchForm.patchValue({ size: size, page: 0 });
+    this.searchQuizResults();
+  }
+
+  onSortChange(sortBy: string, sortDir: 'ascend' | 'descend' | null): void {
+    const direction = sortDir === 'ascend' ? 'ASC' : (sortDir === 'descend' ? 'DESC' : 'DESC');
+    this.searchForm.patchValue({ sortBy, sortDir: direction, page: 0 });
+    this.searchQuizResults();
+  }
+
+  resetFilters(): void {
+    this.searchForm.reset({
+      userId: null,
+      quizId: null,
+      minScore: null,
+      maxScore: null,
+      page: 0,
+      size: 10,
+      sortBy: 'completedAt',
+      sortDir: 'DESC'
+    });
+    this.searchQuizResults();
+  }
+
+  /**
+   * Hiển thị modal để thêm mới hoặc chỉnh sửa kết quả.
+   * @param isEditMode True nếu là chế độ chỉnh sửa, False nếu là thêm mới.
+   * @param result Đối tượng QuizResult nếu ở chế độ chỉnh sửa.
+   */
+  showResultModal(isEditMode: boolean, result?: QuizResult): void {
+    if (!this.isAdmin) {
+      this.notification.error('Lỗi', 'Bạn không có quyền thực hiện hành động này.');
+      return;
+    }
+    this.isVisible = true;
+    this.isEdit = isEditMode;
+    this.resultForm.reset({ score: 0, durationSeconds: null }); // Reset form trước khi điền dữ liệu
+
+    if (isEditMode && result) {
+      this.currentResultId = result.resultId!;
+      this.resultForm.patchValue({
+        userId: result.userId,
+        quizId: result.quizId,
+        score: result.score,
+        durationSeconds: result.durationSeconds
+      });
+      // Vô hiệu hóa userId và quizId khi chỉnh sửa
+      this.resultForm.get('userId')?.disable();
+      this.resultForm.get('quizId')?.disable();
+    } else {
+      this.currentResultId = null;
+      // Bật lại userId và quizId khi thêm mới
+      this.resultForm.get('userId')?.enable();
+      this.resultForm.get('quizId')?.enable();
+    }
+  }
+
+  /**
+   * Xử lý khi nhấn nút "OK" trong modal.
+   */
+  handleResultModalOk(): void {
+    if (this.resultForm.invalid) {
+      this.resultForm.markAllAsTouched();
+      this.notification.error('Lỗi', 'Vui lòng điền đầy đủ và đúng các trường bắt buộc.');
+      return;
+    }
+
+    const formValue = this.resultForm.getRawValue(); // Sử dụng getRawValue() để lấy cả giá trị của các trường bị disable
+    const resultData: QuizResultRequest = {
+      userId: formValue.userId,
+      quizId: formValue.quizId,
+      score: formValue.score,
+      durationSeconds: formValue.durationSeconds
+    };
+
+    if (this.isEdit && this.currentResultId) {
+      this.resultService.updateQuizResult(this.currentResultId, resultData).subscribe({
+        next: () => {
+          this.notification.success('Thành công', 'Kết quả bài kiểm tra đã được cập nhật!');
+          this.isVisible = false;
+          this.searchQuizResults(); // Tải lại danh sách sau khi cập nhật
         },
         error: (err) => {
-          this.notification.error('Error', `Failed to load results for user ${userIdToLoad}.`);
-          console.error('Load results error:', err);
-          this.results = []; // Xóa kết quả nếu có lỗi
+          this.notification.error('Lỗi', 'Không thể cập nhật kết quả bài kiểm tra: ' + (err.error?.message || err.message));
+          console.error('Lỗi cập nhật kết quả bài kiểm tra:', err);
         }
       });
     } else {
-      this.results = [];
-      this.notification.info('Info', 'Please select a user to view quiz results.');
+      this.resultService.saveQuizResult(resultData).subscribe({
+        next: () => {
+          this.notification.success('Thành công', 'Kết quả bài kiểm tra đã được lưu!');
+          this.isVisible = false;
+          this.searchQuizResults(); // Tải lại danh sách sau khi lưu
+        },
+        error: (err) => {
+          this.notification.error('Lỗi', 'Không thể lưu kết quả bài kiểm tra: ' + (err.error?.message || err.message));
+          console.error('Lỗi lưu kết quả bài kiểm tra:', err);
+        }
+      });
     }
   }
 
-  // Hàm này sẽ được gọi khi người dùng thay đổi lựa chọn trong dropdown user
-  onUserChange(userId: number | null): void { // Kiểu dữ liệu có thể là number hoặc null
-    this.selectedUserId = userId; // Cập nhật biến selectedUserId
-    this.resultForm.get('userId')?.setValue(userId); // Cập nhật form control
-    if (userId !== null) {
-      this.loadResults(); // Tải lại kết quả cho user mới chọn
-    } else {
-      this.results = []; // Nếu không chọn user, xóa bảng kết quả
-    }
+  /**
+   * Xử lý khi nhấn nút "Hủy" trong modal.
+   */
+  handleResultModalCancel(): void {
+    this.isVisible = false;
+    this.resultForm.reset({ score: 0, durationSeconds: null }); // Reset form
+    // Đảm bảo bật lại các trường userId và quizId sau khi đóng modal
+    this.resultForm.get('userId')?.enable();
+    this.resultForm.get('quizId')?.enable();
   }
 
-  saveResult(): void {
-    if (!this.isAdmin) {
-      this.notification.error('Error', 'You do not have permission to save quiz results.');
+  deleteResult(resultId: number | undefined): void {
+    if (resultId === undefined) {
+      this.notification.error('Lỗi', 'ID kết quả không hợp lệ để xóa.');
       return;
     }
-    if (this.resultForm.invalid) {
-      this.resultForm.markAllAsTouched();
-      this.notification.error('Error', 'Please fill in all required fields correctly.');
-      console.error(
-        'Form is invalid. Errors:',
-        this.resultForm.controls['userId']?.errors,
-        this.resultForm.controls['quizId']?.errors,
-        this.resultForm.controls['score']?.errors
-      );
-      return;
-    }
-
-    const resultToSend: QuizResult = {
-      userId: this.resultForm.get('userId')?.value,
-      quizId: this.resultForm.get('quizId')?.value,
-      score: this.resultForm.get('score')?.value
-      // resultId và completedAt sẽ được backend xử lý
-    };
-
-    console.log('QuizResult object to send:', resultToSend);
-
-    this.resultService.saveQuizResult(resultToSend).subscribe({
-      next: () => {
-        this.notification.success('Success', 'Quiz result saved successfully!');
-        this.loadResults(); // Tải lại kết quả cho user đã chọn
-        // Nếu bạn muốn reset form sau khi lưu, bạn có thể thêm:
-        // this.resultForm.get('quizId')?.reset(); // Reset quizId
-        // this.resultForm.get('score')?.setValue(0); // Reset score về 0
-      },
-      error: (err) => {
-        this.notification.error('Error', 'Failed to save quiz result: ' + (err.error?.message || 'Unknown error'));
-        console.error('Save quiz result error:', err);
+    this.modal.confirm({
+      nzTitle: 'Bạn có chắc chắn muốn xóa?',
+      nzContent: 'Hành động này không thể hoàn tác. Bạn có muốn xóa kết quả bài kiểm tra này không?',
+      nzOkText: 'Xóa',
+      nzOkType: 'primary',
+      nzOkDanger: true,
+      nzCancelText: 'Hủy',
+      nzOnOk: () => {
+        this.resultService.deleteQuizResult(resultId).subscribe({
+          next: () => {
+            this.notification.success('Thành công', 'Kết quả bài kiểm tra đã được xóa.');
+            this.searchQuizResults();
+          },
+          error: (err) => {
+            this.notification.error('Lỗi', 'Không thể xóa kết quả bài kiểm tra: ' + (err.error?.message || err.message));
+            console.error('Lỗi xóa kết quả bài kiểm tra:', err);
+          }
+        });
       }
     });
   }
 
-  // Hàm helper để hiển thị username từ userId
   getUserUsername(userId: number | undefined): string {
-    if (userId == null) { // Kiểm tra cả null và undefined
+    if (userId == null) {
       return 'N/A';
     }
     const user = this.users.find(u => u.userId === userId);
     return user ? user.username : 'N/A';
   }
 
-  // Hàm helper để hiển thị quiz title từ quizId
   getQuizTitle(quizId: number | undefined): string {
-    if (quizId == null) { // Kiểm tra cả null và undefined
+    if (quizId == null) {
       return 'N/A';
     }
     const quiz = this.quizzes.find(q => q.quizId === quizId);

@@ -1,13 +1,19 @@
+// src/app/admin/pages/quizzes/quizzes.component.ts
+
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
+import { NzModalService } from 'ng-zorro-antd/modal';
+import { finalize } from 'rxjs/operators';
+import { throwError, catchError } from 'rxjs';
 
-import { Quiz, Skill } from 'src/app/interface/quiz.interface';
-import { Lesson } from 'src/app/interface/lesson.interface'; // Vẫn cần Lesson để hiển thị title và lấy danh sách
-import { QuizService } from 'src/app/service/quiz.service';
+// ĐÃ THAY ĐỔI: Import QuizType thay vì QuizSkill
+import { Quiz, QuizRequest, QuizSearchRequest, QuizPageResponse, QuizType } from 'src/app/interface/quiz.interface';
+import { Lesson } from 'src/app/interface/lesson.interface';
+import { ApiService } from 'src/app/service/api.service';
 import { LessonService } from 'src/app/service/lesson.service';
-import { ApiService } from 'src/app/service/api.service'; // Import ApiService để kiểm tra quyền admin
+import { QuizService } from 'src/app/service/quiz.service';
+import { NzTableQueryParams } from 'ng-zorro-antd/table';
 
 @Component({
   selector: 'app-quizzes',
@@ -17,26 +23,43 @@ import { ApiService } from 'src/app/service/api.service'; // Import ApiService �
 export class QuizzesComponent implements OnInit {
   quizzes: Quiz[] = [];
   lessons: Lesson[] = [];
-  isVisible = false;
-  isEdit = false;
+
   quizForm: FormGroup;
-  skills = Object.values(Skill);
-  selectedLessonId: number | null = null;
-  isAdmin: boolean = false; // Biến kiểm tra quyền admin
+  searchForm: FormGroup;
+
+  isAdmin: boolean = false;
+  loading = false;
+  isEditing = false;
+  currentQuizId: number | null = null;
+
+  pageData: QuizPageResponse = { content: [], totalElements: 0, totalPages: 0, currentPage: 0, pageSize: 10 };
+
+  currentSortBy: string = 'createdAt';
+  currentSortDir: 'ASC' | 'DESC' = 'DESC';
+
+  // ĐÃ THAY ĐỔI: Sử dụng QuizType
+  quizTypes = Object.values(QuizType); // ĐÃ THAY ĐỔI: quizSkills -> quizTypes, QuizSkill -> QuizType
+
+  isModalVisible = false;
 
   constructor(
     private quizService: QuizService,
     private lessonService: LessonService,
     private fb: FormBuilder,
-    private modal: NzModalService,
     private notification: NzNotificationService,
-    private apiService: ApiService // Inject ApiService
+    private apiService: ApiService,
+    private modal: NzModalService
   ) {
     this.quizForm = this.fb.group({
-      quizId: [null],
-      lessonId: [null, Validators.required],
-      title: ['', Validators.required],
-      skill: [null, Validators.required]
+      lessonId: [null, [Validators.required]],
+      title: [null, [Validators.required, Validators.maxLength(255)]],
+      quizType: [null, [Validators.required]] // ĐÃ THAY ĐỔI: skill -> quizType
+    });
+
+    this.searchForm = this.fb.group({
+      lessonId: [null],
+      title: [null],
+      quizType: [null] // ĐÃ THAY ĐỔI: skill -> quizType
     });
   }
 
@@ -50,195 +73,183 @@ export class QuizzesComponent implements OnInit {
         this.isAdmin = isAdmin;
         if (this.isAdmin) {
           this.loadLessons();
+          this.onQueryParamsChange({
+            pageIndex: 1,
+            pageSize: 10,
+            sort: [{ key: 'createdAt', value: 'descend' }],
+            filter: []
+          });
         } else {
-          this.notification.warning('Warning', 'You do not have administrative privileges to manage quizzes.');
+          this.notification.warning('Cảnh báo', 'Bạn không có quyền quản trị để xem và quản lý bài kiểm tra.');
         }
       },
       error: (err) => {
-        this.notification.error('Error', 'Failed to verify admin role.');
+        this.notification.error('Lỗi', 'Không thể xác minh quyền quản trị.');
         console.error('Admin role check error:', err);
+        this.isAdmin = false;
       }
     });
   }
 
   loadLessons(): void {
-    this.lessonService.getAllLessons().subscribe({
-      next: (lessons) => {
-        this.lessons = lessons;
-        console.log('Loaded all lessons:', this.lessons);
-
-        // THAY ĐỔI TẠI ĐÂY: Xử lý gán selectedLessonId an toàn hơn
-        if (this.lessons.length > 0) {
-          // Nếu chưa có lesson nào được chọn, hoặc lesson đã chọn không còn tồn tại,
-          // thì chọn lesson đầu tiên trong danh sách (nếu nó có lessonId)
-          if (this.selectedLessonId === null || !this.lessons.some(l => l.lessonId === this.selectedLessonId)) {
-            if (this.lessons[0].lessonId !== undefined) {
-              this.selectedLessonId = this.lessons[0].lessonId;
-            } else {
-              // Trường hợp lesson đầu tiên không có ID (ít khả năng xảy ra nếu backend hoạt động đúng)
-              console.warn('First lesson has no ID. Cannot auto-select for quizzes.');
-              this.selectedLessonId = null;
-            }
-          }
-          // Nếu đã có lessonId được chọn hợp lệ hoặc vừa gán được, tải quizzes
-          if (this.selectedLessonId !== null) {
-            this.loadQuizzes(this.selectedLessonId);
-          }
-        } else {
-          this.selectedLessonId = null; // Không có bài học nào
-          this.quizzes = []; // Đảm bảo danh sách quiz rỗng
-        }
-      },
-      error: (err) => {
-        this.notification.error('Error', 'Failed to load lessons.');
+    this.lessonService.getAllLessons().pipe(
+      catchError(err => {
+        this.notification.error('Lỗi', 'Không thể tải danh sách bài học.');
         console.error('Load lessons error:', err);
-      }
+        return throwError(() => err);
+      })
+    ).subscribe(lessons => {
+      this.lessons = lessons;
     });
   }
 
-  // Giữ nguyên loadQuizzes(lessonId: number): vì nó mong đợi một number
-  loadQuizzes(lessonId: number): void {
-    if (!this.isAdmin) {
-      this.notification.error('Error', 'You do not have permission to view quizzes.');
-      return;
-    }
-    // Đảm bảo lessonId không phải null/undefined trước khi gọi service
-    if (lessonId == null) {
-      this.notification.error('Error', 'Lesson ID is missing for loading quizzes.');
-      console.error('loadQuizzes: lessonId is null or undefined.');
-      this.quizzes = [];
-      return;
-    }
+  searchQuizzes(): void {
+    if (!this.isAdmin) return;
 
-    this.quizService.getQuizzesByLessonId(lessonId).subscribe({
-      next: (quizzes) => {
-        this.quizzes = quizzes;
-        console.log(`Loaded quizzes for lesson ${lessonId}:`, this.quizzes);
-      },
-      error: (err) => {
-        this.notification.error('Error', `Failed to load quizzes for lesson ${lessonId}.`);
-        console.error('Load quizzes error:', err);
-      }
-    });
-  }
+    this.loading = true;
+    const formValues = this.searchForm.value;
 
-  showModal(isEdit: boolean, quiz?: Quiz): void {
-    if (!this.isAdmin) {
-      this.notification.error('Error', 'You do not have permission to add/edit quizzes.');
-      return;
-    }
-    this.isEdit = isEdit;
-    this.quizForm.reset(); // Reset form khi mở modal
-
-    if (isEdit && quiz) {
-      this.quizForm.patchValue({
-        quizId: quiz.quizId,
-        lessonId: quiz.lessonId,
-        title: quiz.title,
-        skill: quiz.skill
-      });
-    } else {
-      if (this.selectedLessonId !== null) { // THAY ĐỔI: Sử dụng !== null
-        this.quizForm.get('lessonId')?.setValue(this.selectedLessonId);
-      }
-    }
-    this.isVisible = true;
-    console.log('Quiz Form after showModal:', this.quizForm.value);
-  }
-
-  handleOk(): void {
-    console.log('Attempting to submit form. Current form value:', this.quizForm.value);
-    if (this.quizForm.invalid) {
-      this.quizForm.markAllAsTouched();
-      this.notification.error('Error', 'Please fill in all required fields correctly.');
-      console.error(
-        'Form is invalid. Errors:',
-        this.quizForm.controls['lessonId']?.errors,
-        this.quizForm.controls['title']?.errors,
-        this.quizForm.controls['skill']?.errors
-      );
-      return;
-    }
-
-    const quizToSend: Quiz = {
-      quizId: this.quizForm.get('quizId')?.value,
-      // THAY ĐỔI: Ép kiểu để đảm bảo nó là number khi gọi service, vì validator đã đảm bảo nó có giá trị
-      lessonId: this.quizForm.get('lessonId')?.value as number,
-      title: this.quizForm.get('title')?.value,
-      skill: this.quizForm.get('skill')?.value
+    const request: QuizSearchRequest = {
+      lessonId: formValues.lessonId || undefined,
+      title: formValues.title || undefined,
+      quizType: formValues.quizType || undefined, // ĐÃ THAY ĐỔI: skill -> quizType
+      page: this.pageData.currentPage,
+      size: this.pageData.pageSize,
+      sortBy: this.currentSortBy,
+      sortDir: this.currentSortDir
     };
 
-    console.log('Quiz object to send:', quizToSend);
+    this.quizService.searchQuizzes(request).pipe(
+      finalize(() => this.loading = false),
+      catchError((err: any) => {
+        this.notification.error('Lỗi', 'Lỗi khi tìm kiếm bài kiểm tra: ' + (err.error?.message || err.message));
+        return throwError(() => err);
+      })
+    ).subscribe(pageData => {
+      this.pageData = pageData;
+      this.quizzes = pageData.content;
+    });
+  }
 
-    if (this.isEdit) {
-      // THAY ĐỔI: Kiểm tra quizId có tồn tại và dùng non-null assertion
-      if (quizToSend.quizId == null) { // Dùng == null để bắt cả null và undefined
-        this.notification.error('Error', 'Quiz ID is missing for update.');
-        return;
-      }
-      this.quizService.updateQuiz(quizToSend.quizId, quizToSend).subscribe({
-        next: () => {
-          this.notification.success('Success', 'Quiz updated successfully!');
-          this.loadQuizzes(quizToSend.lessonId);
-          this.isVisible = false;
-          this.quizForm.reset();
-        },
-        error: (err) => {
-          this.notification.error('Error', 'Failed to update quiz: ' + (err.error?.message || err.message));
-          console.error('Update quiz error:', err);
-        }
-      });
+  onQueryParamsChange(params: NzTableQueryParams): void {
+    const { pageSize, pageIndex, sort } = params;
+    const currentSort = sort.find(item => item.value !== null);
+
+    this.pageData.currentPage = pageIndex - 1;
+    this.pageData.pageSize = pageSize;
+
+    if (currentSort) {
+      this.currentSortBy = currentSort.key;
+      this.currentSortDir = currentSort.value === 'ascend' ? 'ASC' : 'DESC';
     } else {
-      this.quizService.createQuiz(quizToSend).subscribe({
-        next: () => {
-          this.notification.success('Success', 'Quiz created successfully!');
-          this.loadQuizzes(quizToSend.lessonId);
-          this.isVisible = false;
-          this.quizForm.reset();
-        },
-        error: (err) => {
-          this.notification.error('Error', 'Failed to create quiz: ' + (err.error?.message || err.message));
-          console.error('Create quiz error:', err);
-        }
-      });
+      this.currentSortBy = 'createdAt';
+      this.currentSortDir = 'DESC';
     }
+
+    this.searchQuizzes();
+  }
+
+  resetFilters(): void {
+    this.searchForm.reset();
+    this.onQueryParamsChange({
+      pageIndex: 1,
+      pageSize: 10,
+      sort: [{ key: 'createdAt', value: 'descend' }],
+      filter: []
+    });
+  }
+
+  openCreateForm(): void {
+    if (!this.isAdmin) return;
+    this.isEditing = false;
+    this.currentQuizId = null;
+    this.quizForm.reset();
+    this.isModalVisible = true;
+  }
+
+  openEditForm(quiz: Quiz): void {
+    if (!this.isAdmin) return;
+    this.isEditing = true;
+    this.currentQuizId = quiz.quizId!;
+    // ĐẢM BẢO patchValue đúng với tên trường mới quizType
+    this.quizForm.patchValue({
+      lessonId: quiz.lessonId,
+      title: quiz.title,
+      quizType: quiz.quizType // ĐÃ THAY ĐỔI: skill -> quizType
+    });
+    this.isModalVisible = true;
+  }
+
+  submitQuizForm(): void {
+    if (!this.isAdmin) return;
+
+    Object.values(this.quizForm.controls).forEach(control => {
+      if (control.invalid) {
+        control.markAsDirty();
+        control.updateValueAndValidity({ onlySelf: true });
+      }
+    });
+
+    if (this.quizForm.invalid) {
+      this.notification.error('Lỗi', 'Vui lòng điền đầy đủ và đúng các trường yêu cầu.');
+      return;
+    }
+
+    const quizData: QuizRequest = this.quizForm.value;
+    this.loading = true;
+
+    const action = this.isEditing
+      ? this.quizService.updateQuiz(this.currentQuizId!, quizData)
+      : this.quizService.createQuiz(quizData);
+
+    action.pipe(
+      finalize(() => this.loading = false),
+      catchError((err: any) => {
+        const actionText = this.isEditing ? 'cập nhật' : 'tạo';
+        this.notification.error('Lỗi', `Không thể ${actionText} bài kiểm tra: ` + (err.error?.message || err.message));
+        return throwError(() => err);
+      })
+    ).subscribe(() => {
+      const actionText = this.isEditing ? 'cập nhật' : 'tạo';
+      this.notification.success('Thành công', `Bài kiểm tra đã được ${actionText}.`);
+      this.handleCancel();
+      this.searchQuizzes();
+    });
   }
 
   handleCancel(): void {
-    this.isVisible = false;
-    this.quizForm.reset();
+    this.isModalVisible = false;
   }
 
-  deleteQuiz(quizId: number): void {
-    if (!this.isAdmin) {
-      this.notification.error('Error', 'You do not have permission to delete quizzes.');
-      return;
-    }
+  deleteQuiz(quizId: number | undefined): void {
+    if (!this.isAdmin || quizId === undefined) return;
+
     this.modal.confirm({
-      nzTitle: 'Are you sure you want to delete this quiz?',
-      nzContent: 'This action cannot be undone.',
+      nzTitle: 'Bạn có chắc chắn muốn xóa bài kiểm tra này?',
+      nzContent: 'Hành động này không thể hoàn tác.',
+      nzOkText: 'Xóa',
+      nzOkType: 'primary',
+      nzOkDanger: true,
       nzOnOk: () => {
-        this.quizService.deleteQuiz(quizId).subscribe({
-          next: () => {
-            this.notification.success('Success', 'Quiz deleted successfully!');
-            if (this.selectedLessonId !== null) { // THAY ĐỔI: Chỉ tải lại nếu có lesson được chọn
-              this.loadQuizzes(this.selectedLessonId);
-            }
-          },
-          error: (err) => {
-            this.notification.error('Error', 'Failed to delete quiz: ' + (err.error?.message || err.message));
-            console.error('Delete quiz error:', err);
-          }
+        this.loading = true;
+        this.quizService.deleteQuiz(quizId).pipe(
+          finalize(() => this.loading = false),
+          catchError((err: any) => {
+            this.notification.error('Lỗi', 'Không thể xóa bài kiểm tra: ' + (err.error?.message || err.message));
+            return throwError(() => err);
+          })
+        ).subscribe(() => {
+          this.notification.success('Thành công', 'Bài kiểm tra đã được xóa.');
+          this.searchQuizzes();
         });
       }
     });
   }
 
-  getLessonTitle(lessonId: number | undefined): string { // Giữ nguyên, nhận number | undefined
-    if (lessonId == null) { // Dùng == null để bắt cả null và undefined
-      return 'N/A';
-    }
+  getLessonTitle(lessonId: number | undefined): string {
+    if (lessonId == null) return 'N/A';
     const lesson = this.lessons.find(l => l.lessonId === lessonId);
-    return lesson ? lesson.title : 'N/A';
+    return lesson ? lesson.title : 'Không xác định';
   }
+
 }

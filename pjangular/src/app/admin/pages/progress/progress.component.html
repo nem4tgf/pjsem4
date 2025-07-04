@@ -1,79 +1,75 @@
 <nz-card nzTitle="📈 Quản lý Tiến độ" class="progress-card">
-  <form nz-form [formGroup]="progressForm" *ngIf="isAdmin" class="progress-form">
+
+  <div *ngIf="isAdmin" class="add-button-container">
+    <button nz-button nzType="primary" (click)="showAddProgressModal()">
+      <i nz-icon nzType="plus-circle"></i> Thêm Tiến độ Mới
+    </button>
+  </div>
+
+  <nz-divider *ngIf="isAdmin"></nz-divider>
+
+  <form nz-form [formGroup]="searchForm" (ngSubmit)="searchProgress()" *ngIf="isAdmin" class="search-form">
     <div nz-row nzGutter="16">
-      <div nz-col nzSpan="8">
+      <div nz-col nzSpan="6">
         <nz-form-item>
-          <nz-form-label nzRequired class="form-label"><i nz-icon nzType="user"></i> Người dùng</nz-form-label>
-          <nz-form-control [nzErrorTip]="progressForm.get('userId')?.hasError('required') ? 'User is required' : ''">
-            <nz-select
-              formControlName="userId"
-              [(ngModel)]="selectedUserId"
-              (ngModelChange)="onUserChange($event)"
-              nzPlaceHolder="Chọn người dùng"
-              class="custom-select"
-            >
-              <nz-option *ngFor="let user of users" [nzValue]="user.userId" [nzLabel]="user.username"></nz-option>
-            </nz-select>
+          <nz-form-label class="form-label"><i nz-icon nzType="user"></i> User ID</nz-form-label>
+          <nz-form-control>
+            <nz-input-number formControlName="userId" [nzMin]="1" [nzStep]="1" [nzPrecision]="0" placeholder="Tìm theo User ID" class="custom-input"></nz-input-number>
           </nz-form-control>
         </nz-form-item>
       </div>
-
-      <div nz-col nzSpan="8">
+      <div nz-col nzSpan="6">
         <nz-form-item>
-          <nz-form-label nzRequired class="form-label"><i nz-icon nzType="book"></i> Bài học</nz-form-label>
-          <nz-form-control [nzErrorTip]="progressForm.get('lessonId')?.hasError('required') ? 'Lesson is required' : ''">
-            <nz-select formControlName="lessonId" nzPlaceHolder="Chọn bài học" class="custom-select">
-              <nz-option *ngFor="let lesson of lessons" [nzValue]="lesson.lessonId" [nzLabel]="lesson.title"></nz-option>
-            </nz-select>
+          <nz-form-label class="form-label"><i nz-icon nzType="book"></i> Lesson ID</nz-form-label>
+          <nz-form-control>
+            <nz-input-number formControlName="lessonId" [nzMin]="1" [nzStep]="1" [nzPrecision]="0" placeholder="Tìm theo Lesson ID" class="custom-input"></nz-input-number>
           </nz-form-control>
         </nz-form-item>
       </div>
-
-      <div nz-col nzSpan="8">
+      <div nz-col nzSpan="6">
         <nz-form-item>
-          <nz-form-label nzRequired class="form-label"><i nz-icon nzType="bulb"></i> Loại hoạt động</nz-form-label>
-          <nz-form-control [nzErrorTip]="progressForm.get('activityType')?.hasError('required') ? 'Activity type is required' : ''">
-            <nz-select formControlName="activityType" nzPlaceHolder="Chọn loại hoạt động" class="custom-select">
+          <nz-form-label class="form-label"><i nz-icon nzType="bulb"></i> Loại hoạt động</nz-form-label>
+          <nz-form-control>
+            <nz-select formControlName="activityType" nzPlaceHolder="Chọn loại hoạt động" nzAllowClear class="custom-select">
               <nz-option *ngFor="let activityType of activityTypes" [nzValue]="activityType" [nzLabel]="activityType"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
       </div>
-
-      <div nz-col nzSpan="8">
+      <div nz-col nzSpan="6">
         <nz-form-item>
-          <nz-form-label nzRequired class="form-label"><i nz-icon nzType="info-circle"></i> Trạng thái</nz-form-label>
-          <nz-form-control [nzErrorTip]="progressForm.get('status')?.hasError('required') ? 'Status is required' : ''">
-            <nz-select formControlName="status" nzPlaceHolder="Chọn trạng thái" class="custom-select">
+          <nz-form-label class="form-label"><i nz-icon nzType="info-circle"></i> Trạng thái</nz-form-label>
+          <nz-form-control>
+            <nz-select formControlName="status" nzPlaceHolder="Chọn trạng thái" nzAllowClear class="custom-select">
               <nz-option *ngFor="let status of statuses" [nzValue]="status" [nzLabel]="status"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
       </div>
-
-      <div nz-col nzSpan="8">
+      <div nz-col nzSpan="6">
         <nz-form-item>
-          <nz-form-label nzRequired class="form-label"><i nz-icon nzType="percentage"></i> Hoàn thành (%)</nz-form-label>
-          <nz-form-control [nzErrorTip]="
-            progressForm.get('completionPercentage')?.hasError('required') ? 'Completion is required' :
-            (progressForm.get('completionPercentage')?.hasError('min') || progressForm.get('completionPercentage')?.hasError('max'))
-            ? 'Từ 0 đến 100' : ''
-          ">
-            <nz-input-number formControlName="completionPercentage" [nzMin]="0" [nzMax]="100" nzPlaceHolder="Nhập %" class="custom-input"></nz-input-number>
-          </nz-form-control>
-        </nz-form-item>
-      </div>
-
-      <div nz-col nzSpan="8" class="button-col">
-        <nz-form-item>
-          <nz-form-label>&nbsp;</nz-form-label>
+          <nz-form-label class="form-label"><i nz-icon nzType="percentage"></i> Hoàn thành từ (%)</nz-form-label>
           <nz-form-control>
-            <button nz-button nzType="primary" (click)="updateProgress()" class="submit-button">
-              <i nz-icon nzType="check-circle"></i> Cập nhật
-            </button>
+            <nz-input-number formControlName="minCompletionPercentage" [nzMin]="0" [nzMax]="100" nzPlaceHolder="Min %" class="custom-input"></nz-input-number>
           </nz-form-control>
         </nz-form-item>
       </div>
+      <div nz-col nzSpan="6">
+        <nz-form-item>
+          <nz-form-label class="form-label"><i nz-icon nzType="percentage"></i> Hoàn thành đến (%)</nz-form-label>
+          <nz-form-control>
+            <nz-input-number formControlName="maxCompletionPercentage" [nzMin]="0" [nzMax]="100" nzPlaceHolder="Max %" class="custom-input"></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button nz-button nzType="primary" [nzLoading]="loading" htmlType="submit" class="search-button">
+        <i nz-icon nzType="search"></i> Tìm kiếm
+      </button>
+      <button nz-button (click)="resetFilters()" class="reset-button">
+        <i nz-icon nzType="reload"></i> Đặt lại
+      </button>
     </div>
   </form>
 
@@ -82,19 +78,26 @@
   <nz-table
     #basicTable
     [nzData]="progressList"
-    [nzLoading]="!progressList.length"
+    [nzLoading]="loading"
+    [nzNoResult]="'Không tìm thấy bản ghi tiến độ nào.'"
+    [nzFrontPagination]="false"
+    [nzTotal]="pageData.totalElements"
+    [nzPageSize]="pageData.size"
+    [nzPageIndex]="pageData.page + 1" (nzPageIndexChange)="onPageIndexChange($event)"
+    (nzPageSizeChange)="onPageSizeChange($event)"
     nzBordered
     *ngIf="isAdmin"
     class="progress-table"
   >
     <thead>
       <tr>
-        <th>Người dùng</th>
-        <th>Bài học</th>
-        <th>Hoạt động</th>
-        <th>Trạng thái</th>
-        <th>Hoàn thành (%)</th>
-        <th>Cập nhật lúc</th>
+        <th class="table-header" [nzSortFn]="true" (nzSortOrderChange)="onSortChange('userId', $event === 'ascend' ? 'ASC' : 'DESC')">Người dùng</th>
+        <th class="table-header" [nzSortFn]="true" (nzSortOrderChange)="onSortChange('lessonId', $event === 'ascend' ? 'ASC' : 'DESC')">Bài học</th>
+        <th class="table-header" [nzSortFn]="true" (nzSortOrderChange)="onSortChange('activityType', $event === 'ascend' ? 'ASC' : 'DESC')">Hoạt động</th>
+        <th class="table-header" [nzSortFn]="true" (nzSortOrderChange)="onSortChange('status', $event === 'ascend' ? 'ASC' : 'DESC')">Trạng thái</th>
+        <th class="table-header" [nzSortFn]="true" (nzSortOrderChange)="onSortChange('completionPercentage', $event === 'ascend' ? 'ASC' : 'DESC')">Hoàn thành (%)</th>
+        <th class="table-header" [nzSortFn]="true" (nzSortOrderChange)="onSortChange('lastUpdated', $event === 'ascend' ? 'ASC' : 'DESC')">Cập nhật lúc</th>
+        <th *ngIf="isAdmin" class="table-header">Hành động</th>
       </tr>
     </thead>
     <tbody>
@@ -102,9 +105,22 @@
         <td>{{ getUserUsername(progress.userId) }}</td>
         <td>{{ getLessonTitle(progress.lessonId) }}</td>
         <td>{{ progress.activityType }}</td>
-        <td>{{ progress.status }}</td>
-        <td>{{ progress.completionPercentage }}</td>
+        <td>
+          <nz-tag [nzColor]="getProgressStatusTagColor(progress.status)">
+            {{ progress.status }}
+          </nz-tag>
+        </td>
+        <td>{{ progress.completionPercentage }}%</td>
         <td>{{ progress.lastUpdated | date: 'medium' }}</td>
+        <td *ngIf="isAdmin" class="actions-cell">
+          <a (click)="showEditProgressModal(progress)" class="edit-link">
+            <i nz-icon nzType="edit" class="icon-edit"></i> Sửa
+          </a>
+          <nz-divider nzType="vertical"></nz-divider>
+          <a (click)="deleteProgress(progress.progressId!)" class="delete-link">
+            <i nz-icon nzType="delete" class="icon-delete"></i> Xóa
+          </a>
+        </td>
       </tr>
     </tbody>
   </nz-table>
@@ -112,4 +128,92 @@
   <div *ngIf="!isAdmin" class="no-permission-message">
     <p><i nz-icon nzType="close-circle"></i> Bạn không có quyền truy cập trang quản lý tiến độ.</p>
   </div>
+
+  <nz-modal
+    [(nzVisible)]="isProgressModalVisible"
+    [nzTitle]="isEditMode ? 'Cập nhật Tiến độ' : 'Thêm Tiến độ Mới'"
+    nzOkText="Lưu"
+    nzCancelText="Hủy"
+    (nzOnOk)="handleProgressModalOk()"
+    (nzOnCancel)="handleProgressModalCancel()"
+    [nzOkLoading]="loading"
+    [nzWidth]="800"
+  >
+    <ng-container *nzModalContent>
+      <form nz-form [formGroup]="progressForm" class="progress-modal-form">
+        <div nz-row nzGutter="16">
+          <div nz-col nzSpan="12">
+            <nz-form-item>
+              <nz-form-label nzRequired><i nz-icon nzType="user"></i> Người dùng</nz-form-label>
+              <nz-form-control [nzErrorTip]="progressForm.get('userId')?.hasError('required') ? 'Người dùng là bắt buộc' : ''">
+                <nz-select
+                  formControlName="userId"
+                  nzPlaceHolder="Chọn người dùng"
+                  [nzDisabled]="isEditMode"
+                  nzShowSearch
+                  [nzFilterOption]="filterUserOption"
+                  (nzOpenChange)="loadUsers()"
+                >
+                  <nz-option *ngFor="let user of users" [nzValue]="user.userId" [nzLabel]="user.username"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div nz-col nzSpan="12">
+            <nz-form-item>
+              <nz-form-label nzRequired><i nz-icon nzType="book"></i> Bài học</nz-form-label>
+              <nz-form-control [nzErrorTip]="progressForm.get('lessonId')?.hasError('required') ? 'Bài học là bắt buộc' : ''">
+                <nz-select
+                  formControlName="lessonId"
+                  nzPlaceHolder="Chọn bài học"
+                  [nzDisabled]="isEditMode"
+                  nzShowSearch
+                  [nzFilterOption]="filterLessonOption"
+                  (nzOpenChange)="loadLessons()"
+                >
+                  <nz-option *ngFor="let lesson of lessons" [nzValue]="lesson.lessonId" [nzLabel]="lesson.title"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div nz-col nzSpan="12">
+            <nz-form-item>
+              <nz-form-label nzRequired><i nz-icon nzType="bulb"></i> Loại hoạt động</nz-form-label>
+              <nz-form-control [nzErrorTip]="progressForm.get('activityType')?.hasError('required') ? 'Loại hoạt động là bắt buộc' : ''">
+                <nz-select formControlName="activityType" nzPlaceHolder="Chọn loại hoạt động">
+                  <nz-option *ngFor="let activityType of activityTypes" [nzValue]="activityType" [nzLabel]="activityType"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div nz-col nzSpan="12">
+            <nz-form-item>
+              <nz-form-label nzRequired><i nz-icon nzType="info-circle"></i> Trạng thái</nz-form-label>
+              <nz-form-control [nzErrorTip]="progressForm.get('status')?.hasError('required') ? 'Trạng thái là bắt buộc' : ''">
+                <nz-select formControlName="status" nzPlaceHolder="Chọn trạng thái">
+                  <nz-option *ngFor="let status of statuses" [nzValue]="status" [nzLabel]="status"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+
+          <div nz-col nzSpan="12">
+            <nz-form-item>
+              <nz-form-label nzRequired><i nz-icon nzType="percentage"></i> Hoàn thành (%)</nz-form-label>
+              <nz-form-control [nzErrorTip]="
+                progressForm.get('completionPercentage')?.hasError('required') ? 'Phần trăm hoàn thành là bắt buộc' :
+                (progressForm.get('completionPercentage')?.hasError('min') || progressForm.get('completionPercentage')?.hasError('max'))
+                ? 'Phải từ 0 đến 100' : ''
+              ">
+                <nz-input-number formControlName="completionPercentage" [nzMin]="0" [nzMax]="100" nzPlaceHolder="Nhập %"></nz-input-number>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
+      </form>
+    </ng-container>
+  </nz-modal>
 </nz-card>

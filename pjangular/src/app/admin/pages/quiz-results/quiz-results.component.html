@@ -1,16 +1,17 @@
 <nz-card nzTitle="📊 Quản lý Kết quả Bài kiểm tra" class="quiz-results-card">
-  <!-- Form nhập kết quả -->
-  <form nz-form [formGroup]="resultForm" *ngIf="isAdmin" class="quiz-form">
+
+  <form nz-form [formGroup]="searchForm" (ngSubmit)="searchQuizResults()" *ngIf="isAdmin" class="search-form">
     <div nz-row nzGutter="16">
-      <div nz-col nzSpan="8">
-        <nz-form-item class="form-item">
-          <nz-form-label nzRequired>
-            <i nz-icon nzType="user" nzTheme="fill" class="icon-user"></i> Người dùng
+      <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
+        <nz-form-item class="filter-item">
+          <nz-form-label class="form-label">
+            <i nz-icon nzType="user"></i> Người dùng
           </nz-form-label>
-          <nz-form-control [nzErrorTip]="resultForm.get('userId')?.touched && resultForm.get('userId')?.hasError('required') ? 'Bắt buộc' : undefined">
+          <nz-form-control>
             <nz-select
               formControlName="userId"
               nzPlaceHolder="Chọn người dùng"
+              nzAllowClear
               nzShowSearch
               class="custom-select"
             >
@@ -20,61 +21,207 @@
         </nz-form-item>
       </div>
 
-      <div nz-col nzSpan="8">
-        <nz-form-item class="form-item">
-          <nz-form-label nzRequired>
-            <i nz-icon nzType="file-done" nzTheme="fill" class="icon-quiz"></i> Bài kiểm tra
+      <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
+        <nz-form-item class="filter-item">
+          <nz-form-label class="form-label">
+            <i nz-icon nzType="file-text"></i> Bài kiểm tra
           </nz-form-label>
-          <nz-form-control [nzErrorTip]="resultForm.get('quizId')?.touched && resultForm.get('quizId')?.hasError('required') ? 'Bắt buộc' : undefined">
-            <nz-select formControlName="quizId" nzPlaceHolder="Chọn bài kiểm tra" nzShowSearch class="custom-select">
+          <nz-form-control>
+            <nz-select
+              formControlName="quizId"
+              nzPlaceHolder="Chọn bài kiểm tra"
+              nzAllowClear
+              nzShowSearch
+              class="custom-select"
+            >
               <nz-option *ngFor="let quiz of quizzes" [nzValue]="quiz.quizId" [nzLabel]="quiz.title"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
       </div>
 
-      <div nz-col nzSpan="6">
-        <nz-form-item class="form-item">
-          <nz-form-label nzRequired>
-            <i nz-icon nzType="number" nzTheme="fill" class="icon-score"></i> Điểm số
+      <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
+        <nz-form-item class="filter-item">
+          <nz-form-label class="form-label">
+            <i nz-icon nzType="trophy"></i> Điểm từ
           </nz-form-label>
-          <nz-form-control [nzErrorTip]="resultForm.get('score')?.touched ? (resultForm.get('score')?.hasError('required') ? 'Bắt buộc' : resultForm.get('score')?.hasError('min') || resultForm.get('score')?.hasError('max') ? 'Điểm phải từ 0 - 100' : undefined) : undefined">
-            <nz-input-number formControlName="score" [nzMin]="0" [nzMax]="100" nzPlaceHolder="Nhập điểm"></nz-input-number>
+          <nz-form-control>
+            <nz-input-number
+              formControlName="minScore"
+              [nzMin]="0"
+              [nzMax]="100"
+              nzPlaceHolder="Điểm tối thiểu"
+              class="custom-input-number"
+            ></nz-input-number>
           </nz-form-control>
         </nz-form-item>
       </div>
 
-      <div nz-col nzSpan="2" class="button-col">
-        <button nz-button nzType="primary" (click)="saveResult()" class="save-button">
-          <i nz-icon nzType="save" nzTheme="fill" class="icon-save"></i> Lưu
-        </button>
+      <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
+        <nz-form-item class="filter-item">
+          <nz-form-label class="form-label">
+            <i nz-icon nzType="trophy"></i> Điểm đến
+          </nz-form-label>
+          <nz-form-control>
+            <nz-input-number
+              formControlName="maxScore"
+              [nzMin]="0"
+              [nzMax]="100"
+              nzPlaceHolder="Điểm tối đa"
+              class="custom-input-number"
+            ></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
+      <div nz-col nzXs="24" nzSm="24" nzMd="24" nzLg="24" class="button-col-full">
+        <div class="filter-buttons">
+          <button nz-button nzType="primary" htmlType="submit" [nzLoading]="loading" class="search-button">
+            <i nz-icon nzType="search"></i> Tìm kiếm
+          </button>
+          <button nz-button (click)="resetFilters()" class="reset-button">
+            <i nz-icon nzType="reload"></i> Đặt lại
+          </button>
+        </div>
       </div>
     </div>
   </form>
 
   <nz-divider *ngIf="isAdmin"></nz-divider>
 
-  <!-- Bảng kết quả -->
-  <nz-table #basicTable [nzData]="results" [nzLoading]="!results.length" *ngIf="isAdmin" class="quiz-results-table">
+  <div class="table-actions" *ngIf="isAdmin">
+    <button nz-button nzType="primary" (click)="showResultModal(false)" class="add-button">
+      <i nz-icon nzType="plus-circle"></i> Thêm Kết Quả Mới
+    </button>
+  </div>
+
+  <nz-table
+    #basicTable
+    [nzData]="pageData.content" [nzLoading]="loading"
+    [nzNoResult]="'Không tìm thấy kết quả bài kiểm tra nào.'"
+    [nzFrontPagination]="false" [nzTotal]="pageData.totalElements" [nzPageSize]="pageData.pageSize" [nzPageIndex]="pageData.currentPage + 1" (nzPageIndexChange)="onPageIndexChange($event)" (nzPageSizeChange)="onPageSizeChange($event)" nzBordered
+    *ngIf="isAdmin"
+    class="quiz-results-table"
+  >
     <thead>
       <tr>
-        <th><i nz-icon nzType="user" nzTheme="fill" class="icon-user"></i> Người dùng</th>
-        <th><i nz-icon nzType="file-done" nzTheme="fill" class="icon-quiz"></i> Bài kiểm tra</th>
-        <th><i nz-icon nzType="number" nzTheme="fill" class="icon-score"></i> Điểm số</th>
-        <th><i nz-icon nzType="clock-circle" nzTheme="outline" class="icon-time"></i> Hoàn thành lúc</th>
+        <th
+          nzColumnKey="resultId"
+          [nzSortFn]="true" (nzSortOrderChange)="onSortChange('resultId', $event === 'ascend' ? 'ascend' : ($event === 'descend' ? 'descend' : null))" class="table-header"
+        >
+          ID
+        </th>
+        <th
+          nzColumnKey="userId"
+          [nzSortFn]="true"
+          (nzSortOrderChange)="onSortChange('userId', $event === 'ascend' ? 'ascend' : ($event === 'descend' ? 'descend' : null))"
+          class="table-header"
+        >
+          <i nz-icon nzType="user"></i> Người dùng
+        </th>
+        <th
+          nzColumnKey="quizId"
+          [nzSortFn]="true"
+          (nzSortOrderChange)="onSortChange('quizId', $event === 'ascend' ? 'ascend' : ($event === 'descend' ? 'descend' : null))"
+          class="table-header"
+        >
+          <i nz-icon nzType="file-text"></i> Bài kiểm tra
+        </th>
+        <th
+          nzColumnKey="score"
+          [nzSortFn]="true"
+          (nzSortOrderChange)="onSortChange('score', $event === 'ascend' ? 'ascend' : ($event === 'descend' ? 'descend' : null))"
+          class="table-header"
+        >
+          <i nz-icon nzType="score"></i> Điểm số
+        </th>
+        <th
+          nzColumnKey="completedAt"
+          [nzSortFn]="true"
+          (nzSortOrderChange)="onSortChange('completedAt', $event === 'ascend' ? 'ascend' : ($event === 'descend' ? 'descend' : null))"
+          class="table-header"
+        >
+          <i nz-icon nzType="clock-circle"></i> Hoàn thành lúc
+        </th>
+        <th
+          nzColumnKey="durationSeconds"
+          [nzSortFn]="true"
+          (nzSortOrderChange)="onSortChange('durationSeconds', $event === 'ascend' ? 'ascend' : ($event === 'descend' ? 'descend' : null))"
+          class="table-header"
+        >
+          <i nz-icon nzType="hourglass"></i> Thời lượng (giây)
+        </th>
+        <th class="table-header">Hành động</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let result of basicTable.data">
+      <tr *ngFor="let result of basicTable.data" class="table-row">
+        <td>{{ result.resultId }}</td>
         <td>{{ getUserUsername(result.userId) }}</td>
         <td>{{ getQuizTitle(result.quizId) }}</td>
         <td>{{ result.score }}</td>
         <td>{{ result.completedAt | date: 'medium' }}</td>
+        <td>{{ result.durationSeconds || 'N/A' }}</td>
+        <td class="actions-cell">
+          <a (click)="showResultModal(true, result)" nz-tooltip nzTooltipTitle="Sửa kết quả này"><i nz-icon nzType="edit"></i> Sửa</a>
+          <nz-divider nzType="vertical"></nz-divider>
+          <a nz-popconfirm nzPopconfirmTitle="Bạn có chắc muốn xóa?" (nzOnConfirm)="deleteResult(result.resultId)" nzOkText="Xóa" nzCancelText="Hủy" nzOkDanger nz-tooltip nzTooltipTitle="Xóa kết quả này">
+            <i nz-icon nzType="delete"></i> Xóa
+          </a>
+        </td>
       </tr>
     </tbody>
   </nz-table>
 
   <div *ngIf="!isAdmin" class="no-permission-message">
-    <i nz-icon nzType="stop" nzTheme="fill"></i> Bạn không có quyền truy cập kết quả bài kiểm tra.
+    <p><i nz-icon nzType="stop"></i> Bạn không có quyền truy cập trang quản lý kết quả bài kiểm tra.</p>
   </div>
+
+  <nz-modal
+    [(nzVisible)]="isVisible"
+    [nzTitle]="isEdit ? '✏️ Sửa kết quả bài kiểm tra' : '➕ Thêm kết quả bài kiểm tra'"
+    (nzOnOk)="handleResultModalOk()"
+    (nzOnCancel)="handleResultModalCancel()"
+    [nzOkText]="isEdit ? 'Cập nhật' : 'Tạo mới'"
+    [nzCancelText]="'Hủy'"
+    [nzOkType]="'primary'"
+    [nzContent]="modalContent"
+    class="modal"
+  >
+    <ng-template #modalContent>
+      <form nz-form [formGroup]="resultForm" class="modal-form">
+        <nz-form-item class="modal-item">
+          <nz-form-label nzRequired><i nz-icon nzType="user"></i> Người dùng</nz-form-label>
+          <nz-form-control [nzErrorTip]="(resultForm.get('userId')?.invalid && resultForm.get('userId')?.touched) ? 'Người dùng là bắt buộc' : undefined">
+            <nz-select formControlName="userId" nzPlaceHolder="Chọn người dùng" nzShowSearch [nzDisabled]="isEdit">
+              <nz-option *ngFor="let user of users" [nzValue]="user.userId" [nzLabel]="user.username"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item class="modal-item">
+          <nz-form-label nzRequired><i nz-icon nzType="file-text"></i> Bài kiểm tra</nz-form-label>
+          <nz-form-control [nzErrorTip]="(resultForm.get('quizId')?.invalid && resultForm.get('quizId')?.touched) ? 'Bài kiểm tra là bắt buộc' : undefined">
+            <nz-select formControlName="quizId" nzPlaceHolder="Chọn bài kiểm tra" nzShowSearch [nzDisabled]="isEdit">
+              <nz-option *ngFor="let quiz of quizzes" [nzValue]="quiz.quizId" [nzLabel]="quiz.title"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item class="modal-item">
+          <nz-form-label nzRequired><i nz-icon nzType="score"></i> Điểm số</nz-form-label>
+          <nz-form-control [nzErrorTip]="(resultForm.get('score')?.invalid && resultForm.get('score')?.touched) ? 'Điểm số là bắt buộc và phải từ 0-100' : undefined">
+            <nz-input-number formControlName="score" [nzMin]="0" [nzMax]="100" nzPlaceHolder="Nhập điểm số"></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item class="modal-item">
+          <nz-form-label><i nz-icon nzType="hourglass"></i> Thời lượng (giây)</nz-form-label>
+          <nz-form-control [nzErrorTip]="(resultForm.get('durationSeconds')?.invalid && resultForm.get('durationSeconds')?.touched) ? 'Thời lượng phải là số dương' : undefined">
+            <nz-input-number formControlName="durationSeconds" [nzMin]="0" nzPlaceHolder="Nhập thời lượng"></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+      </form>
+    </ng-template>
+  </nz-modal>
 </nz-card>

@@ -1,162 +1,248 @@
-<nz-card nzTitle="📚 Manage Flashcards" class="flashcards-card">
-  <form nz-form [formGroup]="searchForm" (ngSubmit)="searchFlashcards()" class="search-form">
-    <div nz-row [nzGutter]="24">
+<nz-card nzTitle="📚 Quản lý Flashcard" class="flashcards-card">
+  <nz-spin [nzSpinning]="isLoading" nzSize="large" [nzTip]="'Đang tải dữ liệu...'">
+    <form nz-form [formGroup]="searchForm" (ngSubmit)="searchFlashcards()" class="search-form">
+      <div nz-row [nzGutter]="24">
+        <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
+          <nz-form-item>
+            <nz-form-label nzFor="setId" class="form-label">
+              <i nz-icon nzType="book" class="form-icon"></i> Bộ Flashcard
+            </nz-form-label>
+            <nz-form-control>
+              <nz-select
+                formControlName="setId"
+                nzPlaceHolder="Chọn bộ flashcard"
+                nzAllowClear
+                nzShowSearch
+                class="custom-select"
+                (ngModelChange)="searchFlashcards()"
+              >
+                <nz-option [nzValue]="null" nzLabel="Tất cả Flashcard"></nz-option>
+                <nz-option *ngFor="let set of flashcardSets" [nzValue]="set.setId" [nzLabel]="set.title || 'Không có tiêu đề'"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
 
-      <!-- Lesson -->
-      <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
-        <nz-form-item>
-          <nz-form-label nzFor="lessonId" class="form-label">
-            <i nz-icon nzType="book" class="form-icon"></i> Lesson
-          </nz-form-label>
-          <nz-form-control>
-            <nz-select formControlName="lessonId" nzPlaceHolder="Select Lesson" nzAllowClear nzShowSearch class="custom-select">
-              <nz-option *ngFor="let lesson of lessons" [nzValue]="lesson.lessonId" [nzLabel]="lesson.title"></nz-option>
-            </nz-select>
-          </nz-form-control>
-        </nz-form-item>
+        <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
+          <nz-form-item>
+            <nz-form-label nzFor="word" class="form-label">
+              <i nz-icon nzType="font-colors" class="form-icon"></i> Từ
+            </nz-form-label>
+            <nz-form-control>
+              <input nz-input formControlName="word" placeholder="Nhập từ" class="custom-input" (keyup.enter)="searchFlashcards()"/>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
+          <nz-form-item>
+            <nz-form-label nzFor="meaning" class="form-label">
+              <i nz-icon nzType="bulb" class="form-icon"></i> Nghĩa
+            </nz-form-label>
+            <nz-form-control>
+              <input nz-input formControlName="meaning" placeholder="Nhập nghĩa" class="custom-input" (keyup.enter)="searchFlashcards()"/>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
+          <nz-form-item>
+            <nz-form-label nzFor="isKnown" class="form-label">
+              <i nz-icon nzType="question-circle" class="form-icon"></i> Trạng thái
+            </nz-form-label>
+            <nz-form-control>
+              <nz-select
+                formControlName="isKnown"
+                nzPlaceHolder="Chọn trạng thái"
+                nzAllowClear
+                class="custom-select"
+                (ngModelChange)="searchFlashcards()"
+              >
+                <nz-option [nzValue]="true" nzLabel="Đã biết"></nz-option>
+                <nz-option [nzValue]="false" nzLabel="Chưa biết"></nz-option>
+                <nz-option [nzValue]="null" nzLabel="Tất cả"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
+          <nz-form-item>
+            <nz-form-label nzFor="difficultyLevel" class="form-label">
+              <i nz-icon nzType="bar-chart" class="form-icon"></i> Độ khó
+            </nz-form-label>
+            <nz-form-control>
+              <nz-select
+                formControlName="difficultyLevel"
+                nzPlaceHolder="Chọn độ khó"
+                nzAllowClear
+                class="custom-select"
+                (ngModelChange)="searchFlashcards()"
+              >
+                <nz-option *ngFor="let level of difficultyLevels" [nzValue]="level.value" [nzLabel]="level.label"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <div nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="18" class="button-col">
+          <nz-form-item>
+            <nz-form-label></nz-form-label>
+            <nz-form-control>
+              <button nz-button nzType="primary" type="submit" class="search-button" [disabled]="isLoading || !currentUserId">
+                <i nz-icon nzType="search"></i> Tìm kiếm
+              </button>
+              <button nz-button class="reset-button ml-2" (click)="resetFilters()" [disabled]="isLoading || !currentUserId">
+                <i nz-icon nzType="reload"></i> Đặt lại
+              </button>
+              <button nz-button nzType="dashed" class="ml-2 manage-sets-button" (click)="openFlashcardSetModal()" [disabled]="isLoading || !currentUserId">
+                <i nz-icon nzType="plus-circle"></i> Tạo bộ mới
+              </button>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
       </div>
+    </form>
 
-      <!-- Word -->
-      <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
-        <nz-form-item>
-          <nz-form-label nzFor="word" class="form-label">
-            <i nz-icon nzType="font-colors" class="form-icon"></i> Word
-          </nz-form-label>
-          <nz-form-control>
-            <input nz-input formControlName="word" placeholder="Enter word" class="custom-input"/>
-          </nz-form-control>
-        </nz-form-item>
-      </div>
+    <nz-divider class="custom-divider"></nz-divider>
 
-      <!-- Meaning -->
-      <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
-        <nz-form-item>
-          <nz-form-label nzFor="meaning" class="form-label">
-            <i nz-icon nzType="bulb" class="form-icon"></i> Meaning
-          </nz-form-label>
-          <nz-form-control>
-            <input nz-input formControlName="meaning" placeholder="Enter meaning" class="custom-input"/>
-          </nz-form-control>
-        </nz-form-item>
-      </div>
-
-      <!-- Is Known -->
-      <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
-        <nz-form-item>
-          <nz-form-label nzFor="isKnown" class="form-label">
-            <i nz-icon nzType="question-circle" class="form-icon"></i> Is Known
-          </nz-form-label>
-          <nz-form-control>
-            <nz-select formControlName="isKnown" nzPlaceHolder="Select Status" nzAllowClear class="custom-select">
-              <nz-option [nzValue]="true" nzLabel="Known"></nz-option>
-              <nz-option [nzValue]="false" nzLabel="Unknown"></nz-option>
-            </nz-select>
-          </nz-form-control>
-        </nz-form-item>
-      </div>
-
-      <!-- Difficulty -->
-      <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
-        <nz-form-item>
-          <nz-form-label nzFor="difficultyLevel" class="form-label">
-            <i nz-icon nzType="bar-chart" class="form-icon"></i> Difficulty
-          </nz-form-label>
-          <nz-form-control>
-            <nz-select formControlName="difficultyLevel" nzPlaceHolder="Select Difficulty" nzAllowClear class="custom-select">
-              <nz-option nzValue="EASY" nzLabel="Easy"></nz-option>
-              <nz-option nzValue="MEDIUM" nzLabel="Medium"></nz-option>
-              <nz-option nzValue="HARD" nzLabel="Hard"></nz-option>
-            </nz-select>
-          </nz-form-control>
-        </nz-form-item>
-      </div>
-
-      <!-- Buttons -->
-      <div nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="18" class="button-col">
-        <nz-form-item>
-          <nz-form-label></nz-form-label>
-          <nz-form-control>
-            <button nz-button nzType="primary" type="submit" class="search-button">
-              <i nz-icon nzType="search"></i> Search
-            </button>
-            <button nz-button class="reset-button ml-2" (click)="resetFilters()">
-              <i nz-icon nzType="reload"></i> Reset
-            </button>
-          </nz-form-control>
-        </nz-form-item>
-      </div>
-
-    </div>
-  </form>
-
-  <nz-divider class="custom-divider"></nz-divider>
-
-  <nz-table
-    #basicTable
-    [nzData]="flashcards"
-    [nzLoading]="!flashcards.length && searchForm.get('lessonId')?.value"
-    [nzNoResult]="searchForm.get('lessonId')?.value === null ? '📌 Please select a lesson to view flashcards.' : '📭 No flashcards found.'"
-    [nzFrontPagination]="false"
-    [nzTotal]="pageData.totalElements"
-    [nzPageSize]="pageData.size"
-    [nzPageIndex]="pageData.page + 1"
-    (nzPageIndexChange)="onPageChange($event)"
-    (nzPageSizeChange)="onSizeChange($event)"
-    class="flashcards-table"
-  >
-    <thead>
-      <tr>
-        <th [nzSortFn]="true" (nzSortOrderChange)="onSortChange('word', $event === 'ascend' ? 'ASC' : 'DESC')" class="table-header">
-          <i nz-icon nzType="font-colors"></i> Word
-        </th>
-        <th class="table-header">
-          <i nz-icon nzType="bulb"></i> Meaning
-        </th>
-        <th class="table-header">
-          <i nz-icon nzType="check-circle"></i> Is Known
-        </th>
-        <th class="table-header">
-          <i nz-icon nzType="setting"></i> Actions
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let flashcard of basicTable.data" class="table-row">
-        <td class="table-cell">{{ flashcard.word }}</td>
-        <td class="table-cell">{{ flashcard.meaning }}</td>
-        <td class="table-cell">
-          <nz-tag [nzColor]="flashcard.isKnown ? 'green' : 'red'" class="status-tag">
-            <i nz-icon [nzType]="flashcard.isKnown ? 'check' : 'close'" class="status-icon"></i>
-            {{ flashcard.isKnown ? 'Known' : 'Unknown' }}
-          </nz-tag>
-        </td>
-        <td class="table-cell actions-cell">
-          <!-- Mark as Known -->
-          <a
-            nz-button
-            nzType="link"
-            (click)="toggleIsKnown(flashcard, true)"
-            *ngIf="!flashcard.isKnown"
-            class="action-button"
-          >
-            <i nz-icon nzType="check-circle" nzTheme="twotone" class="icon-green"></i>
-            Mark as Known
-          </a>
-
-          <!-- Mark as Unknown -->
-          <a
-            nz-button
-            nzType="link"
-            nzDanger
-            (click)="toggleIsKnown(flashcard, false)"
-            *ngIf="flashcard.isKnown"
-            class="action-button"
-          >
-            <i nz-icon nzType="close-circle" nzTheme="twotone" class="icon-red"></i>
-            Mark as Unknown
-          </a>
-        </td>
-      </tr>
-    </tbody>
-  </nz-table>
+    <nz-table
+      #basicTable
+      [nzData]="flashcards"
+      [nzLoading]="isLoading"
+      [nzNoResult]="getNoResultText()"
+      [nzFrontPagination]="false"
+      [nzTotal]="pageData.totalElements || 0"
+      [nzPageSize]="pageData.size || 10"
+      [nzPageIndex]="(pageData.page || 0) + 1"
+      (nzPageIndexChange)="onPageChange($event)"
+      (nzPageSizeChange)="onSizeChange($event)"
+      class="flashcards-table"
+    >
+      <thead>
+        <tr>
+          <th [nzSortFn]="true" [nzSortDirections]="['ascend', 'descend', null]" (nzSortOrderChange)="onSortChange('word', $event)" class="table-header">
+            <i nz-icon nzType="font-colors"></i> Từ
+          </th>
+          <th [nzSortFn]="true" [nzSortDirections]="['ascend', 'descend', null]" (nzSortOrderChange)="onSortChange('difficultyLevel', $event)" class="table-header">
+            <i nz-icon nzType="bar-chart"></i> Độ khó
+          </th>
+          <th class="table-header">
+            <i nz-icon nzType="bulb"></i> Nghĩa
+          </th>
+          <th class="table-header">
+            <i nz-icon nzType="check-circle"></i> Trạng thái
+          </th>
+          <th class="table-header">
+            <i nz-icon nzType="setting"></i> Thao tác
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let flashcard of basicTable.data" class="table-row">
+          <td class="table-cell">{{ flashcard.word || 'N/A' }}</td>
+          <td class="table-cell">
+            <nz-tag [nzColor]="getDifficultyTagColor(flashcard.difficultyLevel)">
+              {{ getDifficultyLabel(flashcard.difficultyLevel) }}
+            </nz-tag>
+          </td>
+          <td class="table-cell">{{ flashcard.meaning || 'N/A' }}</td>
+          <td class="table-cell">
+            <nz-tag [nzColor]="flashcard.isKnown ? 'green' : 'red'" class="status-tag">
+              <i nz-icon [nzType]="getIsKnownIcon(flashcard.isKnown)" class="status-icon"></i>
+              {{ getIsKnownLabel(flashcard.isKnown) }}
+            </nz-tag>
+          </td>
+          <td class="table-cell actions-cell">
+            <a
+              nz-button
+              nzType="link"
+              (click)="toggleIsKnown(flashcard, true)"
+              *ngIf="!flashcard.isKnown"
+              class="action-button"
+              [disabled]="isLoading"
+            >
+              <i nz-icon nzType="check-circle" nzTheme="twotone" class="icon-green"></i>
+              Đánh dấu Đã biết
+            </a>
+            <a
+              nz-button
+              nzType="link"
+              nzDanger
+              (click)="toggleIsKnown(flashcard, false)"
+              *ngIf="flashcard.isKnown"
+              class="action-button"
+              [disabled]="isLoading"
+            >
+              <i nz-icon nzType="close-circle" nzTheme="twotone" class="icon-red"></i>
+              Đánh dấu Chưa biết
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </nz-spin>
 </nz-card>
+
+<nz-modal
+  [(nzVisible)]="isFlashcardSetModalVisible"
+  [nzTitle]="currentEditingSet ? 'Chỉnh sửa Bộ Flashcard' : 'Tạo Bộ Flashcard Mới'"
+  [nzOkText]="currentEditingSet ? 'Cập nhật' : 'Tạo mới'"
+  nzCancelText="Hủy"
+  (nzOnOk)="handleFlashcardSetModalOk()"
+  (nzOnCancel)="handleFlashcardSetModalCancel()"
+  [nzOkLoading]="isSavingFlashcardSet"
+  [nzWidth]="600"
+>
+  <ng-container *nzModalContent>
+    <form nz-form [formGroup]="flashcardSetForm" class="flashcard-set-form">
+      <nz-form-item>
+        <nz-form-label nzRequired nzFor="setTitle">Tiêu đề Bộ Flashcard</nz-form-label>
+        <nz-form-control nzErrorTip="Vui lòng nhập tiêu đề (tối đa 100 ký tự)">
+          <input nz-input formControlName="title" id="setTitle" placeholder="Nhập tiêu đề bộ flashcard"/>
+        </nz-form-control>
+      </nz-form-item>
+      <nz-form-item>
+        <nz-form-label nzFor="setDescription">Mô tả</nz-form-label>
+        <nz-form-control nzErrorTip="Mô tả không được vượt quá 500 ký tự">
+          <textarea nz-input formControlName="description" id="setDescription" placeholder="Nhập mô tả bộ flashcard (tùy chọn)" [nzAutosize]="{ minRows: 3, maxRows: 6 }"></textarea>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+
+    <nz-divider nzText="Danh sách Bộ Flashcard Hiện có" nzOrientation="left"></nz-divider>
+
+    <nz-table
+      #flashcardSetTable
+      [nzData]="flashcardSets"
+      [nzLoading]="isLoading"
+      [nzFrontPagination]="true"
+      [nzPageSize]="5"
+      [nzShowPagination]="flashcardSets.length > 5"
+      nzSize="small"
+      [nzNoResult]="'Chưa có bộ flashcard nào. Hãy tạo một bộ mới!'"
+    >
+      <thead>
+        <tr>
+          <th>Tiêu đề</th>
+          <th>Mô tả</th>
+          <th nzWidth="150px">Thao tác</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let set of flashcardSetTable.data">
+          <td>{{ set.title || 'N/A' }}</td>
+          <td>{{ set.description || 'Không có mô tả' }}</td>
+          <td>
+            <button nz-button nzType="link" nzSize="small" (click)="openFlashcardSetModal(set)">
+              <i nz-icon nzType="edit"></i> Sửa
+            </button>
+            <button nz-button nzType="link" nzSize="small" nzDanger (click)="confirmDeleteFlashcardSet(set)">
+              <i nz-icon nzType="delete"></i> Xóa
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+  </ng-container>
+</nz-modal>

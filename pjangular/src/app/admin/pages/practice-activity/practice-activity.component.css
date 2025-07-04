@@ -1,0 +1,185 @@
+/* src/app/admin/pages/practice-activity/practice-activity.component.css */
+
+.practice-activity-card {
+  margin: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.search-form {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.search-item {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  font-weight: 500;
+  color: #333;
+}
+
+.search-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end; /* Căn phải các nút */
+  margin-top: 10px; /* Thêm khoảng cách trên */
+}
+
+.search-button {
+  background-color: #1890ff;
+  border-color: #1890ff;
+  border-radius: 6px;
+  padding: 8px 20px;
+  font-size: 14px;
+}
+
+.search-button:hover {
+  background-color: #40a9ff;
+  border-color: #40a9ff;
+}
+
+.reset-button {
+  border-radius: 6px;
+  padding: 8px 20px;
+  font-size: 14px;
+}
+
+.table-actions {
+  margin-bottom: 15px;
+  text-align: right; /* Căn phải nút thêm mới */
+}
+
+.add-button {
+  background-color: #52c41a;
+  border-color: #52c41a;
+  border-radius: 6px;
+  padding: 8px 20px;
+  font-size: 14px;
+}
+
+.add-button:hover {
+  background-color: #73d13d;
+  border-color: #73d13d;
+}
+
+.activities-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.activities-table th {
+  background-color: #f0f2f5;
+  font-weight: 600;
+  color: #555;
+  padding: 12px 8px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.activities-table td {
+  padding: 12px 8px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #333;
+}
+
+.activities-table tr:last-child td {
+  border-bottom: none;
+}
+
+.actions-cell a {
+  margin-right: 8px;
+  color: #1890ff;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.actions-cell a:hover {
+  color: #40a9ff;
+}
+
+.actions-cell .ant-divider-vertical {
+  background-color: #d9d9d9;
+}
+
+.content-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #1890ff;
+  text-decoration: none;
+}
+
+.content-link:hover {
+  text-decoration: underline;
+}
+
+.no-permission-message {
+  text-align: center;
+  padding: 50px 20px;
+  color: #ff4d4f;
+  font-size: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.no-permission-message .anticon {
+  font-size: 48px;
+  color: #ff4d4f;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .search-form .ant-col {
+    margin-bottom: 10px;
+  }
+  .search-buttons {
+    justify-content: center;
+  }
+  .activities-table {
+    overflow-x: auto; /* Cho phép cuộn ngang trên màn hình nhỏ */
+  }
+  .activities-table thead, .activities-table tbody, .activities-table th, .activities-table td, .activities-table tr {
+    display: block; /* Chuyển sang hiển thị block để xếp chồng */
+  }
+  .activities-table thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+  }
+  .activities-table tr {
+    border: 1px solid #f0f0f0;
+    margin-bottom: 10px;
+    border-radius: 8px;
+  }
+  .activities-table td {
+    border: none;
+    position: relative;
+    padding-left: 50%; /* Tạo không gian cho label */
+    text-align: right;
+  }
+  .activities-table td::before {
+    content: attr(data-label); /* Sử dụng data-label để hiển thị tiêu đề cột */
+    position: absolute;
+    left: 6px;
+    width: 45%;
+    padding-right: 10px;
+    white-space: nowrap;
+    text-align: left;
+    font-weight: bold;
+    color: #777;
+  }
+  /* Thêm data-label vào HTML table td nếu cần responsive table */
+  /* Ví dụ: <td data-label="ID Bài học">{{ activity.lessonId }}</td> */
+
+  .actions-cell {
+    text-align: right;
+  }
+}

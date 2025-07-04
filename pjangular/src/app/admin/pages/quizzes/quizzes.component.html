@@ -1,113 +1,162 @@
-<nz-card nzTitle="🧠 Quản lý Bài Kiểm Tra" class="quiz-card">
+<div class="quizzes-container p-6 bg-gray-100 min-h-screen">
+  <nz-page-header class="site-page-header bg-white rounded-lg shadow-sm mb-6" nzTitle="Quản lý Bài Kiểm Tra">
+    <nz-breadcrumb nz-page-header-breadcrumb>
+      <nz-breadcrumb-item>Admin</nz-breadcrumb-item>
+      <nz-breadcrumb-item>Quản lý Bài Kiểm Tra</nz-breadcrumb-item>
+    </nz-breadcrumb>
+  </nz-page-header>
 
-  <!-- Bộ lọc Bài học -->
-  <form nz-form class="filter-form">
-    <div nz-row nzGutter="16">
-      <div nz-col nzSpan="8">
-        <nz-form-item>
-          <nz-form-label nzRequired class="form-label">
-            <i nz-icon nzType="read" class="icon-lesson"></i> Bài học
-          </nz-form-label>
-          <nz-form-control>
-            <nz-select
-              [(ngModel)]="selectedLessonId"
-              (ngModelChange)="loadQuizzes($event)"
-              nzPlaceHolder="Chọn bài học"
-              nzAllowClear
-              nzShowSearch
-              class="custom-select"
-            >
-              <nz-option *ngFor="let lesson of lessons" [nzValue]="lesson.lessonId" [nzLabel]="lesson.title"></nz-option>
-            </nz-select>
-          </nz-form-control>
-        </nz-form-item>
+  <nz-spin [nzSpinning]="loading" nzSize="large" [nzTip]="'Đang tải dữ liệu...'">
+    <nz-card nzTitle="🔍 Tìm kiếm & Lọc Bài Kiểm Tra" class="search-filter-card shadow-md rounded-lg mb-6">
+      <form nz-form [formGroup]="searchForm" (ngSubmit)="searchQuizzes()" class="search-form">
+        <div nz-row [nzGutter]="{ xs: 8, sm: 16, md: 24 }">
+          <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8">
+            <nz-form-item class="filter-item">
+              <nz-form-label class="form-label">
+                <i nz-icon nzType="book"></i> Bài Học
+              </nz-form-label>
+              <nz-form-control>
+                <nz-select formControlName="lessonId" nzAllowClear nzShowSearch nzPlaceHolder="Chọn bài học" class="custom-select">
+                  <nz-option *ngFor="let lesson of lessons" [nzValue]="lesson.lessonId" [nzLabel]="lesson.title"></nz-option>
+                </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8">
+            <nz-form-item class="filter-item">
+              <nz-form-label class="form-label">
+                <i nz-icon nzType="font-size"></i> Tiêu đề
+              </nz-form-label>
+              <nz-form-control>
+                <input nz-input formControlName="title" placeholder="Tìm kiếm theo tiêu đề" class="custom-input" />
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+          <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8">
+            <nz-form-item class="filter-item">
+              <nz-form-label class="form-label">
+                <i nz-icon nzType="bulb"></i> Loại bài kiểm tra </nz-form-label>
+              <nz-form-control>
+                <nz-select formControlName="quizType" nzAllowClear nzPlaceHolder="Chọn loại bài kiểm tra" class="custom-select"> <nz-option *ngFor="let type of quizTypes" [nzValue]="type" [nzLabel]="type"></nz-option> </nz-select>
+              </nz-form-control>
+            </nz-form-item>
+          </div>
+        </div>
+        <div nz-row>
+          <div nz-col [nzSpan]="24" class="text-right button-col-full">
+            <div class="filter-buttons">
+              <button nz-button nzType="primary" [disabled]="!isAdmin" type="submit" class="search-button">
+                <i nz-icon nzType="search"></i> Tìm kiếm
+              </button>
+              <button nz-button (click)="resetFilters()" [disabled]="!isAdmin" type="button" class="reset-button">
+                <i nz-icon nzType="redo"></i> Đặt lại
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </nz-card>
+
+    <nz-divider *ngIf="isAdmin"></nz-divider>
+
+    <nz-card nzTitle="📝 Danh sách Bài Kiểm Tra" class="quizzes-list-card shadow-md rounded-lg">
+      <div nz-row nzJustify="end" class="mb-4 table-actions">
+        <button nz-button nzType="primary" (click)="openCreateForm()" [disabled]="!isAdmin" class="add-button">
+          <i nz-icon nzType="plus-circle"></i> Thêm Bài Kiểm Tra Mới
+        </button>
       </div>
-    </div>
-  </form>
 
-  <!-- Nút thêm Quiz -->
-  <div class="header-actions">
-    <button *ngIf="isAdmin" nz-button nzType="primary" (click)="showModal(false)" class="add-btn">
-      <i nz-icon nzType="plus-circle" class="icon-add"></i> Thêm Bài Kiểm Tra
-    </button>
-  </div>
+      <nz-table
+        #quizTable
+        [nzData]="quizzes"
+        [nzTotal]="pageData.totalElements"
+        [nzPageIndex]="pageData.currentPage + 1"
+        [nzPageSize]="pageData.pageSize"
+        [nzLoading]="loading"
+        nzShowSizeChanger
+        [nzPageSizeOptions]="[5, 10, 20, 50]"
+        [nzShowTotal]="totalTemplate"
+        (nzQueryParams)="onQueryParamsChange($event)"
+        [nzFrontPagination]="false"
+        nzBordered
+        class="quiz-table"
+      >
+        <thead>
+          <tr>
+            <th nzColumnKey="quizId" [nzSortFn]="true" class="table-header">ID</th>
+            <th nzColumnKey="lessonId" [nzSortFn]="true" class="table-header"><i nz-icon nzType="book"></i> Bài Học</th>
+            <th nzColumnKey="title" [nzSortFn]="true" class="table-header"><i nz-icon nzType="font-size"></i> Tiêu đề</th>
+            <th nzColumnKey="quizType" [nzSortFn]="true" class="table-header"><i nz-icon nzType="bulb"></i> Loại bài kiểm tra</th> <th nzColumnKey="createdAt" [nzSortFn]="true" nzSortDefault="descend" class="table-header"><i nz-icon nzType="clock-circle"></i> Ngày tạo</th>
+            <th class="table-header">Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let quiz of quizTable.data" class="table-row">
+            <td>{{ quiz.quizId }}</td>
+            <td>{{ getLessonTitle(quiz.lessonId) }}</td>
+            <td>{{ quiz.title }}</td>
+            <td><nz-tag [nzColor]="'blue'">{{ quiz.quizType }}</nz-tag></td> <td>{{ quiz.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td class="actions-cell">
+              <a nz-button nzType="link" (click)="openEditForm(quiz)" [disabled]="!isAdmin" class="text-blue-600" nz-tooltip nzTooltipTitle="Sửa bài kiểm tra này">
+                <i nz-icon nzType="edit"></i> Sửa
+              </a>
+              <nz-divider nzType="vertical"></nz-divider>
+              <a nz-button nzType="link" nzDanger (click)="deleteQuiz(quiz.quizId)" [disabled]="!isAdmin" nz-popconfirm nzPopconfirmTitle="Bạn có chắc muốn xóa?" nzOkText="Xóa" nzCancelText="Hủy" nzOkDanger nz-tooltip nzTooltipTitle="Xóa bài kiểm tra này">
+                <i nz-icon nzType="delete"></i> Xóa
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </nz-table>
+      <ng-template #totalTemplate let-total let-range="range">
+        Hiển thị {{ range[0] }}-{{ range[1] }} trong tổng số {{ total }} mục
+      </ng-template>
+    </nz-card>
+  </nz-spin>
 
-  <!-- Bảng Quiz -->
-  <nz-table
-    #basicTable
-    [nzData]="quizzes"
-    [nzLoading]="!quizzes.length"
-    [nzNoResult]="'Không có bài kiểm tra nào.'"
-    class="custom-table"
-  >
-    <thead>
-      <tr>
-        <th><i nz-icon nzType="file-text" class="table-icon"></i> Tiêu đề</th>
-        <th><i nz-icon nzType="bulb" class="table-icon"></i> Kỹ năng</th>
-        <th><i nz-icon nzType="read" class="table-icon"></i> Bài học</th>
-        <th *ngIf="isAdmin"><i nz-icon nzType="setting" class="table-icon"></i> Hành động</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let quiz of basicTable.data">
-        <td>{{ quiz.title }}</td>
-        <td>
-          <nz-tag class="status-tag">{{ quiz.skill }}</nz-tag>
-        </td>
-        <td>{{ getLessonTitle(quiz.lessonId) }}</td>
-        <td *ngIf="isAdmin" class="actions-cell">
-          <a (click)="showModal(true, quiz)">
-            <i nz-icon nzType="edit"></i> Sửa
-          </a>
-          <nz-divider nzType="vertical"></nz-divider>
-          <a nz-popconfirm nzPopconfirmTitle="Bạn có chắc muốn xóa?" (nzOnConfirm)="quiz.quizId && deleteQuiz(quiz.quizId)" nzOkText="Xóa" nzCancelText="Hủy">
-            <i nz-icon nzType="delete"></i> Xóa
-          </a>
-        </td>
-      </tr>
-    </tbody>
-  </nz-table>
-
-  <!-- Modal Thêm / Sửa -->
   <nz-modal
-    [(nzVisible)]="isVisible"
-    [nzTitle]="isEdit ? '📝 Sửa Bài Kiểm Tra' : '➕ Thêm Bài Kiểm Tra'"
-    (nzOnOk)="handleOk()"
+    [(nzVisible)]="isModalVisible"
+    [nzTitle]="isEditing ? '✏️ Chỉnh sửa Bài Kiểm Tra' : '➕ Thêm Bài Kiểm Tra Mới'"
+    [nzFooter]="modalFooter"
     (nzOnCancel)="handleCancel()"
-    [nzOkText]="isEdit ? 'Cập nhật' : 'Tạo mới'"
-    [nzCancelText]="'Hủy'"
-    [nzOkDisabled]="quizForm.invalid"
-    [nzContent]="quizModalContent"
-    class="custom-modal"
+    [nzWidth]="600"
+    [nzMaskClosable]="false"
+    class="modal"
   >
-    <ng-template #quizModalContent>
+    <ng-container *nzModalContent>
       <form nz-form [formGroup]="quizForm" class="modal-form">
-        <nz-form-item>
-          <nz-form-label nzRequired><i nz-icon nzType="read"></i> Bài học</nz-form-label>
-          <nz-form-control [nzErrorTip]="quizForm.get('lessonId')?.hasError('required') ? 'Bắt buộc' : ''">
-            <nz-select formControlName="lessonId" nzPlaceHolder="Chọn bài học" class="modal-select">
+        <nz-form-item class="modal-item">
+          <nz-form-label nzRequired nzFor="lessonId"><i nz-icon nzType="book"></i> Bài Học</nz-form-label>
+          <nz-form-control nzErrorTip="Vui lòng chọn bài học!">
+            <nz-select formControlName="lessonId" nzPlaceHolder="Chọn bài học" nzShowSearch class="custom-select">
               <nz-option *ngFor="let lesson of lessons" [nzValue]="lesson.lessonId" [nzLabel]="lesson.title"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
 
-        <nz-form-item>
-          <nz-form-label nzRequired><i nz-icon nzType="file-text"></i> Tiêu đề</nz-form-label>
-          <nz-form-control [nzErrorTip]="quizForm.get('title')?.hasError('required') ? 'Bắt buộc' : ''">
-            <input nz-input formControlName="title" placeholder="Nhập tiêu đề bài kiểm tra" class="modal-input" />
+        <nz-form-item class="modal-item">
+          <nz-form-label nzRequired nzFor="title"><i nz-icon nzType="font-size"></i> Tiêu đề</nz-form-label>
+          <nz-form-control [nzErrorTip]="titleErrorTpl">
+            <input nz-input formControlName="title" id="title" placeholder="Nhập tiêu đề bài kiểm tra" class="custom-input" />
           </nz-form-control>
+          <ng-template #titleErrorTpl let-control>
+            <ng-container *ngIf="control.hasError('required')">Vui lòng nhập tiêu đề!</ng-container>
+            <ng-container *ngIf="control.hasError('maxlength')">Tiêu đề không được vượt quá 255 ký tự.</ng-container>
+          </ng-template>
         </nz-form-item>
 
-        <nz-form-item>
-          <nz-form-label nzRequired><i nz-icon nzType="bulb"></i> Kỹ năng</nz-form-label>
-          <nz-form-control [nzErrorTip]="quizForm.get('skill')?.hasError('required') ? 'Bắt buộc' : ''">
-            <nz-select formControlName="skill" nzPlaceHolder="Chọn kỹ năng" class="modal-select">
-              <nz-option *ngFor="let skill of skills" [nzValue]="skill" [nzLabel]="skill"></nz-option>
-            </nz-select>
+        <nz-form-item class="modal-item">
+          <nz-form-label nzRequired nzFor="quizType"><i nz-icon nzType="bulb"></i> Loại bài kiểm tra</nz-form-label> <nz-form-control nzErrorTip="Vui lòng chọn loại bài kiểm tra!"> <nz-select formControlName="quizType" nzPlaceHolder="Chọn loại bài kiểm tra" class="custom-select"> <nz-option *ngFor="let type of quizTypes" [nzValue]="type" [nzLabel]="type"></nz-option> </nz-select>
           </nz-form-control>
         </nz-form-item>
       </form>
+    </ng-container>
+
+    <ng-template #modalFooter>
+      <button nz-button nzType="default" (click)="handleCancel()">Hủy</button>
+      <button nz-button nzType="primary" (click)="submitQuizForm()" [nzLoading]="loading" [disabled]="!quizForm.valid || !isAdmin">
+        {{ isEditing ? 'Cập nhật' : 'Tạo mới' }}
+      </button>
     </ng-template>
   </nz-modal>
-
-</nz-card>
+</div>

@@ -1,5 +1,6 @@
 // src/app/interface/order-detail.interface.ts
-import { Lesson } from './lesson.interface';
+
+import { Lesson } from './lesson.interface'; // Đảm bảo đã import Lesson interface
 
 // Tương ứng với OrderDetailResponse của backend
 export interface OrderDetail {
@@ -11,9 +12,10 @@ export interface OrderDetail {
 }
 
 // Tương ứng với OrderDetailRequest của backend (dùng cho update)
+// DTO này được sử dụng khi bạn cần gửi thông tin chi tiết để cập nhật một OrderDetail đã tồn tại.
 export interface OrderDetailRequest {
-  orderId: number; // Backend DTO vẫn có orderId
+  orderId: number;
   lessonId: number;
   quantity: number;
-  priceAtPurchase: number; // BigDecimal từ backend -> number
+  priceAtPurchase: number;
 }

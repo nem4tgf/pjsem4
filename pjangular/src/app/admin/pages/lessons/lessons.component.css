@@ -26,13 +26,13 @@
 }
 
 /* Màu icon theo chức năng */
-i[nzType="book"] { color: #3f51b5; }          /* Lesson/Vocab */
-i[nzType="bar-chart"] { color: #2196f3; }     /* Level */
-i[nzType="bulb"] { color: #ff9800; }          /* Skill */
-i[nzType="font-colors"] { color: #673ab7; }   /* Word */
-i[nzType="dollar"] { color: #4caf50; }        /* Price */
-i[nzType="info-circle"] { color: #ff5722; }   /* Description */
-i[nzType="setting"] { color: #607d8b; }       /* Action */
+i[nzType="book"] { color: #3f51b5; }     /* Lesson/Vocab */
+i[nzType="bar-chart"] { color: #2196f3; }    /* Level */
+i[nzType="bulb"] { color: #ff9800; }     /* Skill */
+i[nzType="font-colors"] { color: #673ab7; }  /* Word */
+i[nzType="dollar"] { color: #4caf50; }    /* Price */
+i[nzType="info-circle"] { color: #ff5722; }  /* Description */
+i[nzType="setting"] { color: #607d8b; }    /* Action */
 i[nzType="search"] { color: white; }
 i[nzType="reload"] { color: #1890ff; }
 i[nzType="plus-circle"] { color: white; }

@@ -1,0 +1,295 @@
+<!--
+  HTML template for the UserWritingAttemptsComponent.
+  This component manages the display, filtering, editing, and creation of user writing attempts.
+  It uses Ng-Zorro Ant Design components for UI elements like cards, forms, tables, modals, and notifications.
+  This version is revised to ensure consistency with the provided UserSpeakingAttemptsComponent structure,
+  while maintaining fields specific to writing attempts.
+-->
+<nz-card nzTitle="✍️ Quản lý Lần thử Viết" class="attempt-card">
+  <!-- Conditional rendering based on admin status -->
+  <div *ngIf="isAdmin; else noPermission">
+    <!-- Filter Form for User Writing Attempts -->
+    <form nz-form [formGroup]="filterForm" (ngSubmit)="applyFilters()" class="filter-form">
+      <div nz-row [nzGutter]="16">
+        <!-- User Filter -->
+        <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
+          <nz-form-item>
+            <nz-form-label><i nz-icon nzType="user" nzTheme="outline"></i> Người dùng</nz-form-label>
+            <nz-form-control>
+              <nz-select
+                formControlName="userId"
+                nzPlaceHolder="Chọn người dùng"
+                nzAllowClear
+                nzShowSearch
+              >
+                <nz-option *ngFor="let user of users" [nzValue]="user.userId" [nzLabel]="user.username"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <!-- Practice Activity Filter -->
+        <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
+          <nz-form-item>
+            <nz-form-label><i nz-icon nzType="read" nzTheme="outline"></i> Hoạt động luyện tập</nz-form-label>
+            <nz-form-control>
+              <nz-select
+                formControlName="practiceActivityId"
+                nzPlaceHolder="Chọn hoạt động luyện tập"
+                nzAllowClear
+                nzShowSearch
+              >
+                <nz-option *ngFor="let activity of practiceActivities" [nzValue]="activity.activityId" [nzLabel]="activity.title"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <!-- Min Overall Score Filter -->
+        <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
+          <nz-form-item>
+            <nz-form-label><i nz-icon nzType="star" nzTheme="outline"></i> Điểm từ</nz-form-label>
+            <nz-form-control>
+              <nz-input-number class="full-width-input" formControlName="minOverallScore" nzPlaceHolder="Tối thiểu" [nzMin]="0" [nzMax]="100"></nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <!-- Max Overall Score Filter -->
+        <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
+          <nz-form-item>
+            <nz-form-label><i nz-icon nzType="star" nzTheme="outline"></i> Điểm đến</nz-form-label>
+            <nz-form-control>
+              <nz-input-number class="full-width-input" formControlName="maxOverallScore" nzPlaceHolder="Tối đa" [nzMin]="0" [nzMax]="100"></nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+
+        <!-- Filter Buttons -->
+        <div nz-col nzXs="24" class="button-col">
+          <div class="filter-buttons">
+            <button nz-button nzType="primary" htmlType="submit" [nzLoading]="loading">
+              <i nz-icon nzType="search"></i> Tìm kiếm
+            </button>
+            <button nz-button (click)="resetFilters()">
+              <i nz-icon nzType="reload"></i> Đặt lại
+            </button>
+            <!-- Add New Attempt Button -->
+            <button nz-button nzType="dashed" (click)="openCreateModal()">
+              <i nz-icon nzType="plus"></i> Thêm mới
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <nz-divider></nz-divider>
+
+    <!-- Table to display User Writing Attempts -->
+    <nz-table
+      #basicTable
+      [nzData]="pageData.content"
+      [nzTotal]="pageData.totalElements"
+      [nzPageIndex]="pageData.page + 1"
+      [nzPageSize]="pageData.size"
+      [nzLoading]="loading"
+      [nzNoResult]="'Không tìm thấy lần thử viết nào.'"
+      [nzShowPagination]="true"
+      nzBordered
+      [nzFrontPagination]="false"
+      nzShowSizeChanger
+      [nzPageSizeOptions]="[5, 10, 20, 50]"
+      [nzShowTotal]="totalTemplate"
+      (nzQueryParams)="onQueryParamsChange($event)"
+      class="attempts-table"
+    >
+      <thead>
+        <tr>
+          <th nzColumnKey="attemptId">ID</th>
+          <th nzColumnKey="userId"><i nz-icon nzType="user" nzTheme="outline"></i> Người dùng</th>
+          <th nzColumnKey="practiceActivityId"><i nz-icon nzType="read" nzTheme="outline"></i> Hoạt động luyện tập</th>
+          <th><i nz-icon nzType="file-text" nzTheme="outline"></i> Văn bản người dùng</th>
+          <th><i nz-icon nzType="book" nzTheme="outline"></i> Ngữ pháp</th>
+          <th><i nz-icon nzType="edit" nzTheme="outline"></i> Chính tả</th>
+          <th><i nz-icon nzType="cluster" nzTheme="outline"></i> Mạch lạc</th>
+          <th nzColumnKey="overallScore"><i nz-icon nzType="trophy" nzTheme="outline"></i> Điểm tổng</th>
+          <th nzColumnKey="attemptDate"><i nz-icon nzType="calendar" nzTheme="outline"></i> Ngày thử</th>
+          <th><i nz-icon nzType="setting" nzTheme="outline"></i> Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let attempt of basicTable.data">
+          <td>{{ attempt.attemptId }}</td>
+          <td>{{ getUserUsername(attempt.userId) }}</td>
+          <td>{{ getPracticeActivityTitle(attempt.practiceActivityId) }}</td>
+          <td>{{ attempt.userWrittenText }}</td>
+          <td>{{ attempt.grammarFeedback || 'N/A' }}</td>
+          <td>{{ attempt.spellingFeedback || 'N/A' }}</td>
+          <td>{{ attempt.cohesionFeedback || 'N/A' }}</td>
+          <td>
+            <nz-tag *ngIf="attempt.overallScore !== undefined" [nzColor]="attempt.overallScore >= 80 ? 'green' : (attempt.overallScore >= 50 ? 'blue' : 'red')">
+              {{ attempt.overallScore }}
+            </nz-tag>
+            <span *ngIf="attempt.overallScore === undefined">N/A</span>
+          </td>
+          <td>{{ attempt.attemptDate | date: 'dd/MM/yyyy HH:mm' }}</td>
+          <td class="actions-cell">
+            <!-- Edit Button -->
+            <a (click)="openEditModal(attempt)" nz-tooltip nzTooltipTitle="Chỉnh sửa lần thử này">
+              <i nz-icon nzType="edit"></i> Chỉnh sửa
+            </a>
+            <nz-divider nzType="vertical"></nz-divider>
+            <!-- Delete Button with Popconfirm -->
+            <a
+              nz-popconfirm
+              nzPopconfirmTitle="Bạn có chắc muốn xóa lần thử viết này?"
+              (nzOnConfirm)="deleteAttempt(attempt.attemptId)"
+              nzOkText="Xóa"
+              nzCancelText="Hủy"
+              nzOkDanger
+              nz-tooltip
+              nzTooltipTitle="Xóa lần thử này"
+            >
+              <i nz-icon nzType="delete"></i> Xóa
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </nz-table>
+    <!-- Template for total items display in pagination -->
+    <ng-template #totalTemplate let-total let-range="range">
+      Hiển thị {{ range[0] }}-{{ range[1] }} trong tổng số {{ total }} lần thử
+    </ng-template>
+
+    <!-- Edit Modal -->
+    <nz-modal
+      [(nzVisible)]="isVisibleEditModal"
+      nzTitle="Chỉnh sửa Lần thử Viết"
+      [nzOkText]="'Lưu thay đổi'"
+      [nzCancelText]="'Hủy'"
+      [nzOkLoading]="isEditLoading"
+      (nzOnOk)="handleEditOk()"
+      (nzOnCancel)="handleEditCancel()"
+    >
+      <ng-container *nzModalContent>
+        <form nz-form [formGroup]="editForm">
+          <nz-form-item>
+            <nz-form-label [nzSm]="8" [nzXs]="24" nzRequired>Người dùng</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="Vui lòng chọn người dùng!">
+              <nz-select formControlName="userId" nzPlaceHolder="Chọn người dùng" nzShowSearch>
+                <nz-option *ngFor="let user of users" [nzValue]="user.userId" [nzLabel]="user.username"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="8" [nzXs]="24" nzRequired>Hoạt động luyện tập</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="Vui lòng chọn hoạt động luyện tập!">
+              <nz-select formControlName="practiceActivityId" nzPlaceHolder="Chọn hoạt động luyện tập" nzShowSearch>
+                <nz-option *ngFor="let activity of practiceActivities" [nzValue]="activity.activityId" [nzLabel]="activity.title"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="8" [nzXs]="24" nzRequired>Văn bản người dùng</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="Vui lòng nhập văn bản người dùng!">
+              <textarea nz-input formControlName="userWrittenText" rows="4"></textarea>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="8" [nzXs]="24">Phản hồi ngữ pháp</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+              <textarea nz-input formControlName="grammarFeedback" rows="2"></textarea>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="8" [nzXs]="24">Phản hồi chính tả</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+              <textarea nz-input formControlName="spellingFeedback" rows="2"></textarea>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="8" [nzXs]="24">Phản hồi mạch lạc</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+              <textarea nz-input formControlName="cohesionFeedback" rows="2"></textarea>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="8" [nzXs]="24" nzRequired>Điểm tổng</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="Điểm tổng phải từ 0 đến 100!">
+              <nz-input-number formControlName="overallScore" [nzMin]="0" [nzMax]="100"></nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+        </form>
+      </ng-container>
+    </nz-modal>
+
+    <!-- Create Modal -->
+    <nz-modal
+      [(nzVisible)]="isVisibleCreateModal"
+      nzTitle="Tạo mới Lần thử Viết"
+      [nzOkText]="'Tạo mới'"
+      [nzCancelText]="'Hủy'"
+      [nzOkLoading]="isCreateLoading"
+      (nzOnOk)="handleCreateOk()"
+      (nzOnCancel)="handleCreateCancel()"
+    >
+      <ng-container *nzModalContent>
+        <form nz-form [formGroup]="createForm">
+          <nz-form-item>
+            <nz-form-label [nzSm]="8" [nzXs]="24" nzRequired>Người dùng</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="Vui lòng chọn người dùng!">
+              <nz-select formControlName="userId" nzPlaceHolder="Chọn người dùng" nzShowSearch>
+                <nz-option *ngFor="let user of users" [nzValue]="user.userId" [nzLabel]="user.username"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="8" [nzXs]="24" nzRequired>Hoạt động luyện tập</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="Vui lòng chọn hoạt động luyện tập!">
+              <nz-select formControlName="practiceActivityId" nzPlaceHolder="Chọn hoạt động luyện tập" nzShowSearch>
+                <nz-option *ngFor="let activity of practiceActivities" [nzValue]="activity.activityId" [nzLabel]="activity.title"></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="8" [nzXs]="24" nzRequired>Văn bản người dùng</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="Vui lòng nhập văn bản người dùng!">
+              <textarea nz-input formControlName="userWrittenText" rows="4"></textarea>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="8" [nzXs]="24">Phản hồi ngữ pháp</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+              <textarea nz-input formControlName="grammarFeedback" rows="2"></textarea>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="8" [nzXs]="24">Phản hồi chính tả</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+              <textarea nz-input formControlName="spellingFeedback" rows="2"></textarea>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="8" [nzXs]="24">Phản hồi mạch lạc</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24">
+              <textarea nz-input formControlName="cohesionFeedback" rows="2"></textarea>
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label [nzSm]="8" [nzXs]="24" nzRequired>Điểm tổng</nz-form-label>
+            <nz-form-control [nzSm]="14" [nzXs]="24" nzErrorTip="Điểm tổng phải từ 0 đến 100!">
+              <nz-input-number formControlName="overallScore" [nzMin]="0" [nzMax]="100"></nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+        </form>
+      </ng-container>
+    </nz-modal>
+  </div>
+
+  <!-- Message displayed if the user does not have admin permission -->
+  <ng-template #noPermission>
+    <div class="no-permission-message">
+      <i nz-icon nzType="stop" nzTheme="fill"></i> Bạn không có quyền truy cập trang quản lý lần thử viết.
+    </div>
+  </ng-template>
+</nz-card>

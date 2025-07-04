@@ -1,58 +1,153 @@
+/* ===== Card Layout ===== */
 .quiz-results-card {
-  background-color: #fff;
+  background: #fff;
   border-radius: 12px;
-  padding: 24px;
+  padding: 12px; /* Consistent with other admin cards */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
-/* ==== Form ==== */
-.quiz-form {
-  margin-bottom: 20px;
+/* ==== Search Form & Filter ==== */
+.search-form {
+  padding: 12px 0;
 }
 
-.form-item {
-  margin-bottom: 0;
+.search-form nz-form-item {
+  margin-bottom: 16px; /* Consistent spacing */
 }
 
-.form-item .ant-form-label {
+.form-label {
   font-weight: 600;
+  color: #333;
   display: flex;
   align-items: center;
-  gap: 6px;
 }
 
-.custom-select {
-  border-radius: 8px;
-  width: 100%;
+.form-label i {
+  margin-right: 8px;
+  font-size: 18px;
 }
 
-.button-col {
+.custom-select,
+.custom-input,
+.custom-input-number {
+  border-radius: 6px !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+  width: 100%; /* Ensure full width */
+}
+
+.filter-buttons {
   display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
+  gap: 8px;
+  justify-content: flex-end; /* Align filter buttons to the right */
+  width: 100%; /* Ensure button container takes full width */
+  margin-top: 28px; /* Adjusted to align with other form fields */
+}
+
+.search-button {
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-weight: 500;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.search-button:hover {
+  background-color: #40a9ff;
+}
+
+.reset-button {
+  background-color: #fff;
+  border: 1px solid #d9d9d9;
+  color: #595959;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 6px;
+  font-weight: 500;
+  padding: 6px 16px;
+  transition: 0.2s ease-in-out;
+}
+
+.reset-button:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+/* ==== Add Result Section ==== */
+.add-result-section {
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title i {
+  font-size: 20px;
+  color: #1890ff;
+}
+
+.add-quiz-form {
+  padding-top: 12px;
+}
+
+.add-quiz-form .form-item {
+  margin-bottom: 16px;
 }
 
 .save-button {
-  background-color: #1890ff;
+  background-color: #52c41a; /* Green for save */
   color: white;
-  border-radius: 8px;
+  border-radius: 6px;
   font-weight: 600;
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 0 16px;
+  transition: background-color 0.2s ease-in-out;
+  height: 32px; /* Match Ant Design input height */
 }
 
 .save-button:hover {
-  background-color: #40a9ff;
+  background-color: #73d13d;
 }
 
+.button-col {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end; /* Align save button to the right */
+  margin-top: 28px; /* Align with other form fields */
+}
+
+
 /* ==== Table ==== */
+.quiz-results-table {
+  margin-top: 16px;
+  font-size: 14px;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #fff;
+}
+
 .quiz-results-table th {
-  background-color: #f0f5ff;
+  background-color: #f5f5f5;
   font-weight: 600;
-  text-align: center;
   color: #333;
+  padding: 12px;
+  text-align: center;
 }
 
 .quiz-results-table td {
@@ -61,25 +156,42 @@
   color: #555;
 }
 
+.table-row:hover {
+  background-color: #f0faff;
+}
+
+.actions-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.actions-cell a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #f5222d; /* Red for delete */
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.actions-cell a:hover {
+  color: #ff4d4f;
+  text-decoration: underline;
+}
+
 /* ==== Icon Styling ==== */
-.icon-user {
-  color: #1890ff;
-}
-.icon-quiz {
-  color: #9254de;
-}
-.icon-score {
-  color: #faad14;
-}
-.icon-time {
-  color: #13c2c2;
-}
-.icon-save {
-  color: #52c41a;
-}
-i[nzType="stop"] {
-  color: #cf1322;
-}
+.icon-user { color: #1890ff; }
+.icon-quiz { color: #9254de; }
+.icon-score { color: #faad14; }
+.icon-time { color: #13c2c2; }
+.icon-save { color: white; } /* For button icon */
+i[nzType="stop"] { color: #cf1322; }
+i[nzType="search"] { color: white; }
+i[nzType="reload"] { color: #1890ff; }
+i[nzType="trophy"] { color: #faad14; }
+i[nzType="hourglass"] { color: #7cb305; } /* For duration icon */
 
 /* ==== No Permission ==== */
 .no-permission-message {
@@ -94,18 +206,45 @@ i[nzType="stop"] {
 }
 
 /* ==== Responsive ==== */
-@media (max-width: 768px) {
-  .quiz-form nz-col {
-    flex: 0 0 100%;
-    max-width: 100%;
-    margin-bottom: 12px;
+@media (max-width: 992px) { /* Tablet and smaller */
+  .search-form nz-col,
+  .add-quiz-form nz-col {
+    flex: 0 0 50%; /* Two columns per row */
+    max-width: 50%;
   }
 
-  .button-col {
+  .button-col-full {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .filter-buttons, .button-col {
     justify-content: center;
   }
 
-  .save-button {
+  .save-button, .search-button, .reset-button {
+    width: auto;
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 576px) { /* Mobile */
+  .search-form nz-col,
+  .add-quiz-form nz-col {
+    flex: 0 0 100%; /* Single column per row */
+    max-width: 100%;
+  }
+
+  .filter-buttons, .button-col {
+    flex-direction: column; /* Stack buttons vertically */
+    gap: 10px;
+  }
+
+  .save-button, .search-button, .reset-button {
     width: 100%;
+  }
+
+  .table-actions {
+    text-align: center;
   }
 }

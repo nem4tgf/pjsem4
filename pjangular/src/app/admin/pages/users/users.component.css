@@ -1,85 +1,101 @@
+/* src/app/admin/pages/users/users.component.css */
+
 /* ==== Card Container ==== */
 .user-card {
   background-color: #fff;
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  margin: 16px;
+  margin: 16px; /* Tạo khoảng cách xung quanh card */
 }
 
-/* ==== Add Button ==== */
+/* ==== Add User Button (Nút "Thêm người dùng") ==== */
 .user-card .header-actions {
   display: flex;
-  justify-content: flex-end;
-  margin: 16px 0;
+  justify-content: flex-end; /* Đẩy nút sang phải */
+  margin: 16px 0; /* Khoảng cách trên và dưới nút */
 }
 
 .user-card .add-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 6px; /* Khoảng cách giữa icon và text */
   font-weight: 600;
   border-radius: 8px;
-  background-color: #52c41a; /* Green for add button */
+  background-color: #52c41a; /* Màu xanh lá cây nổi bật */
   color: white;
   border: none;
   transition: background-color 0.3s ease;
+  padding: 8px 16px; /* Tăng padding để nút lớn hơn */
 }
 
 .user-card .add-btn:hover {
-  background-color: #73d13d; /* Lighter green on hover */
+  background-color: #73d13d; /* Màu xanh lá cây nhạt hơn khi hover */
 }
 
 .user-card .add-btn i[nz-icon][nzType="user-add"] {
-  color: #ffffff; /* White icon for add button */
+  color: #ffffff; /* Icon màu trắng */
   font-size: 16px;
 }
 
-/* ==== Table Styling ==== */
+/* ==== Table Styling (Kiểu dáng bảng) ==== */
+.user-card .user-table {
+  width: 100%; /* Đảm bảo bảng chiếm toàn bộ chiều rộng */
+  overflow-x: auto; /* Cho phép cuộn ngang trên màn hình nhỏ */
+}
+
 .user-card .user-table .ant-table-thead > tr > th {
-  background-color: #f5f5f5;
-  font-weight: 600;
-  text-align: center;
-  color: #333;
+  background-color: #f5f5f5; /* Màu nền cho tiêu đề cột */
+  font-weight: 600; /* In đậm tiêu đề */
+  text-align: center; /* Căn giữa nội dung tiêu đề */
+  color: #333; /* Màu chữ tiêu đề */
+  padding: 12px; /* Thêm padding cho tiêu đề */
 }
 
 .user-card .user-table .ant-table-tbody > tr > td {
-  text-align: center;
+  text-align: center; /* Căn giữa nội dung ô */
   padding: 12px;
   color: #555;
+  word-wrap: break-word; /* Ngắt từ nếu quá dài */
+  white-space: normal; /* Đảm bảo ngắt dòng */
 }
 
-/* ==== Icon for Table Headers ==== */
+/* ==== Icons for Table Headers (Icon trên tiêu đề bảng) ==== */
 .user-card .user-table th i[nz-icon] {
   margin-right: 4px;
   font-size: 14px;
 }
 
 .user-card .user-table th:nth-child(1) i[nz-icon][nzType="user"] {
-  color: #1890ff; /* Blue for username icon */
+  color: #1890ff; /* Màu xanh dương cho icon Username */
 }
 
 .user-card .user-table th:nth-child(2) i[nz-icon][nzType="mail"] {
-  color: #fa8c16; /* Orange for email icon */
+  color: #fa8c16; /* Màu cam cho icon Email */
 }
 
 .user-card .user-table th:nth-child(3) i[nz-icon][nzType="idcard"] {
-  color: #eb2f96; /* Pink for full name icon */
+  color: #eb2f96; /* Màu hồng cho icon Full Name */
 }
 
 .user-card .user-table th:nth-child(4) i[nz-icon][nzType="safety-certificate"] {
-  color: #722ed1; /* Purple for role icon */
+  color: #722ed1; /* Màu tím cho icon Role */
 }
 
 .user-card .user-table th:nth-child(5) i[nz-icon][nzType="calendar"] {
-  color: #13c2c2; /* Cyan for created at icon */
+  color: #13c2c2; /* Màu xanh lam cho icon Created At */
 }
 
 .user-card .user-table th:nth-child(6) i[nz-icon][nzType="setting"] {
-  color: #595959; /* Gray for actions icon */
+  color: #595959; /* Màu xám cho icon Actions */
 }
 
-/* ==== Role Tags ==== */
+/* ==== Role Tags (Thẻ vai trò) ==== */
+.user-card .user-table nz-tag {
+  font-weight: 500;
+  padding: 4px 8px; /* Tăng padding để thẻ lớn hơn một chút */
+}
+
 .user-card .user-table nz-tag[nzColor="red"] {
   background-color: #fff1f0;
   color: #ff4d4f;
@@ -94,45 +110,55 @@
   border-radius: 8px;
 }
 
-/* ==== Action Buttons ==== */
+/* ==== Action Buttons (Nút hành động: Sửa, Xóa) ==== */
+.user-card .user-table .action-btn {
+  padding: 0 8px; /* Giảm padding để các nút gần nhau hơn */
+  font-size: 14px; /* Kích thước chữ cho nút hành động */
+}
+
 .user-card .user-table .action-btn i[nz-icon] {
   font-size: 14px;
+  margin-right: 4px;
 }
 
 .user-card .user-table .edit-btn i[nz-icon][nzType="edit"] {
-  color: #faad14; /* Yellow for edit icon */
+  color: #faad14; /* Màu vàng cho icon Sửa */
 }
 
 .user-card .user-table .edit-btn:hover i[nz-icon][nzType="edit"] {
-  color: #ffc107; /* Lighter yellow on hover */
+  color: #ffc107; /* Màu vàng nhạt hơn khi hover */
 }
 
 .user-card .user-table .delete-btn i[nz-icon][nzType="delete"] {
-  color: #f5222d; /* Red for delete icon */
+  color: #f5222d; /* Màu đỏ cho icon Xóa */
 }
 
 .user-card .user-table .delete-btn:hover i[nz-icon][nzType="delete"] {
-  color: #ff4d4f; /* Lighter red on hover */
+  color: #ff4d4f; /* Màu đỏ nhạt hơn khi hover */
 }
 
-/* ==== No Permission Message ==== */
+/* ==== No Permission Message (Thông báo không có quyền) ==== */
 .user-card .no-permission-message {
   display: flex;
   align-items: center;
+  justify-content: center; /* Căn giữa nội dung */
   gap: 8px;
-  color: #f5222d;
+  color: #f5222d; /* Màu đỏ */
   font-size: 16px;
-  padding: 16px;
-  background: #fff1f0;
+  padding: 20px; /* Tăng padding */
+  background: #fff1f0; /* Nền màu đỏ nhạt */
+  border: 1px solid #ffa39e; /* Viền đỏ nhạt */
   border-radius: 8px;
+  margin-top: 20px; /* Khoảng cách với card title */
+  font-weight: 500;
 }
 
 .user-card .no-permission-message i[nz-icon][nzType="stop"] {
-  color: #f5222d; /* Red for stop icon */
-  font-size: 18px;
+  color: #f5222d; /* Màu đỏ cho icon dừng */
+  font-size: 24px; /* Kích thước icon lớn hơn */
 }
 
-/* ==== Modal Styling ==== */
+/* ==== Modal Styling (Kiểu dáng Modal) ==== */
 .user-card .user-modal .ant-modal-body {
   padding-top: 16px;
 }
@@ -140,7 +166,7 @@
 .user-card .user-modal .modal-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 16px; /* Khoảng cách giữa các trường input */
 }
 
 .user-card .user-modal .modal-input,
@@ -156,15 +182,26 @@
 
 .user-card .user-modal .modal-input:focus,
 .user-card .user-modal .modal-select:focus {
-  border-color: #1890ff;
-  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+  border-color: #1890ff; /* Màu xanh khi focus */
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2); /* Hiệu ứng đổ bóng khi focus */
 }
 
-/* ==== Responsive ==== */
+/* ==== Responsive Design (Thiết kế đáp ứng) ==== */
 @media (max-width: 768px) {
+  .user-card {
+    padding: 16px; /* Giảm padding trên màn hình nhỏ */
+    margin: 8px; /* Giảm margin */
+  }
+
   .user-card .user-table .ant-table-thead > tr > th,
   .user-card .user-table .ant-table-tbody > tr > td {
-    font-size: 14px;
+    font-size: 13px; /* Giảm kích thước chữ trong bảng */
+    padding: 8px; /* Giảm padding ô bảng */
+  }
+
+  .user-card .user-table .action-btn {
+    font-size: 13px;
+    padding: 0 4px;
   }
 
   .user-card .user-table .action-btn i[nz-icon] {
@@ -172,11 +209,34 @@
   }
 
   .user-card .add-btn {
-    width: 100%;
-    justify-content: center;
+    width: 100%; /* Nút "Thêm người dùng" chiếm toàn bộ chiều rộng */
+    justify-content: center; /* Căn giữa nội dung nút */
+    padding: 10px 0; /* Tăng padding dọc */
   }
 
   .user-card .header-actions {
-    justify-content: center;
+    justify-content: center; /* Căn giữa nút trên màn hình nhỏ */
+    margin-bottom: 12px;
+  }
+
+  .user-card .no-permission-message {
+    font-size: 14px;
+    padding: 15px;
+  }
+
+  .user-card .no-permission-message i[nz-icon][nzType="stop"] {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 576px) {
+  .user-card .ant-card-head-title {
+    font-size: 18px; /* Điều chỉnh tiêu đề card trên màn hình rất nhỏ */
+  }
+
+  /* Điều chỉnh thêm cho các ô trong bảng nếu cần thiết, có thể ẩn bớt cột */
+  .user-card .user-table .ant-table-tbody > tr > td {
+    white-space: initial; /* Cho phép ngắt dòng tự do hơn */
+    text-align: left; /* Căn trái nội dung trong ô để dễ đọc hơn */
   }
 }

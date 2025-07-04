@@ -1,5 +1,4 @@
 <nz-card nzTitle="📚 Manage Vocabulary" class="vocab-card">
-  <!-- Nút Add Vocabulary -->
   <div class="header-actions">
     <button nz-button nzType="primary" (click)="showModal(false)" class="add-btn">
       <i nz-icon nzType="plus-circle" nzTheme="fill"></i>
@@ -7,7 +6,6 @@
     </button>
   </div>
 
-  <!-- Bảng Vocabulary -->
   <nz-table
     #basicTable
     [nzData]="vocabularies"
@@ -46,7 +44,6 @@
     </tbody>
   </nz-table>
 
-  <!-- Modal Add/Edit -->
   <nz-modal
     [(nzVisible)]="isVisible"
     [nzTitle]="isEdit ? 'Edit Vocabulary' : 'Add Vocabulary'"

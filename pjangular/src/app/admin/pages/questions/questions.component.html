@@ -1,17 +1,15 @@
 <nz-card nzTitle="❓ Quản lý Câu hỏi" class="questions-card">
 
-  <!-- Bộ lọc & tìm kiếm -->
-  <form class="search-form">
+  <form nz-form [formGroup]="searchForm" (ngSubmit)="searchQuestions()" *ngIf="isAdmin" class="search-form">
     <div nz-row nzGutter="16">
-      <div nz-col nzSpan="6">
+      <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
         <nz-form-item class="filter-item">
           <nz-form-label class="form-label">
             <i nz-icon nzType="file-search"></i> Bài kiểm tra
           </nz-form-label>
           <nz-form-control>
             <nz-select
-              [(ngModel)]="selectedSearchQuizId"
-              (ngModelChange)="onSearchQuizChange($event)"
+              formControlName="quizId"
               nzPlaceHolder="Chọn bài kiểm tra"
               nzAllowClear
               class="custom-select"
@@ -22,83 +20,135 @@
         </nz-form-item>
       </div>
 
-      <div nz-col nzSpan="6">
+      <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
         <nz-form-item class="filter-item">
           <nz-form-label class="form-label">
-            <i nz-icon nzType="bulb"></i> Kỹ năng
+            <i nz-icon nzType="bulb"></i> Loại câu hỏi
           </nz-form-label>
           <nz-form-control>
             <nz-select
-              [(ngModel)]="selectedSearchSkill"
-              (ngModelChange)="onSearchSkillChange($event)"
-              nzPlaceHolder="Chọn kỹ năng"
+              formControlName="questionType"
+              nzPlaceHolder="Chọn loại câu hỏi"
               nzAllowClear
               class="custom-select"
             >
-              <nz-option *ngFor="let skill of skills" [nzValue]="skill" [nzLabel]="skill"></nz-option>
+              <nz-option *ngFor="let type of questionTypes" [nzValue]="type" [nzLabel]="type"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
       </div>
 
-      <div nz-col nzSpan="8">
+      <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6">
         <nz-form-item class="filter-item">
           <nz-form-label class="form-label">
             <i nz-icon nzType="search"></i> Nội dung
           </nz-form-label>
           <nz-form-control>
-            <nz-input-group [nzSuffix]="suffixIconButton" class="search-input-group">
-              <input
-                type="text"
-                nz-input
-                placeholder="Nhập nội dung câu hỏi"
-                [(ngModel)]="searchText"
-                (keyup.enter)="onSearchTextChange()"
-              />
-            </nz-input-group>
-            <ng-template #suffixIconButton>
-              <button nz-button nzType="default" class="icon-search-button" (click)="onSearchTextChange()">
-                <i nz-icon nzType="search"></i>
-              </button>
-            </ng-template>
+            <input
+              nz-input
+              formControlName="questionText"
+              placeholder="Nhập nội dung câu hỏi"
+              class="custom-input"
+              (keyup.enter)="searchQuestions()" />
           </nz-form-control>
         </nz-form-item>
       </div>
 
-      <div nz-col nzSpan="4" *ngIf="isAdmin" class="button-col">
-        <button nz-button nzType="primary" (click)="showModal(false)" class="add-button">
-          <i nz-icon nzType="plus-circle"></i> Thêm Câu Hỏi
-        </button>
+      <div nz-col nzXs="24" nzSm="12" nzMd="8" nzLg="6" class="button-col">
+        <div class="filter-buttons">
+          <button nz-button nzType="primary" htmlType="submit" [nzLoading]="loading" class="search-button">
+            <i nz-icon nzType="search"></i> Tìm kiếm
+          </button>
+          <button nz-button (click)="resetFilters()" class="reset-button">
+            <i nz-icon nzType="reload"></i> Đặt lại
+          </button>
+        </div>
       </div>
     </div>
   </form>
 
-  <!-- Bảng câu hỏi -->
+  <nz-divider *ngIf="isAdmin"></nz-divider>
+
+  <div class="table-actions" *ngIf="isAdmin">
+    <button nz-button nzType="primary" (click)="showQuestionModal(false)" class="add-button">
+      <i nz-icon nzType="plus-circle"></i> Thêm Câu Hỏi
+    </button>
+  </div>
+
+
   <nz-table
     #basicTable
-    [nzData]="questions"
-    [nzLoading]="!questions.length"
-    [nzShowPagination]="false"
+    [nzData]="pageData.content" [nzLoading]="loading"
+    [nzNoResult]="'Không tìm thấy bản ghi câu hỏi nào.'"
+    [nzFrontPagination]="false" [nzTotal]="pageData.totalElements" [nzPageSize]="pageData.pageSize" [nzPageIndex]="pageData.currentPage + 1" (nzPageIndexChange)="onPageIndexChange($event)" (nzPageSizeChange)="onPageSizeChange($event)" nzBordered
     *ngIf="isAdmin"
     class="questions-table"
   >
     <thead>
       <tr>
-        <th><i nz-icon nzType="question-circle"></i> Nội dung</th>
-        <th><i nz-icon nzType="bulb"></i> Kỹ năng</th>
-        <th><i nz-icon nzType="file-search"></i> Bài kiểm tra</th>
-        <th><i nz-icon nzType="setting"></i> Hành động</th>
+        <th
+          nzColumnKey="questionId"
+          [nzSortFn]="true" (nzSortOrderChange)="onSortChange('questionId', $event === 'ascend' ? 'ascend' : ($event === 'descend' ? 'descend' : null))" class="table-header"
+        >
+          ID
+        </th>
+        <th
+          nzColumnKey="questionText"
+          [nzSortFn]="true"
+          (nzSortOrderChange)="onSortChange('questionText', $event === 'ascend' ? 'ascend' : ($event === 'descend' ? 'descend' : null))"
+          class="table-header"
+        >
+          <i nz-icon nzType="question-circle"></i> Nội dung
+        </th>
+        <th
+          nzColumnKey="questionType"
+          [nzSortFn]="true"
+          (nzSortOrderChange)="onSortChange('questionType', $event === 'ascend' ? 'ascend' : ($event === 'descend' ? 'descend' : null))"
+          class="table-header"
+        >
+          <i nz-icon nzType="bulb"></i> Loại câu hỏi
+        </th>
+        <th
+          nzColumnKey="quizId"
+          [nzSortFn]="true"
+          (nzSortOrderChange)="onSortChange('quizId', $event === 'ascend' ? 'ascend' : ($event === 'descend' ? 'descend' : null))"
+          class="table-header"
+        >
+          <i nz-icon nzType="file-search"></i> Bài kiểm tra
+        </th>
+        <th class="table-header">Audio</th>
+        <th class="table-header">Image</th>
+        <th class="table-header">Đáp án</th>
+        <th class="table-header">Hành động</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let question of basicTable.data" class="table-row">
+        <td>{{ question.questionId }}</td>
         <td>{{ question.questionText }}</td>
-        <td>{{ question.skill }}</td>
+        <td>{{ question.questionType }}</td>
         <td>{{ getQuizTitle(question.quizId) }}</td>
+        <td>
+          <ng-container *ngIf="question.audioUrl; else noAudio">
+            <a [href]="question.audioUrl" target="_blank" class="audio-link" nz-tooltip nzTooltipTitle="Nghe file âm thanh">
+              <i nz-icon nzType="play-circle"></i> Nghe
+            </a>
+          </ng-container>
+          <ng-template #noAudio>N/A</ng-template>
+        </td>
+        <td>
+          <ng-container *ngIf="question.imageUrl; else noImage">
+            <a [href]="question.imageUrl" target="_blank" class="image-link" nz-tooltip nzTooltipTitle="Xem hình ảnh">
+              <i nz-icon nzType="picture"></i> Xem ảnh
+            </a>
+          </ng-container>
+          <ng-template #noImage>N/A</ng-template>
+        </td>
+        <td>{{ question.correctAnswerText || 'N/A' }}</td>
         <td class="actions-cell">
-          <a (click)="showModal(true, question)"><i nz-icon nzType="edit"></i> Sửa</a>
+          <a (click)="showQuestionModal(true, question)" nz-tooltip nzTooltipTitle="Sửa câu hỏi này"><i nz-icon nzType="edit"></i> Sửa</a>
           <nz-divider nzType="vertical"></nz-divider>
-          <a nz-popconfirm nzPopconfirmTitle="Bạn có chắc muốn xóa?" (nzOnConfirm)="deleteQuestion(question.questionId)" nzOkText="Xóa" nzCancelText="Hủy">
+          <a nz-popconfirm nzPopconfirmTitle="Bạn có chắc muốn xóa?" (nzOnConfirm)="deleteQuestion(question.questionId)" nzOkText="Xóa" nzCancelText="Hủy" nzOkDanger nz-tooltip nzTooltipTitle="Xóa câu hỏi này">
             <i nz-icon nzType="delete"></i> Xóa
           </a>
         </td>
@@ -106,17 +156,15 @@
     </tbody>
   </nz-table>
 
-  <!-- Không có quyền -->
   <div *ngIf="!isAdmin" class="no-permission-message">
     <p><i nz-icon nzType="stop"></i> Bạn không có quyền truy cập trang quản lý câu hỏi.</p>
   </div>
 
-  <!-- Modal thêm/sửa -->
   <nz-modal
     [(nzVisible)]="isVisible"
-    [nzTitle]="isEdit ? '📝 Sửa câu hỏi' : '➕ Thêm câu hỏi'"
-    (nzOnOk)="handleOk()"
-    (nzOnCancel)="handleCancel()"
+    [nzTitle]="isEdit ? '� Sửa câu hỏi' : '➕ Thêm câu hỏi'"
+    (nzOnOk)="handleQuestionModalOk()"
+    (nzOnCancel)="handleQuestionModalCancel()"
     [nzOkText]="isEdit ? 'Cập nhật' : 'Tạo mới'"
     [nzCancelText]="'Hủy'"
     [nzOkType]="'primary'"
@@ -127,7 +175,7 @@
       <form nz-form [formGroup]="questionForm" class="modal-form">
         <nz-form-item class="modal-item">
           <nz-form-label nzRequired><i nz-icon nzType="file-search"></i> Bài kiểm tra</nz-form-label>
-          <nz-form-control [nzErrorTip]="'Bắt buộc'">
+          <nz-form-control [nzErrorTip]="(questionForm.get('quizId')?.invalid && questionForm.get('quizId')?.touched) ? 'Bài kiểm tra là bắt buộc' : undefined">
             <nz-select formControlName="quizId" nzPlaceHolder="Chọn bài kiểm tra">
               <nz-option *ngFor="let quiz of quizzes" [nzValue]="quiz.quizId" [nzLabel]="quiz.title"></nz-option>
             </nz-select>
@@ -135,21 +183,44 @@
         </nz-form-item>
 
         <nz-form-item class="modal-item">
+          <nz-form-label nzRequired><i nz-icon nzType="bulb"></i> Loại câu hỏi</nz-form-label>
+          <nz-form-control [nzErrorTip]="(questionForm.get('questionType')?.invalid && questionForm.get('questionType')?.touched) ? 'Loại câu hỏi là bắt buộc' : undefined">
+            <nz-select formControlName="questionType" nzPlaceHolder="Chọn loại câu hỏi">
+              <nz-option *ngFor="let type of questionTypes" [nzValue]="type" [nzLabel]="type"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item class="modal-item">
           <nz-form-label nzRequired><i nz-icon nzType="question-circle"></i> Nội dung câu hỏi</nz-form-label>
-          <nz-form-control [nzErrorTip]="'Bắt buộc'">
+          <nz-form-control [nzErrorTip]="(questionForm.get('questionText')?.invalid && questionForm.get('questionText')?.touched) ? 'Nội dung câu hỏi là bắt buộc' : undefined">
             <textarea nz-input formControlName="questionText" placeholder="Nhập nội dung câu hỏi" class="modal-textarea"></textarea>
           </nz-form-control>
         </nz-form-item>
 
         <nz-form-item class="modal-item">
-          <nz-form-label nzRequired><i nz-icon nzType="bulb"></i> Kỹ năng</nz-form-label>
-          <nz-form-control [nzErrorTip]="'Bắt buộc'">
-            <nz-select formControlName="skill" nzPlaceHolder="Chọn kỹ năng">
-              <nz-option *ngFor="let skill of skills" [nzValue]="skill" [nzLabel]="skill"></nz-option>
-            </nz-select>
+          <nz-form-label><i nz-icon nzType="sound"></i> URL Audio</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="audioUrl" placeholder="Nhập URL file âm thanh" class="modal-input"/>
           </nz-form-control>
         </nz-form-item>
+
+        <nz-form-item class="modal-item">
+          <nz-form-label><i nz-icon nzType="picture"></i> URL Hình ảnh</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="imageUrl" placeholder="Nhập URL hình ảnh" class="modal-input"/>
+          </nz-form-control>
+        </nz-form-item>
+
+        <nz-form-item class="modal-item">
+          <nz-form-label><i nz-icon nzType="check-circle"></i> Đáp án đúng</nz-form-label>
+          <nz-form-control>
+            <textarea nz-input formControlName="correctAnswerText" placeholder="Nhập đáp án đúng (cho điền vào chỗ trống, tự luận, v.v.)" class="modal-textarea"></textarea>
+          </nz-form-control>
+        </nz-form-item>
+
       </form>
     </ng-template>
   </nz-modal>
 </nz-card>
+

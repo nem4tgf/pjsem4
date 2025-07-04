@@ -1,104 +1,106 @@
-<nz-card nzTitle="👤 Manage Users" class="user-card">
-  <!-- Add User Button -->
+<nz-card nzTitle="👤 Quản lý người dùng" class="user-card">
   <div class="header-actions" *ngIf="isAdmin">
     <button nz-button nzType="primary" (click)="showModal(false)" class="add-btn">
       <i nz-icon nzType="user-add" nzTheme="outline"></i>
-      <span>Add User</span>
+      <span>Thêm người dùng</span>
     </button>
   </div>
 
-  <!-- Users Table -->
-  <nz-table #basicTable [nzData]="users" [nzLoading]="!users.length" *ngIf="isAdmin" class="user-table">
+  <nz-table #basicTable [nzData]="users" [nzLoading]="!users.length && isAdmin" *ngIf="isAdmin" class="user-table"
+            [nzShowPagination]="true" [nzPageSize]="10"
+            [nzNoResult]="!isAdmin ? 'Bạn không có quyền truy cập trang quản lý người dùng.' : (users.length === 0 ? 'Không tìm thấy người dùng nào.' : '')">
     <thead>
       <tr>
-        <th><i nz-icon nzType="user" nzTheme="fill"></i> Username</th>
+        <th><i nz-icon nzType="user" nzTheme="fill"></i> Tên người dùng</th>
         <th><i nz-icon nzType="mail" nzTheme="outline"></i> Email</th>
-        <th><i nz-icon nzType="idcard" nzTheme="outline"></i> Full Name</th>
-        <th><i nz-icon nzType="safety-certificate" nzTheme="twotone"></i> Role</th>
-        <th><i nz-icon nzType="calendar" nzTheme="outline"></i> Created At</th>
-        <th><i nz-icon nzType="setting" nzTheme="outline"></i> Actions</th>
+        <th><i nz-icon nzType="idcard" nzTheme="outline"></i> Tên đầy đủ</th>
+        <th><i nz-icon nzType="safety-certificate" nzTheme="twotone"></i> Vai trò</th>
+        <th><i nz-icon nzType="calendar" nzTheme="outline"></i> Ngày tạo</th>
+        <th><i nz-icon nzType="setting" nzTheme="outline"></i> Hành động</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let user of basicTable.data">
         <td>{{ user.username }}</td>
         <td>{{ user.email }}</td>
-        <td>{{ user.fullName }}</td>
+        <td>{{ user.fullName || 'N/A' }}</td>
         <td>
-          <nz-tag [nzColor]="user.role.toString() === 'Admin' ? 'red' : 'blue'">{{ user.role }}</nz-tag>
+          <nz-tag [nzColor]="user.role === 'ROLE_ADMIN' ? 'red' : 'blue'">{{ user.role | titlecase }}</nz-tag>
         </td>
         <td>{{ user.createdAt | date: 'short' }}</td>
         <td>
           <button nz-button nzType="link" (click)="showModal(true, user)" class="action-btn edit-btn">
-            <i nz-icon nzType="edit" nzTheme="twotone"></i> Edit
+            <i nz-icon nzType="edit" nzTheme="twotone"></i> Sửa
           </button>
           <nz-divider nzType="vertical"></nz-divider>
           <button nz-button nzType="link" nzDanger (click)="deleteUser(user.userId)" class="action-btn delete-btn">
-            <i nz-icon nzType="delete" nzTheme="twotone"></i> Delete
+            <i nz-icon nzType="delete" nzTheme="twotone"></i> Xóa
           </button>
         </td>
       </tr>
     </tbody>
   </nz-table>
 
-  <!-- No permission -->
   <div *ngIf="!isAdmin" class="no-permission-message">
     <i nz-icon nzType="stop" nzTheme="fill"></i> Bạn không có quyền truy cập trang quản lý người dùng.
   </div>
 
-  <!-- Modal -->
   <nz-modal
     [(nzVisible)]="isVisible"
-    [nzTitle]="isEdit ? 'Edit User' : 'Add User'"
+    [nzTitle]="isEdit ? 'Sửa người dùng' : 'Thêm người dùng'"
     (nzOnOk)="handleOk()"
     (nzOnCancel)="handleCancel()"
-    [nzOkText]="isEdit ? 'Update' : 'Create'"
-    [nzCancelText]="'Cancel'"
-    [nzContent]="userModalContent"
+    [nzOkText]="isEdit ? 'Cập nhật' : 'Tạo mới'"
+    [nzCancelText]="'Hủy'"
     [nzOkDisabled]="userForm.invalid"
     class="user-modal"
   >
     <ng-template #userModalContent>
       <form nz-form [formGroup]="userForm" class="modal-form">
         <nz-form-item>
-          <nz-form-label nzRequired>Username</nz-form-label>
-          <nz-form-control [nzErrorTip]="userForm.get('username')?.hasError('required') && userForm.get('username')?.touched ? 'Username is required' : userForm.get('username')?.hasError('minlength') && userForm.get('username')?.touched ? 'Username must be at least 3 characters' : ''">
+          <nz-form-label nzRequired>Tên người dùng</nz-form-label>
+          <nz-form-control [nzErrorTip]="userForm.get('username')?.touched && userForm.get('username')?.errors?.['required'] ? 'Tên người dùng là bắt buộc' : (userForm.get('username')?.touched && userForm.get('username')?.errors?.['minlength'] ? 'Tên người dùng phải có ít nhất 3 ký tự' : '')">
             <input nz-input formControlName="username" class="modal-input" />
           </nz-form-control>
         </nz-form-item>
         <nz-form-item>
           <nz-form-label nzRequired>Email</nz-form-label>
-          <nz-form-control [nzErrorTip]="userForm.get('email')?.hasError('required') && userForm.get('email')?.touched ? 'Email is required' : userForm.get('email')?.hasError('email') && userForm.get('email')?.touched ? 'Valid email is required' : ''">
+          <nz-form-control [nzErrorTip]="userForm.get('email')?.touched && userForm.get('email')?.errors?.['required'] ? 'Email là bắt buộc' : (userForm.get('email')?.touched && userForm.get('email')?.errors?.['email'] ? 'Email không hợp lệ' : '')">
             <input nz-input formControlName="email" class="modal-input" />
           </nz-form-control>
         </nz-form-item>
         <nz-form-item *ngIf="!isEdit">
-          <nz-form-label nzRequired>Password</nz-form-label>
-          <nz-form-control [nzErrorTip]="userForm.get('password')?.hasError('required') && userForm.get('password')?.touched ? 'Password is required' : userForm.get('password')?.hasError('minlength') && userForm.get('password')?.touched ? 'Password must be at least 6 characters' : ''">
+          <nz-form-label nzRequired>Mật khẩu</nz-form-label>
+          <nz-form-control [nzErrorTip]="userForm.get('password')?.touched && userForm.get('password')?.errors?.['required'] ? 'Mật khẩu là bắt buộc' : (userForm.get('password')?.touched && userForm.get('password')?.errors?.['minlength'] ? 'Mật khẩu phải có ít nhất 6 ký tự' : '')">
+            <input nz-input formControlName="password" type="password" class="modal-input" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item *ngIf="isEdit">
+          <nz-form-label>Mật khẩu mới (để trống nếu không đổi)</nz-form-label>
+          <nz-form-control [nzErrorTip]="userForm.get('password')?.touched && userForm.get('password')?.errors?.['minlength'] ? 'Mật khẩu phải có ít nhất 6 ký tự' : ''">
             <input nz-input formControlName="password" type="password" class="modal-input" />
           </nz-form-control>
         </nz-form-item>
         <nz-form-item>
-          <nz-form-label>Full Name</nz-form-label>
+          <nz-form-label>Tên đầy đủ</nz-form-label>
           <nz-form-control>
             <input nz-input formControlName="fullName" class="modal-input" />
           </nz-form-control>
         </nz-form-item>
         <nz-form-item>
-          <nz-form-label>Avatar URL</nz-form-label>
+          <nz-form-label>URL Ảnh đại diện</nz-form-label>
           <nz-form-control>
             <input nz-input formControlName="avatarUrl" class="modal-input" />
           </nz-form-control>
         </nz-form-item>
         <nz-form-item>
-          <nz-form-label nzRequired>Role</nz-form-label>
-          <nz-form-control [nzErrorTip]="userForm.get('role')?.hasError('required') && userForm.get('role')?.touched ? 'Role is required' : ''">
-            <nz-select formControlName="role" nzPlaceHolder="Select role" class="modal-select">
-              <nz-option *ngFor="let role of roles" [nzValue]="role" [nzLabel]="role"></nz-option>
+          <nz-form-label nzRequired>Vai trò</nz-form-label>
+          <nz-form-control [nzErrorTip]="userForm.get('role')?.touched && userForm.get('role')?.errors?.['required'] ? 'Vai trò là bắt buộc' : ''">
+            <nz-select formControlName="role" nzPlaceHolder="Chọn vai trò" class="modal-select">
+              <nz-option *ngFor="let role of roles" [nzValue]="role" [nzLabel]="role | titlecase"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
       </form>
     </ng-template>
   </nz-modal>
-</nz-card>

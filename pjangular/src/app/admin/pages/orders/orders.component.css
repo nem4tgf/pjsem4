@@ -124,37 +124,71 @@ nz-modal.modal {
 nz-modal.modal .ant-modal-body {
   font-size: 14px;
   color: #333;
+  padding: 24px;
 }
 
 nz-modal.modal p {
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   display: flex;
   align-items: center;
+  line-height: 1.5;
+}
+
+nz-modal.modal p b {
+  margin-right: 8px;
+  min-width: 100px; /* Đảm bảo tiêu đề căn đều */
 }
 
 nz-modal.modal p i {
   margin-right: 8px;
   font-size: 16px;
+  color: inherit; /* Kế thừa màu từ icon thematic */
 }
 
 nz-modal .ant-divider {
   margin: 16px 0 12px;
+  border-color: #e8e8e8;
 }
 
 /* ===== Table in Modal ===== */
 nz-modal .ant-table {
-  margin-top: 8px;
+  margin-top: 12px;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
 }
 
 nz-modal .ant-table-thead > tr > th {
   background-color: #f0f2f5;
   font-weight: 600;
   color: #333;
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e8e8e8;
 }
 
 nz-modal .ant-table-tbody > tr > td {
-  padding: 8px;
+  padding: 12px;
   color: #555;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+nz-modal .ant-table-tbody > tr:last-child > td {
+  border-bottom: none;
+}
+
+nz-modal .ant-table-tbody > tr:hover > td {
+  background-color: #fafafa;
+}
+
+/* ===== Footer in Modal ===== */
+nz-modal .ant-modal-footer {
+  padding: 16px;
+  border-top: 1px solid #e8e8e8;
+}
+
+nz-modal .ant-modal-footer button {
+  padding: 6px 16px;
+  font-weight: 500;
 }
 
 /* ===== Form Actions Row ===== */
@@ -163,6 +197,7 @@ nz-modal .ant-table-tbody > tr > td {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  gap: 8px;
 }
 
 /* ===== Responsive Design ===== */
@@ -192,5 +227,18 @@ nz-modal .ant-table-tbody > tr > td {
 
   .actions-cell a {
     width: 100%;
+  }
+
+  nz-modal.modal .ant-modal-body {
+    padding: 16px;
+  }
+
+  nz-modal.modal p b {
+    min-width: 80px;
+  }
+
+  nz-modal .ant-table-thead > tr > th,
+  nz-modal .ant-table-tbody > tr > td {
+    padding: 8px;
   }
 }

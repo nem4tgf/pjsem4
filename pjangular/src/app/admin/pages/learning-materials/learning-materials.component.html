@@ -1,54 +1,64 @@
-<nz-card nzTitle="🎓 Manage Learning Materials" class="materials-card">
+<nz-card nzTitle="🎓 Quản lý Tài liệu học tập" class="materials-card">
   <form nz-form [formGroup]="searchForm" (ngSubmit)="searchMaterials()" class="search-form">
     <div nz-row nzGutter="24">
 
-      <div nz-col nzSpan="6">
+      <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
         <nz-form-item>
           <nz-form-label nzFor="lessonId" class="form-label">
-            <i nz-icon nzType="book" class="form-icon"></i> Lesson
+            <i nz-icon nzType="book" class="form-icon"></i> Bài học
           </nz-form-label>
           <nz-form-control>
-            <nz-select formControlName="lessonId" nzPlaceHolder="Select Lesson" nzAllowClear nzShowSearch class="custom-select">
+            <nz-select formControlName="lessonId" nzPlaceHolder="Chọn bài học" nzAllowClear nzShowSearch class="custom-select">
               <nz-option *ngFor="let lesson of lessons" [nzValue]="lesson.lessonId" [nzLabel]="lesson.title"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
       </div>
 
-      <div nz-col nzSpan="6">
+      <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
         <nz-form-item>
           <nz-form-label nzFor="materialType" class="form-label">
-            <i nz-icon nzType="appstore" class="form-icon"></i> Material Type
+            <i nz-icon nzType="appstore" class="form-icon"></i> Loại tài liệu
           </nz-form-label>
           <nz-form-control>
-            <nz-select formControlName="materialType" nzPlaceHolder="Select Type" nzAllowClear class="custom-select">
-              <nz-option nzValue="" nzLabel="All"></nz-option>
+            <nz-select formControlName="materialType" nzPlaceHolder="Chọn loại" nzAllowClear class="custom-select">
+              <nz-option nzValue="" nzLabel="Tất cả"></nz-option>
               <nz-option *ngFor="let type of materialTypes" [nzValue]="type" [nzLabel]="type"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
       </div>
 
-      <div nz-col nzSpan="6">
+      <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
         <nz-form-item>
           <nz-form-label nzFor="description" class="form-label">
-            <i nz-icon nzType="edit" class="form-icon"></i> Description
+            <i nz-icon nzType="edit"></i> Mô tả
           </nz-form-label>
           <nz-form-control>
-            <input nz-input formControlName="description" placeholder="Enter description" class="custom-input"/>
+            <input nz-input formControlName="description" placeholder="Nhập mô tả" class="custom-input"/>
           </nz-form-control>
         </nz-form-item>
       </div>
 
-      <div nz-col nzSpan="6" class="button-col">
+      <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
+        <nz-form-item>
+          <nz-form-label nzFor="transcriptText" class="form-label">
+            <i nz-icon nzType="file-word"></i> Văn bản phiên âm
+          </nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="transcriptText" placeholder="Tìm kiếm văn bản phiên âm" class="custom-input"/>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="6" class="button-col">
         <nz-form-item>
           <nz-form-label></nz-form-label>
           <nz-form-control>
             <button nz-button nzType="primary" type="submit" class="search-button">
-              <i nz-icon nzType="search"></i> Search
+              <i nz-icon nzType="search"></i> Tìm kiếm
             </button>
             <button nz-button class="reset-button" (click)="searchForm.reset({ page: 0, size: 10, sortBy: 'materialId', sortDir: 'ASC' })">
-              <i nz-icon nzType="reload"></i> Reset
+              <i nz-icon nzType="reload"></i> Đặt lại
             </button>
           </nz-form-control>
         </nz-form-item>
@@ -58,13 +68,14 @@
   </form>
 
   <button *ngIf="isAdmin" nz-button nzType="primary" (click)="showModal(false)" class="add-button">
-    <i nz-icon nzType="plus"></i> Add Material
+    <i nz-icon nzType="plus"></i> Thêm tài liệu
   </button>
 
   <nz-table
     #basicTable
     [nzData]="materials"
-    [nzLoading]="!materials.length"
+    [nzLoading]="!materials.length && isAdmin"
+    [nzNoResult]="!isAdmin ? 'Bạn không có quyền xem tài liệu này.' : (materials.length === 0 ? 'Không tìm thấy tài liệu nào.' : '')"
     [nzFrontPagination]="false"
     [nzTotal]="pageData.totalElements"
     [nzPageSize]="pageData.size"
@@ -76,19 +87,22 @@
     <thead>
       <tr>
         <th [nzSortFn]="true" (nzSortOrderChange)="onSortChange('materialType', $event === 'ascend' ? 'ASC' : 'DESC')" class="table-header">
-          <i nz-icon nzType="appstore"></i> Type
+          <i nz-icon nzType="appstore"></i> Loại
         </th>
         <th class="table-header">
           <i nz-icon nzType="link"></i> URL
         </th>
         <th class="table-header">
-          <i nz-icon nzType="file-text"></i> Description
+          <i nz-icon nzType="file-text"></i> Mô tả
         </th>
         <th class="table-header">
-          <i nz-icon nzType="book"></i> Lesson
+          <i nz-icon nzType="file-word"></i> Văn bản phiên âm
+        </th>
+        <th class="table-header">
+          <i nz-icon nzType="book"></i> Bài học
         </th>
         <th *ngIf="isAdmin" class="table-header">
-          <i nz-icon nzType="setting"></i> Actions
+          <i nz-icon nzType="setting"></i> Thao tác
         </th>
       </tr>
     </thead>
@@ -99,14 +113,15 @@
           <a [href]="material.materialUrl" target="_blank" class="link">{{ material.materialUrl }}</a>
         </td>
         <td class="table-cell">{{ material.description }}</td>
+        <td class="table-cell">{{ material.transcriptText }}</td>
         <td class="table-cell">{{ getLessonTitle(material.lessonId) }}</td>
         <td *ngIf="isAdmin" class="table-cell actions-cell">
           <a nz-button nzType="link" (click)="showModal(true, material)" class="action-button">
-            <i nz-icon nzType="edit"></i> Edit
+            <i nz-icon nzType="edit"></i> Sửa
           </a>
           <nz-divider nzType="vertical"></nz-divider>
           <a nz-button nzType="link" nzDanger (click)="material.materialId && deleteMaterial(material.materialId!)" class="action-button">
-            <i nz-icon nzType="delete"></i> Delete
+            <i nz-icon nzType="delete"></i> Xóa
           </a>
         </td>
       </tr>
@@ -116,7 +131,7 @@
 
 <nz-modal
   [(nzVisible)]="isVisible"
-  [nzTitle]="isEdit ? 'Edit Learning Material' : 'Add Learning Material'"
+  [nzTitle]="isEdit ? 'Chỉnh sửa Tài liệu học tập' : 'Thêm Tài liệu học tập'"
   (nzOnCancel)="handleCancel()"
   (nzOnOk)="handleOk()"
   [nzOkLoading]="false"
@@ -132,10 +147,10 @@
 
       <nz-form-item>
         <nz-form-label nzRequired nzFor="lessonId">
-          <i nz-icon nzType="book"></i> Lesson
+          <i nz-icon nzType="book"></i> Bài học
         </nz-form-label>
-        <nz-form-control [nzErrorTip]="(materialForm.get('lessonId')?.invalid && materialForm.get('lessonId')?.touched) ? 'Please select a lesson!' : undefined">
-          <nz-select formControlName="lessonId" nzPlaceHolder="Select Lesson" nzAllowClear nzShowSearch>
+        <nz-form-control [nzErrorTip]="materialForm.get('lessonId')?.invalid && materialForm.get('lessonId')?.touched ? 'Vui lòng chọn một bài học!' : ''">
+          <nz-select formControlName="lessonId" nzPlaceHolder="Chọn bài học" nzAllowClear nzShowSearch>
             <nz-option *ngFor="let lesson of lessons" [nzValue]="lesson.lessonId" [nzLabel]="lesson.title"></nz-option>
           </nz-select>
         </nz-form-control>
@@ -143,10 +158,10 @@
 
       <nz-form-item>
         <nz-form-label nzRequired nzFor="materialType">
-          <i nz-icon nzType="appstore"></i> Material Type
+          <i nz-icon nzType="appstore"></i> Loại tài liệu
         </nz-form-label>
-        <nz-form-control [nzErrorTip]="(materialForm.get('materialType')?.invalid && materialForm.get('materialType')?.touched) ? 'Please select a material type!' : undefined">
-          <nz-select formControlName="materialType" nzPlaceHolder="Select Type">
+        <nz-form-control [nzErrorTip]="materialForm.get('materialType')?.invalid && materialForm.get('materialType')?.touched ? 'Vui lòng chọn loại tài liệu!' : ''">
+          <nz-select formControlName="materialType" nzPlaceHolder="Chọn loại">
             <nz-option *ngFor="let type of materialTypes" [nzValue]="type" [nzLabel]="type"></nz-option>
           </nz-select>
         </nz-form-control>
@@ -154,21 +169,32 @@
 
       <nz-form-item>
         <nz-form-label nzRequired nzFor="materialUrl">
-          <i nz-icon nzType="link"></i> Material URL
+          <i nz-icon nzType="link"></i> URL tài liệu
         </nz-form-label>
-        <nz-form-control [nzErrorTip]="(materialForm.get('materialUrl')?.invalid && materialForm.get('materialUrl')?.touched) ? 'Please enter the material URL!' : undefined">
-          <input nz-input formControlName="materialUrl" placeholder="Enter URL" />
+        <nz-form-control
+          [nzErrorTip]="(materialForm.get('materialUrl')?.invalid && materialForm.get('materialUrl')?.touched) ? (materialForm.get('materialUrl')?.hasError('required') ? 'Vui lòng nhập URL tài liệu!' : (materialForm.get('materialUrl')?.hasError('pattern') ? 'URL không hợp lệ!' : '')) : ''"
+        >
+          <input nz-input formControlName="materialUrl" placeholder="Nhập URL" />
         </nz-form-control>
       </nz-form-item>
 
       <nz-form-item>
         <nz-form-label nzFor="description">
-          <i nz-icon nzType="file-text"></i> Description
+          <i nz-icon nzType="file-text"></i> Mô tả
         </nz-form-label>
         <nz-form-control>
-          <textarea nz-input formControlName="description" placeholder="Enter description" nzAutosize></textarea>
+          <textarea nz-input formControlName="description" placeholder="Nhập mô tả" nzAutosize></textarea>
         </nz-form-control>
       </nz-form-item>
-    </form>
+
+      <nz-form-item>
+        <nz-form-label nzFor="transcriptText">
+          <i nz-icon nzType="file-word"></i> Văn bản phiên âm
+        </nz-form-label>
+        <nz-form-control>
+          <textarea nz-input formControlName="transcriptText" placeholder="Nhập văn bản phiên âm" nzAutosize></textarea>
+        </nz-form-control>
+      </nz-form-item>
+      </form>
   </ng-container>
 </nz-modal>

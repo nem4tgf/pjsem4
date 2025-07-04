@@ -20,8 +20,8 @@
           <nz-form-label nzFor="isCorrect" class="form-label">✔️ Is Correct</nz-form-label>
           <nz-form-control>
             <nz-select formControlName="isCorrect" nzPlaceHolder="Select Correctness" nzAllowClear class="custom-select">
-              <nz-option nzValue="true" nzLabel="Yes"></nz-option>
-              <nz-option nzValue="false" nzLabel="No"></nz-option>
+              <nz-option [nzValue]="true" nzLabel="Yes"></nz-option>
+              <nz-option [nzValue]="false" nzLabel="No"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
@@ -33,8 +33,8 @@
           <nz-form-label nzFor="isActive" class="form-label">🔒 Status</nz-form-label>
           <nz-form-control>
             <nz-select formControlName="isActive" nzPlaceHolder="Select Status" nzAllowClear class="custom-select">
-              <nz-option nzValue="true" nzLabel="Active"></nz-option>
-              <nz-option nzValue="false" nzLabel="Disabled"></nz-option>
+              <nz-option [nzValue]="true" nzLabel="Active"></nz-option>
+              <nz-option [nzValue]="false" nzLabel="Disabled"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
@@ -43,9 +43,9 @@
       <!-- Answer Text -->
       <div nz-col nzXs="24" nzSm="12" nzMd="6">
         <nz-form-item>
-          <nz-form-label nzFor="answerText" class="form-label">✏️ Answer Text</nz-form-label>
+          <nz-form-label nzFor="content" class="form-label">✏️ Answer Text</nz-form-label>
           <nz-form-control>
-            <input nz-input formControlName="answerText" placeholder="Enter answer text" class="custom-input" />
+            <input nz-input formControlName="content" placeholder="Enter answer text" class="custom-input" />
           </nz-form-control>
         </nz-form-item>
       </div>
@@ -167,17 +167,23 @@
         </nz-form-control>
       </nz-form-item>
 
-      <nz-form-item *ngIf="isEdit">
+      <!-- isCorrect switch is now always visible -->
+      <nz-form-item>
         <nz-form-label nzRequired class="modal-label">Is Correct</nz-form-label>
         <nz-form-control>
           <nz-switch formControlName="isCorrect" class="modal-switch"></nz-switch>
         </nz-form-control>
       </nz-form-item>
 
-      <div *ngIf="!isEdit" class="modal-info">
-        <i nz-icon nzType="info-circle" nzTheme="fill"></i>
-        <span>Answer will be created in \"Disabled\" status and must be activated manually.</span>
-      </div>
+      <!-- isActive switch is now always visible -->
+      <nz-form-item>
+        <nz-form-label nzRequired class="modal-label">Is Active</nz-form-label>
+        <nz-form-control>
+          <nz-switch formControlName="isActive" class="modal-switch"></nz-switch>
+        </nz-form-control>
+      </nz-form-item>
+
+      <!-- Removed the info block about default "Disabled" status as isActive is now controllable -->
     </form>
   </ng-template>
 </nz-card>

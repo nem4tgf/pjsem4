@@ -1,16 +1,26 @@
-// src/app/admin/lessons/lessons.component.ts
+
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
-import { Lesson, LessonRequest, LessonSearchRequest, LessonPageResponse, Level, Skill } from '../../../interface/lesson.interface';
-import { LessonService } from '../../../service/lesson.service';
-import { ApiService } from '../../../service/api.service';
+import { NzTableSortFn, NzTableSortOrder } from 'ng-zorro-antd/table';
+import { ApiService } from 'src/app/service/api.service';
+import { LessonService } from 'src/app/service/lesson.service';
+import { Router } from '@angular/router'; // <--- Import Router
+
+import {
+  Lesson,
+  LessonPageResponse,
+  LessonRequest,
+  LessonSearchRequest,
+  Level,
+  Skill,
+} from 'src/app/interface/lesson.interface';
 
 @Component({
   selector: 'app-lessons',
   templateUrl: './lessons.component.html',
-  styleUrls: ['./lessons.component.css']
+  styleUrls: ['./lessons.component.css'],
 })
 export class LessonsComponent implements OnInit {
   lessons: Lesson[] = [];
@@ -21,14 +31,37 @@ export class LessonsComponent implements OnInit {
   levels = Object.values(Level);
   skills = Object.values(Skill);
   isAdmin: boolean = false;
-  pageData: LessonPageResponse = { content: [], totalElements: 0, totalPages: 0, pageNo: 0, pageSize: 10 };
+  pageData: LessonPageResponse = {
+    content: [],
+    totalElements: 0,
+    totalPages: 0,
+    page: 0,
+    size: 10,
+  };
+
+  get titleControl(): AbstractControl | null {
+    return this.lessonForm.get('title');
+  }
+
+  get levelControl(): AbstractControl | null {
+    return this.lessonForm.get('level');
+  }
+
+  get skillControl(): AbstractControl | null {
+    return this.lessonForm.get('skill');
+  }
+
+  get priceControl(): AbstractControl | null {
+    return this.lessonForm.get('price');
+  }
 
   constructor(
     private lessonService: LessonService,
     private apiService: ApiService,
     private fb: FormBuilder,
     private modal: NzModalService,
-    private notification: NzNotificationService
+    private notification: NzNotificationService,
+    private router: Router // <--- Inject Router vào constructor
   ) {
     this.lessonForm = this.fb.group({
       lessonId: [null],
@@ -36,19 +69,19 @@ export class LessonsComponent implements OnInit {
       description: [''],
       level: [null, Validators.required],
       skill: [null, Validators.required],
-      price: [null, [Validators.required, Validators.min(0.01)]]
-      // Loại bỏ durationMonths vì backend tự tính
+      price: [null, [Validators.required, Validators.min(0.01)]],
     });
+
     this.searchForm = this.fb.group({
       title: [''],
       level: [null],
       skill: [null],
       minPrice: [null, [Validators.min(0)]],
       maxPrice: [null, [Validators.min(0)]],
-      pageNo: [0],
-      pageSize: [10],
+      page: [0],
+      size: [10],
       sortBy: ['lessonId'],
-      sortDir: ['ASC']
+      sortDir: ['ASC'],
     });
   }
 
@@ -58,48 +91,104 @@ export class LessonsComponent implements OnInit {
         this.isAdmin = isAdmin;
         this.searchLessons();
       },
-      error: (err) => {
-        this.notification.warning('Warning', 'Unable to verify admin role.');
-        console.error('Admin role check error:', err);
+      error: (err: any) => {
+        this.notification.warning('Cảnh báo', 'Không thể xác minh quyền admin.');
+        console.error('Lỗi kiểm tra quyền admin:', err);
         this.searchLessons();
-      }
+      },
     });
   }
 
+  // Hàm sắp xếp cho cột title
+  sortTitleFn: NzTableSortFn<Lesson> = (a: Lesson, b: Lesson) => {
+    return a.title.localeCompare(b.title);
+  };
+
+  // Hàm sắp xếp cho cột level
+  sortLevelFn: NzTableSortFn<Lesson> = (a: Lesson, b: Lesson) => {
+    return a.level.localeCompare(b.level);
+  };
+
+  // Hàm sắp xếp cho cột skill
+  sortSkillFn: NzTableSortFn<Lesson> = (a: Lesson, b: Lesson) => {
+    return a.skill.localeCompare(b.skill);
+  };
+
+  // Hàm sắp xếp cho cột price
+  sortPriceFn: NzTableSortFn<Lesson> = (a: Lesson, b: Lesson) => {
+    return a.price - b.price;
+  };
+
   searchLessons(): void {
-    const request: LessonSearchRequest = this.searchForm.value;
+    const request: LessonSearchRequest = {
+      title: this.searchForm.get('title')?.value || undefined,
+      level: this.searchForm.get('level')?.value || undefined,
+      skill: this.searchForm.get('skill')?.value || undefined,
+      minPrice: this.searchForm.get('minPrice')?.value || undefined,
+      maxPrice: this.searchForm.get('maxPrice')?.value || undefined,
+      page: this.searchForm.get('page')?.value,
+      size: this.searchForm.get('size')?.value,
+      sortBy: this.searchForm.get('sortBy')?.value,
+      sortDir: this.searchForm.get('sortDir')?.value,
+    };
+
     this.lessonService.searchLessons(request).subscribe({
       next: (pageData) => {
         this.pageData = pageData;
         this.lessons = pageData.content;
       },
-      error: (err) => {
-        this.notification.error('Error', err.message || 'Failed to load lessons');
-        console.error('Search lessons error:', err);
-      }
+      error: (err: any) => {
+        this.notification.error('Lỗi', err.error?.message || 'Không thể tải bài học');
+        console.error('Lỗi tìm kiếm bài học:', err);
+      },
     });
   }
 
+  resetSearch(): void {
+    this.searchForm.reset({
+      title: '',
+      level: null,
+      skill: null,
+      minPrice: null,
+      maxPrice: null,
+      page: 0,
+      size: 10,
+      sortBy: 'lessonId',
+      sortDir: 'ASC',
+    });
+    this.searchLessons();
+  }
+
   onPageChange(page: number): void {
-    this.searchForm.patchValue({ pageNo: page - 1 });
+    this.searchForm.patchValue({ page: page - 1 });
     this.searchLessons();
   }
 
   onSizeChange(size: number): void {
-    this.searchForm.patchValue({ pageSize: size, pageNo: 0 });
+    this.searchForm.patchValue({ size: size, page: 0 });
     this.searchLessons();
   }
 
-  onSortChange(sortBy: string, sortDir: 'ASC' | 'DESC'): void {
-    this.searchForm.patchValue({ sortBy, sortDir, pageNo: 0 });
+  onSortChange(sortBy: string, sortDir: NzTableSortOrder): void {
+    if (sortDir === null) {
+      this.searchForm.patchValue({ sortBy: 'lessonId', sortDir: 'ASC', page: 0 });
+    } else {
+      const direction = sortDir === 'ascend' ? 'ASC' : (sortDir === 'descend' ? 'DESC' : null);
+      if (direction) {
+        this.searchForm.patchValue({ sortBy, sortDir: direction, page: 0 });
+      } else {
+        this.searchForm.patchValue({ sortBy: 'lessonId', sortDir: 'ASC', page: 0 });
+      }
+    }
     this.searchLessons();
   }
 
   showModal(isEdit: boolean, lesson?: Lesson): void {
     if (!this.isAdmin) {
-      this.notification.error('Error', 'You do not have permission to perform this action');
+      this.notification.error('Lỗi', 'Bạn không có quyền thực hiện hành động này');
       return;
     }
+
     this.isEdit = isEdit;
     if (isEdit && lesson) {
       this.lessonForm.patchValue({
@@ -108,7 +197,7 @@ export class LessonsComponent implements OnInit {
         description: lesson.description || '',
         level: lesson.level,
         skill: lesson.skill,
-        price: lesson.price
+        price: lesson.price,
       });
     } else {
       this.lessonForm.reset({
@@ -116,8 +205,8 @@ export class LessonsComponent implements OnInit {
         title: '',
         description: '',
         level: Level.BEGINNER,
-        skill: Skill.VOCABULARY,
-        price: null
+        skill: Skill.GENERAL,
+        price: null,
       });
     }
     this.isVisible = true;
@@ -125,8 +214,13 @@ export class LessonsComponent implements OnInit {
 
   handleOk(): void {
     if (this.lessonForm.invalid) {
-      this.lessonForm.markAllAsTouched();
-      this.notification.error('Error', 'Please fill in all required fields correctly');
+      Object.values(this.lessonForm.controls).forEach(control => {
+        if (control.invalid) {
+          control.markAsDirty();
+          control.updateValueAndValidity({ onlySelf: true });
+        }
+      });
+      this.notification.error('Lỗi', 'Vui lòng điền đầy đủ và đúng các trường bắt buộc');
       return;
     }
 
@@ -136,37 +230,37 @@ export class LessonsComponent implements OnInit {
       description: formValue.description || undefined,
       level: formValue.level,
       skill: formValue.skill,
-      price: formValue.price
+      price: formValue.price,
     };
 
     if (this.isEdit) {
       const lessonId = formValue.lessonId;
       if (!lessonId) {
-        this.notification.error('Error', 'Missing lesson ID for update.');
+        this.notification.error('Lỗi', 'Thiếu ID bài học để cập nhật.');
         return;
       }
       this.lessonService.updateLesson(lessonId, lessonRequest).subscribe({
         next: () => {
-          this.notification.success('Success', 'Lesson updated successfully');
+          this.notification.success('Thành công', 'Cập nhật bài học thành công');
           this.searchLessons();
           this.isVisible = false;
         },
-        error: (err) => {
-          this.notification.error('Error', err.error?.message || 'Failed to update lesson');
-          console.error('Update lesson error:', err);
-        }
+        error: (err: any) => {
+          this.notification.error('Lỗi', err.error?.message || 'Cập nhật bài học thất bại');
+          console.error('Lỗi cập nhật bài học:', err);
+        },
       });
     } else {
       this.lessonService.createLesson(lessonRequest).subscribe({
         next: () => {
-          this.notification.success('Success', 'Lesson created successfully');
+          this.notification.success('Thành công', 'Tạo bài học thành công');
           this.searchLessons();
           this.isVisible = false;
         },
-        error: (err) => {
-          this.notification.error('Error', err.error?.message || 'Failed to create lesson');
-          console.error('Create lesson error:', err);
-        }
+        error: (err: any) => {
+          this.notification.error('Lỗi', err.error?.message || 'Tạo bài học thất bại');
+          console.error('Lỗi tạo bài học:', err);
+        },
       });
     }
   }
@@ -176,30 +270,41 @@ export class LessonsComponent implements OnInit {
     this.lessonForm.reset();
   }
 
-  hideLesson(lessonId: number | undefined): void {
+  softDeleteLesson(lessonId: number | undefined): void {
     if (!this.isAdmin || !lessonId) {
-      this.notification.error('Error', 'You do not have permission or invalid lesson ID');
+      this.notification.error('Lỗi', 'Bạn không có quyền hoặc ID bài học không hợp lệ');
       return;
     }
 
     this.modal.confirm({
-      nzTitle: 'Are you sure?',
-      nzContent: 'The lesson will be hidden but can be restored later.',
-      nzOkText: 'Hide',
+      nzTitle: 'Xác nhận xóa',
+      nzContent: 'Bạn có chắc chắn muốn ẩn bài học này không? (Điều này sẽ ẩn nó khỏi người dùng)',
+      nzOkText: 'Có',
       nzOkType: 'primary',
-      nzOkDanger: true,
       nzOnOk: () => {
-        this.lessonService.hideLesson(lessonId).subscribe({
+        this.lessonService.softDeleteLesson(lessonId).subscribe({
           next: () => {
-            this.notification.success('Success', 'Lesson hidden successfully');
+            this.notification.success('Thành công', 'Bài học đã được ẩn thành công');
             this.searchLessons();
           },
-          error: (err) => {
-            this.notification.error('Error', err.error?.message || 'Failed to hide lesson');
-            console.error('Hide lesson error:', err);
-          }
+          error: (err: any) => {
+            this.notification.error('Lỗi', err.error?.message || 'Ẩn bài học thất bại');
+            console.error('Lỗi ẩn bài học:', err);
+          },
         });
-      }
+      },
+      nzCancelText: 'Không',
+      nzOnCancel: () => this.notification.info('Thông báo', 'Hủy bỏ thao tác ẩn bài học.'),
     });
   }
+
+  // <--- THÊM PHƯƠNG THỨC ĐIỀU HƯỚNG MỚI NÀY
+  navigateToLessonVocabulary(lessonId: number | undefined): void {
+    if (lessonId) {
+      this.router.navigate(['/admin/lesson-vocabulary', lessonId]);
+    } else {
+      this.notification.warning('Cảnh báo', 'Không tìm thấy ID bài học để xem từ vựng.');
+    }
+  }
+  // THÊM PHƯƠNG THỨC ĐIỀU HƯỚNG MỚI NÀY --->
 }

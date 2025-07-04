@@ -1,92 +1,133 @@
-<nz-card nzTitle="📘 Manage Lessons" class="lessons-card">
+<nz-card nzTitle="📚 Quản lý Bài học" class="lessons-card">
   <form nz-form [formGroup]="searchForm" (ngSubmit)="searchLessons()" class="search-form">
-    <div nz-row nzGutter="16">
-      <div nz-col nzSpan="6">
+    <div nz-row nzGutter="24">
+
+      <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
         <nz-form-item>
-          <nz-form-label nzFor="title" class="form-label"><i nz-icon nzType="book"></i> Title</nz-form-label>
+          <nz-form-label nzFor="title" class="form-label">
+            <i nz-icon nzType="book" class="form-icon"></i> Tiêu đề
+          </nz-form-label>
           <nz-form-control>
-            <input nz-input formControlName="title" placeholder="Enter lesson title" class="custom-input"/>
+            <input nz-input formControlName="title" placeholder="Tìm theo tiêu đề" class="custom-input"/>
           </nz-form-control>
         </nz-form-item>
       </div>
-      <div nz-col nzSpan="6">
+
+      <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
         <nz-form-item>
-          <nz-form-label nzFor="level" class="form-label"><i nz-icon nzType="bar-chart"></i> Level</nz-form-label>
+          <nz-form-label nzFor="level" class="form-label">
+            <i nz-icon nzType="appstore" class="form-icon"></i> Cấp độ
+          </nz-form-label>
           <nz-form-control>
-            <nz-select formControlName="level" nzPlaceHolder="Select Level" nzAllowClear class="custom-select">
+            <nz-select formControlName="level" nzPlaceHolder="Chọn cấp độ" nzAllowClear class="custom-select">
               <nz-option *ngFor="let level of levels" [nzValue]="level" [nzLabel]="level"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
       </div>
-      <div nz-col nzSpan="6">
+
+      <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
         <nz-form-item>
-          <nz-form-label nzFor="skill" class="form-label"><i nz-icon nzType="bulb"></i> Skill</nz-form-label>
+          <nz-form-label nzFor="skill" class="form-label">
+            <i nz-icon nzType="bulb"></i> Kỹ năng
+          </nz-form-label>
           <nz-form-control>
-            <nz-select formControlName="skill" nzPlaceHolder="Select Skill" nzAllowClear class="custom-select">
+            <nz-select formControlName="skill" nzPlaceHolder="Chọn kỹ năng" nzAllowClear class="custom-select">
               <nz-option *ngFor="let skill of skills" [nzValue]="skill" [nzLabel]="skill"></nz-option>
             </nz-select>
           </nz-form-control>
         </nz-form-item>
       </div>
-      <div nz-col nzSpan="6">
+
+      <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
         <nz-form-item>
-          <nz-form-label nzFor="minPrice" class="form-label"><i nz-icon nzType="dollar"></i> Min Price</nz-form-label>
+          <nz-form-label nzFor="minPrice" class="form-label">
+            <i nz-icon nzType="dollar"></i> Giá từ
+          </nz-form-label>
           <nz-form-control>
-            <input nz-input type="number" formControlName="minPrice" placeholder="Enter min price" class="custom-input"/>
+            <nz-input-number formControlName="minPrice" [nzMin]="0" placeholder="Giá tối thiểu" class="custom-input"></nz-input-number>
           </nz-form-control>
         </nz-form-item>
       </div>
-      <div nz-col nzSpan="6">
+
+      <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8" [nzLg]="6">
         <nz-form-item>
-          <nz-form-label nzFor="maxPrice" class="form-label"><i nz-icon nzType="dollar"></i> Max Price</nz-form-label>
+          <nz-form-label nzFor="maxPrice" class="form-label">
+            <i nz-icon nzType="dollar"></i> Giá đến
+          </nz-form-label>
           <nz-form-control>
-            <input nz-input type="number" formControlName="maxPrice" placeholder="Enter max price" class="custom-input"/>
+            <nz-input-number formControlName="maxPrice" [nzMin]="0" placeholder="Giá tối đa" class="custom-input"></nz-input-number>
           </nz-form-control>
         </nz-form-item>
       </div>
-      <div nz-col nzSpan="6" class="button-col">
+
+      <div nz-col [nzXs]="24" [nzSm]="24" [nzMd]="24" [nzLg]="6" class="button-col">
         <nz-form-item>
-          <nz-form-label> </nz-form-label>
+          <nz-form-label></nz-form-label>
           <nz-form-control>
             <button nz-button nzType="primary" type="submit" class="search-button">
-              <i nz-icon nzType="search"></i> Search
+              <i nz-icon nzType="search"></i> Tìm kiếm
             </button>
-            <button nz-button (click)="searchForm.reset({ pageNo: 0, pageSize: 10, sortBy: 'lessonId', sortDir: 'ASC' })" class="reset-button">
-              <i nz-icon nzType="reload"></i> Reset
+            <button nz-button class="reset-button" (click)="resetSearch()">
+              <i nz-icon nzType="reload"></i> Đặt lại
             </button>
           </nz-form-control>
         </nz-form-item>
       </div>
+
     </div>
   </form>
 
+  <nz-divider></nz-divider>
+
   <button *ngIf="isAdmin" nz-button nzType="primary" (click)="showModal(false)" class="add-button">
-    <i nz-icon nzType="plus-circle"></i> Add Lesson
+    <i nz-icon nzType="plus"></i> Thêm Bài học
   </button>
 
   <nz-table
     #basicTable
     [nzData]="lessons"
     [nzLoading]="!lessons.length && searchForm.get('title')?.dirty"
-    [nzNoResult]="'No lessons found.'"
+    [nzNoResult]="!isAdmin ? 'Bạn không có quyền xem các bài học.' : 'Không tìm thấy bài học nào.'"
     [nzFrontPagination]="false"
     [nzTotal]="pageData.totalElements"
-    [nzPageSize]="pageData.pageSize"
-    [nzPageIndex]="pageData.pageNo + 1"
+    [nzPageSize]="pageData.size"
+    [nzPageIndex]="pageData.page + 1"
     (nzPageIndexChange)="onPageChange($event)"
     (nzPageSizeChange)="onSizeChange($event)"
-    class="lessons-table"
-  >
+    class="lessons-table">
     <thead>
       <tr>
-        <th class="table-header" [nzSortFn]="true" (nzSortOrderChange)="onSortChange('title', $event === 'ascend' ? 'ASC' : 'DESC')">Title</th>
-        <th class="table-header">Description</th>
-        <th class="table-header">Level</th>
-        <th class="table-header">Skill</th>
-        <th class="table-header">Price</th>
-        <th class="table-header">Duration (Months)</th>
-        <th *ngIf="isAdmin" class="table-header">Actions</th>
+        <th class="table-header"
+            nzColumnKey="title"
+            [nzSortFn]="sortTitleFn"
+            [nzSortOrder]="searchForm.get('sortBy')?.value === 'title' ? (searchForm.get('sortDir')?.value === 'ASC' ? 'ascend' : 'descend') : null"
+            (nzSortOrderChange)="onSortChange('title', $event)">
+          Tiêu đề
+        </th>
+        <th class="table-header">Mô tả</th>
+        <th class="table-header"
+            nzColumnKey="level"
+            [nzSortFn]="sortLevelFn"
+            [nzSortOrder]="searchForm.get('sortBy')?.value === 'level' ? (searchForm.get('sortDir')?.value === 'ASC' ? 'ascend' : 'descend') : null"
+            (nzSortOrderChange)="onSortChange('level', $event)">
+          Cấp độ
+        </th>
+        <th class="table-header"
+            nzColumnKey="skill"
+            [nzSortFn]="sortSkillFn"
+            [nzSortOrder]="searchForm.get('sortBy')?.value === 'skill' ? (searchForm.get('sortDir')?.value === 'ASC' ? 'ascend' : 'descend') : null"
+            (nzSortOrderChange)="onSortChange('skill', $event)">
+          Kỹ năng
+        </th>
+        <th class="table-header"
+            nzColumnKey="price"
+            [nzSortFn]="sortPriceFn"
+            [nzSortOrder]="searchForm.get('sortBy')?.value === 'price' ? (searchForm.get('sortDir')?.value === 'ASC' ? 'ascend' : 'descend') : null"
+            (nzSortOrderChange)="onSortChange('price', $event)">
+          Giá
+        </th>
+        <th *ngIf="isAdmin" class="table-header">Hành động</th>
       </tr>
     </thead>
     <tbody>
@@ -96,68 +137,110 @@
         <td class="table-cell">{{ lesson.level }}</td>
         <td class="table-cell">{{ lesson.skill }}</td>
         <td class="table-cell">{{ lesson.price | currency:'VND':'symbol':'1.0-2' }}</td>
-        <td class="table-cell">{{ lesson.durationMonths || 'N/A' }}</td>
         <td *ngIf="isAdmin" class="table-cell actions-cell">
-          <a nz-button nzType="link" (click)="showModal(true, lesson)" class="action-button"><i nz-icon nzType="edit"></i> Edit</a>
+          <a nz-button nzType="link" (click)="showModal(true, lesson)" class="action-button">
+            <i nz-icon nzType="edit"></i> Sửa
+          </a>
           <nz-divider nzType="vertical"></nz-divider>
-          <a nz-button nzType="link" nzDanger (click)="hideLesson(lesson.lessonId)" class="action-button"><i nz-icon nzType="eye-invisible"></i> Hide</a>
+          <a nz-popconfirm
+             nzPopconfirmTitle="Bạn có chắc chắn muốn ẩn bài học này?"
+             nzOkText="Có"
+             nzCancelText="Không"
+             (nzOnConfirm)="softDeleteLesson(lesson.lessonId)"
+             nzOkDanger
+             nz-button
+             nzType="link"
+             class="action-button">
+            <i nz-icon nzType="eye-invisible"></i> Ẩn
+          </a>
           <nz-divider nzType="vertical"></nz-divider>
-          <a nz-button nzType="link" [routerLink]="['/admin/lessons', lesson.lessonId, 'vocabulary']" class="action-button"><i nz-icon nzType="book"></i> Vocabulary</a>
+          <a nz-button
+             nzType="link"
+             [routerLink]="['/admin/lesson-vocabulary', lesson.lessonId]" class="action-button">
+            <i nz-icon nzType="book"></i> Từ vựng
+          </a>
         </td>
       </tr>
     </tbody>
   </nz-table>
 
-  <nz-modal
-    [(nzVisible)]="isVisible"
-    [nzTitle]="isEdit ? 'Edit Lesson' : 'Add Lesson'"
-    (nzOnOk)="handleOk()"
-    (nzOnCancel)="handleCancel()"
-    [nzOkText]="isEdit ? 'Update' : 'Create'"
-    [nzCancelText]="'Cancel'"
-    [nzOkDisabled]="lessonForm.invalid"
-    [nzContent]="modalContent"
-    class="modal"
-  >
-    <ng-template #modalContent>
-      <form nz-form [formGroup]="lessonForm" class="modal-form">
-        <nz-form-item>
-          <nz-form-label nzRequired class="modal-label"><i nz-icon nzType="book"></i> Title</nz-form-label>
-          <nz-form-control [nzErrorTip]="lessonForm.get('title')?.hasError('required') ? 'Title is required' : (lessonForm.get('title')?.hasError('minlength') ? 'At least 3 characters' : '')">
-            <input nz-input formControlName="title" placeholder="Enter lesson title" class="modal-input"/>
-          </nz-form-control>
-        </nz-form-item>
-        <nz-form-item>
-          <nz-form-label class="modal-label"><i nz-icon nzType="font-colors"></i> Description</nz-form-label>
-          <nz-form-control>
-            <textarea nz-input formControlName="description" placeholder="Enter description" class="modal-input"></textarea>
-          </nz-form-control>
-        </nz-form-item>
-        <nz-form-item>
-          <nz-form-label nzRequired class="modal-label"><i nz-icon nzType="bar-chart"></i> Level</nz-form-label>
-          <nz-form-control nzErrorTip="Level is required">
-            <nz-select formControlName="level" nzPlaceHolder="Select level" class="modal-select">
-              <nz-option *ngFor="let level of levels" [nzValue]="level" [nzLabel]="level"></nz-option>
-            </nz-select>
-          </nz-form-control>
-        </nz-form-item>
-        <nz-form-item>
-          <nz-form-label nzRequired class="modal-label"><i nz-icon nzType="bulb"></i> Skill</nz-form-label>
-          <nz-form-control nzErrorTip="Skill is required">
-            <nz-select formControlName="skill" nzPlaceHolder="Select skill" class="modal-select">
-              <nz-option *ngFor="let skill of skills" [nzValue]="skill" [nzLabel]="skill"></nz-option>
-            </nz-select>
-          </nz-form-control>
-        </nz-form-item>
-        <nz-form-item>
-          <nz-form-label nzRequired class="modal-label"><i nz-icon nzType="dollar"></i> Price</nz-form-label>
-          <nz-form-control
-            [nzErrorTip]="lessonForm.get('price')?.hasError('required') ? 'Price is required' : (lessonForm.get('price')?.hasError('min') ? 'Must be > 0' : '')"
-          >
-            <nz-input-number formControlName="price" [nzMin]="0.01" [nzStep]="1000" [nzPrecision]="2" class="modal-input"></nz-input-number>
-          </nz-form-control>
-        </nz-form-item>
-      </form>
-    </ng-template>
-  </nz-modal>
+  <div *ngIf="!isAdmin" class="no-permission-message">
+    <p><i nz-icon nzType="close-circle"></i> Bạn không có quyền truy cập trang quản lý bài học.</p>
+  </div>
 </nz-card>
+
+<nz-modal
+  [(nzVisible)]="isVisible"
+  [nzTitle]="isEdit ? 'Chỉnh sửa Bài học' : 'Thêm Bài học Mới'"
+  nzOkText="Lưu"
+  nzCancelText="Hủy"
+  (nzOnOk)="handleOk()"
+  (nzOnCancel)="handleCancel()"
+  [nzOkLoading]="false"
+  [nzWidth]="600"
+>
+  <ng-container *nzModalContent>
+    <form nz-form [formGroup]="lessonForm" nzLayout="vertical">
+      <nz-form-item *ngIf="isEdit">
+        <nz-form-control>
+          <input type="hidden" formControlName="lessonId" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired nzFor="title">
+          <i nz-icon nzType="book"></i> Tiêu đề
+        </nz-form-label>
+        <nz-form-control [nzErrorTip]="(titleControl?.invalid && (titleControl?.dirty || titleControl?.touched)) ?
+                                      (titleControl?.errors?.['required'] ? 'Tiêu đề là bắt buộc!' :
+                                      (titleControl?.errors?.['minlength'] ? 'Tiêu đề phải có ít nhất 3 ký tự!' : '')) : ''">
+          <input nz-input formControlName="title" placeholder="Nhập tiêu đề bài học" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzFor="description">
+          <i nz-icon nzType="file-text"></i> Mô tả
+        </nz-form-label>
+        <nz-form-control>
+          <textarea nz-input formControlName="description" placeholder="Nhập mô tả bài học" nzAutosize></textarea>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired nzFor="level">
+          <i nz-icon nzType="appstore"></i> Cấp độ
+        </nz-form-label>
+        <nz-form-control [nzErrorTip]="(levelControl?.invalid && (levelControl?.dirty || levelControl?.touched)) ? 'Vui lòng chọn cấp độ!' : ''">
+          <nz-select formControlName="level" nzPlaceHolder="Chọn cấp độ">
+            <nz-option *ngFor="let level of levels" [nzValue]="level" [nzLabel]="level"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired nzFor="skill">
+          <i nz-icon nzType="bulb"></i> Kỹ năng
+        </nz-form-label>
+        <nz-form-control [nzErrorTip]="(skillControl?.invalid && (skillControl?.dirty || skillControl?.touched)) ? 'Vui lòng chọn kỹ năng!' : ''">
+          <nz-select formControlName="skill" nzPlaceHolder="Chọn kỹ năng">
+            <nz-option *ngFor="let skill of skills" [nzValue]="skill" [nzLabel]="skill"></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired nzFor="price">
+          <i nz-icon nzType="dollar"></i> Giá
+        </nz-form-label>
+        <nz-form-control [nzErrorTip]="
+          (priceControl?.invalid && (priceControl?.dirty || priceControl?.touched)) ?
+          (priceControl?.errors?.['required'] ? 'Giá là bắt buộc!' :
+          (priceControl?.errors?.['min'] ? 'Giá phải lớn hơn 0!' : '')) : ''
+        ">
+          <nz-input-number formControlName="price" [nzMin]="0.01" nzPlaceHolder="Nhập giá"></nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+</nz-modal>

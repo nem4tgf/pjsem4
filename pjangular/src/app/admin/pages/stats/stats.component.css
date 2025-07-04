@@ -1,0 +1,191 @@
+/* ===== Card Container ===== */
+.stats-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* ===== Loading State ===== */
+.loading-container {
+  text-align: center;
+  padding: 50px 0;
+  font-size: 16px;
+  color: #888;
+}
+
+.loading-container nz-spin {
+  margin-bottom: 15px;
+}
+
+/* ===== Stats Content Layout ===== */
+.stats-content {
+  padding-top: 10px;
+}
+
+/* ===== Individual Stat Item Cards ===== */
+.stat-item-card {
+  text-align: center;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+  margin-bottom: 24px; /* Space between rows */
+  transition: transform 0.2s ease-in-out;
+}
+
+.stat-item-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+}
+
+.stat-item-card .ant-card-head-wrapper {
+  justify-content: center;
+}
+
+.stat-item-card .ant-card-head-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #555;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1890ff; /* Primary color */
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.icon-stat {
+  font-size: 28px;
+  color: #40a9ff;
+}
+
+/* Adjust specific icon colors for better visual distinction */
+i[nzType="user-add"] { color: #52c41a; } /* Users */
+i[nzType="book"] { color: #fadb14; } /* Vocabulary */
+i[nzType="read"] { color: #722ed1; } /* Lessons */
+i[nzType="form"] { color: #eb2f96; } /* Quizzes */
+i[nzType="question-circle"] { color: #13c2c2; } /* Questions */
+i[nzType="trophy"] { color: #fa541c; } /* Quiz Results */
+
+/* ===== Distribution Cards ===== */
+.distribution-card {
+  border-radius: 8px !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+  margin-bottom: 24px;
+}
+
+.distribution-card .ant-card-head-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #555;
+}
+
+.distribution-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.distribution-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px dashed #f0f0f0;
+}
+
+.distribution-list li:last-child {
+  border-bottom: none;
+}
+
+.distribution-label {
+  font-weight: 500;
+  color: #333;
+}
+
+.distribution-value {
+  font-weight: 600;
+  color: #1890ff;
+}
+
+/* ===== Divider ===== */
+nz-divider {
+  margin: 30px 0;
+  color: #aaa;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* ===== No Permission Message ===== */
+.no-permission-message {
+  background-color: #fff1f0;
+  border: 1px solid #ffa39e;
+  color: #cf1322;
+  padding: 30px;
+  text-align: center;
+  border-radius: 10px;
+  margin-top: 20px;
+  font-weight: 500;
+  font-size: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.no-permission-message i {
+  font-size: 48px;
+  margin-bottom: 15px;
+  color: #cf1322;
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 768px) {
+  .stats-card {
+    padding: 16px;
+  }
+
+  .stat-item-card, .distribution-card {
+    margin-bottom: 16px;
+  }
+
+  .stat-value {
+    font-size: 28px;
+  }
+
+  .icon-stat {
+    font-size: 24px;
+  }
+
+  .no-permission-message {
+    font-size: 16px;
+    padding: 20px;
+  }
+
+  .no-permission-message i {
+    font-size: 40px;
+  }
+
+  nz-divider {
+    margin: 20px 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .stat-value {
+    font-size: 24px;
+  }
+
+  .icon-stat {
+    font-size: 20px;
+  }
+
+  .distribution-list li {
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+}

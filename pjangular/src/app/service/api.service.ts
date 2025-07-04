@@ -1,7 +1,8 @@
+// src/app/service/api.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, catchError } from 'rxjs/operators';
 import { Role, User } from '../interface/user.interface';
 import { environment } from './enviroment';
 
@@ -13,47 +14,59 @@ export class ApiService {
 
   constructor(protected http: HttpClient) {}
 
-  // Lấy thông tin user hiện tại từ token
-  public getCurrentUser(): Observable<User> {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      return throwError(() => new Error('No token found'));
+  protected handleError(error: HttpErrorResponse): Observable<never> {
+    console.error('An error occurred:', error);
+    let errorMessage = 'Đã xảy ra lỗi không xác định!';
+    if (error.error instanceof ErrorEvent) {
+      errorMessage = `Lỗi: ${error.error.message}`;
+    } else if (error.error && typeof error.error === 'string') {
+      errorMessage = `Lỗi từ server: ${error.error}`;
+    } else if (error.error && error.error.message) {
+      errorMessage = `Lỗi từ server: ${error.error.message}`;
+    } else {
+      errorMessage = `Mã lỗi: ${error.status}\nThông báo: ${error.message}`;
     }
-    const username = this.extractUsernameFromToken(token);
-    if (!username) {
-      return throwError(() => new Error('Invalid token'));
-    }
-    return this.http.get<User>(`${this.apiUrl}/users/username/${username}`, {
-      headers: new HttpHeaders({ Authorization: `Bearer ${token}` })
-    });
+    return throwError(() => new Error(errorMessage));
   }
 
-  // Kiểm tra vai trò admin
+  public getCurrentUser(): Observable<User> {
+    const token = localStorage.getItem('jwt_token');
+    if (!token) {
+      return throwError(() => new Error('Không tìm thấy token.'));
+    }
+    return this.http.get<User>(`${this.apiUrl}/users/current`, {
+      headers: new HttpHeaders({ Authorization: `Bearer ${token}` })
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
   public checkAdminRole(): Observable<boolean> {
     return this.getCurrentUser().pipe(
       map(user => {
         if (user.role === Role.ROLE_ADMIN) {
           return true;
         }
-        throw new Error('Access denied: Admin role required');
+        throw new Error('Từ chối truy cập: Yêu cầu quyền Admin.');
+      }),
+      catchError(error => {
+        if (error instanceof Error && error.message.includes('Yêu cầu quyền Admin')) {
+          console.warn(error.message);
+          return throwError(() => error);
+        }
+        return this.handleError(error);
       })
     );
   }
 
-  // Kiểm tra xác thực (có token hợp lệ)
   public checkAuth(): Observable<boolean> {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('jwt_token');
     if (!token) {
-      return throwError(() => new Error('No token found'));
+      return throwError(() => new Error('Không tìm thấy token.'));
     }
-    const username = this.extractUsernameFromToken(token);
-    if (!username) {
-      return throwError(() => new Error('Invalid token'));
-    }
-    return this.http.get<User>(`${this.apiUrl}/users/username/${username}`, {
-      headers: new HttpHeaders({ Authorization: `Bearer ${token}` })
-    }).pipe(
-      map(() => true)
+    return this.getCurrentUser().pipe(
+      map(() => true),
+      catchError(this.handleError)
     );
   }
 
@@ -62,7 +75,7 @@ export class ApiService {
       const payload = JSON.parse(atob(token.split('.')[1]));
       return payload.sub || payload.username || null;
     } catch (e) {
-      console.error('Failed to decode token:', e);
+      console.error('Không thể giải mã token:', e);
       return null;
     }
   }

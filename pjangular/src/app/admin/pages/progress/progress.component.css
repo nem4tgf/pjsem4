@@ -3,13 +3,12 @@
   background-color: #ffffff;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  padding: 24px;
-  margin-bottom: 24px;
+  padding: 12px; /* Adjusted for consistency with other admin cards */
 }
 
-/* ===== Form Layout ===== */
-.progress-form {
-  margin-bottom: 20px;
+/* ===== Form Layouts (for both update/create and search) ===== */
+.progress-form, .search-form {
+  padding: 12px 0; /* Consistent with other admin forms */
 }
 
 nz-form-item {
@@ -31,25 +30,28 @@ nz-form-item {
   vertical-align: middle;
 }
 
-/* ===== Icon Colors by Function ===== */
-i[nzType="user"] { color: #3f51b5; }               /* User */
-i[nzType="book"] { color: #2196f3; }               /* Lesson */
-i[nzType="bulb"] { color: #ff9800; }               /* Activity type */
-i[nzType="info-circle"] { color: #f44336; }        /* Status */
-i[nzType="percentage"] { color: #4caf50; }         /* Completion */
-i[nzType="check-circle"] { color: white; }         /* Button */
-i[nzType="close-circle"] { color: #f5222d; }       /* Permission */
+/* ===== Icon Colors by Function (ensure these are consistent for search form too) ===== */
+i[nzType="user"] { color: #3f51b5; } /* User */
+i[nzType="book"] { color: #2196f3; } /* Lesson */
+i[nzType="bulb"] { color: #ff9800; } /* Activity type */
+i[nzType="info-circle"] { color: #f44336; } /* Status */
+i[nzType="percentage"] { color: #4caf50; } /* Completion */
+i[nzType="check-circle"] { color: white; } /* Update Button */
+i[nzType="search"] { color: white; } /* Search Button */
+i[nzType="reload"] { color: #1890ff; } /* Reset Button */
+i[nzType="delete"] { color: #f5222d; } /* Delete Icon in Table */
+i[nzType="close-circle"] { color: #f5222d; } /* Permission */
 
 /* ===== Input & Select Styling ===== */
 .custom-input,
 .custom-select,
 nz-input-number {
   width: 100%;
-  border-radius: 8px !important;
+  border-radius: 6px !important; /* Consistent with other admin inputs */
   box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
 }
 
-/* ===== Submit Button ===== */
+/* ===== Buttons (Update/Create Form) ===== */
 .submit-button {
   width: 100%;
   background-color: #1890ff;
@@ -62,7 +64,7 @@ nz-input-number {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  border-radius: 8px;
+  border-radius: 6px; /* Consistent with other admin buttons */
   transition: background-color 0.25s ease-in-out;
 }
 
@@ -70,12 +72,58 @@ nz-input-number {
   background-color: #40a9ff;
 }
 
+/* ===== Search Form Buttons ===== */
+.form-actions {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.search-button {
+  background-color: #1890ff;
+  color: white;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-weight: 500;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.search-button:hover {
+  background-color: #40a9ff;
+}
+
+.reset-button {
+  background-color: #fff;
+  border: 1px solid #d9d9d9;
+  color: #595959;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 6px;
+  margin-left: 8px;
+  font-weight: 500;
+  padding: 6px 16px;
+  transition: 0.2s ease-in-out;
+}
+
+.reset-button:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
 /* ===== Table Styling ===== */
 .progress-table {
-  margin-top: 20px;
+  margin-top: 16px; /* Adjusted for consistency */
   font-size: 14px;
-  border-radius: 12px;
+  border-radius: 8px; /* Adjusted for consistency */
   overflow: hidden;
+  background-color: #fff; /* Ensure white background */
 }
 
 .progress-table th {
@@ -96,6 +144,28 @@ nz-input-number {
   background-color: #f0faff;
   transition: background-color 0.2s ease;
 }
+
+.actions-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center actions */
+  gap: 6px;
+}
+
+.actions-cell a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #1890ff;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.actions-cell a:hover {
+  color: #40a9ff;
+  text-decoration: underline;
+}
+
 
 /* ===== No Permission Message ===== */
 .no-permission-message {
@@ -121,11 +191,20 @@ nz-divider {
     max-width: 100%;
   }
 
-  .submit-button {
+  .submit-button,
+  .search-button,
+  .reset-button {
     width: 100%;
+    margin-left: 0 !important; /* Override margin-left for reset button */
+    margin-bottom: 10px;
   }
 
   .form-label {
     font-size: 13px;
+  }
+
+  .actions-cell {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

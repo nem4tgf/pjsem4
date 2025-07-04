@@ -3,6 +3,7 @@
   background: linear-gradient(to top left, #ffffff, #f0f2f5);
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  margin: 16px; /* Thêm margin để card không bị dính vào cạnh trang */
 }
 
 .header-actions {
@@ -13,23 +14,31 @@
 .add-btn {
   font-weight: 600;
   border-radius: 8px;
-  padding: 6px 16px;
+  padding: 8px 16px; /* Tăng padding để nút lớn hơn một chút */
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background-color: #52c41a;
+  background-color: #52c41a; /* Màu xanh lá cây */
   color: #fff;
+  border: none; /* Đảm bảo không có viền thừa */
+  transition: background-color 0.3s ease; /* Thêm hiệu ứng chuyển động */
 }
 
 .add-btn:hover {
-  background-color: #389e0d;
+  background-color: #389e0d; /* Màu xanh đậm hơn khi hover */
 }
 
 .add-btn i[nz-icon] > svg {
-  color: #fff;
+  color: #fff; /* Đảm bảo icon màu trắng */
+  font-size: 16px; /* Kích thước icon */
 }
 
 /* Table Styling */
+.vocab-table {
+  width: 100%; /* Đảm bảo bảng chiếm toàn bộ chiều rộng */
+  overflow-x: auto; /* Cho phép cuộn ngang trên màn hình nhỏ */
+}
+
 .vocab-table .ant-table-thead > tr > th {
   background-color: #fafafa;
   font-weight: 600;
@@ -37,26 +46,38 @@
   font-size: 13px;
   letter-spacing: 0.4px;
   padding: 12px 8px;
+  text-align: center; /* Căn giữa nội dung tiêu đề */
+  color: #333; /* Màu chữ tiêu đề */
+}
+
+.vocab-table .ant-table-tbody > tr > td {
+  text-align: center; /* Căn giữa nội dung ô */
+  padding: 12px 8px;
+  color: #555;
+  word-wrap: break-word; /* Ngắt từ nếu quá dài */
+  white-space: normal; /* Đảm bảo ngắt dòng */
 }
 
 .vocab-table .ant-table-tbody > tr:hover {
   background-color: #e6f7ff;
 }
 
+/* Icon Colors for Table Headers */
+/* Dùng selectors trực tiếp như bạn đã làm, hoặc dùng class cụ thể như đề xuất */
 .vocab-table i[nz-icon][nzType="book"] > svg {
-  color: #722ed1;
+  color: #722ed1; /* Purple */
 }
 
 .vocab-table i[nz-icon][nzType="bulb"] > svg {
-  color: #faad14;
+  color: #faad14; /* Orange */
 }
 
 .vocab-table i[nz-icon][nzType="bar-chart"] > svg {
-  color: #13c2c2;
+  color: #13c2c2; /* Cyan */
 }
 
 .vocab-table i[nz-icon][nzType="setting"] > svg {
-  color: #595959;
+  color: #595959; /* Gray */
 }
 
 /* Action Buttons */
@@ -66,35 +87,51 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 0 6px;
+  padding: 0 6px; /* Giảm padding để các nút gần nhau hơn */
+  margin: 0 2px; /* Thêm margin nhỏ giữa các nút */
+}
+
+.action-btn i[nz-icon] > svg {
+  font-size: 14px; /* Đảm bảo kích thước icon nhất quán */
+  transition: color 0.3s ease; /* Thêm hiệu ứng chuyển động */
 }
 
 .edit-btn i[nz-icon] > svg {
-  color: #1890ff;
+  color: #1890ff; /* Blue */
 }
 
 .edit-btn:hover i[nz-icon] > svg {
-  color: #40a9ff;
+  color: #40a9ff; /* Lighter blue on hover */
 }
 
 .delete-btn i[nz-icon] > svg {
-  color: #ff4d4f;
+  color: #ff4d4f; /* Red */
 }
 
 .delete-btn:hover i[nz-icon] > svg {
-  color: #ff7875;
+  color: #ff7875; /* Lighter red on hover */
 }
 
 /* Modal Styling */
+.vocab-modal .ant-modal-body {
+  padding-top: 16px; /* Khoảng cách trên cho nội dung modal */
+}
+
 .vocab-modal .modal-form {
   margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* Khoảng cách giữa các form item */
 }
 
 .modal-input,
 .modal-select {
   border-radius: 6px;
   border: 1px solid #d9d9d9;
-  transition: border-color 0.3s;
+  transition: border-color 0.3s, box-shadow 0.3s; /* Thêm transition cho box-shadow */
+  width: 100%; /* Đảm bảo chiếm toàn bộ chiều rộng */
+  padding: 8px 12px; /* Thêm padding cho input */
+  height: 40px; /* Chiều cao cố định cho input */
 }
 
 .modal-input:hover,
@@ -104,5 +141,54 @@
 
 .modal-input:focus,
 .modal-select:focus-within {
-  box-shadow: 0 0 4px rgba(24, 144, 255, 0.3);
+  outline: none; /* Loại bỏ outline mặc định của trình duyệt */
+  border-color: #1890ff; /* Màu xanh khi focus */
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2); /* Hiệu ứng đổ bóng khi focus */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .vocab-card {
+    padding: 16px;
+    margin: 8px;
+  }
+
+  .vocab-table .ant-table-thead > tr > th,
+  .vocab-table .ant-table-tbody > tr > td {
+    font-size: 12px; /* Giảm kích thước chữ trong bảng */
+    padding: 8px 4px;
+  }
+
+  .action-btn {
+    font-size: 12px;
+    padding: 0 4px;
+  }
+
+  .action-btn i[nz-icon] > svg {
+    font-size: 12px;
+  }
+
+  .add-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 0;
+  }
+
+  .header-actions {
+    text-align: center; /* Căn giữa nút trên màn hình nhỏ */
+    margin-bottom: 12px;
+  }
+
+  .modal-input,
+  .modal-select {
+    padding: 6px 10px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 576px) {
+  .vocab-table .ant-table-tbody > tr > td {
+    white-space: initial; /* Cho phép ngắt dòng tự do hơn */
+    text-align: left; /* Căn trái nội dung trong ô để dễ đọc hơn */
+  }
 }

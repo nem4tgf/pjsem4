@@ -1,17 +1,18 @@
+/* src/app/component/login/login.component.css */
 :host {
-  display: block;
-  height: 100vh;
+  display: block; /* Đảm bảo component chiếm toàn bộ chiều rộng và chiều cao */
+  height: 100vh; /* Chiếm toàn bộ chiều cao của viewport */
 }
 
 nz-card {
-  border-radius: 8px;
+  border-radius: 8px; /* Bo tròn các góc của card */
 }
 
 nz-form-item {
-  margin-bottom: 16px;
+  margin-bottom: 16px; /* Khoảng cách dưới giữa các form item */
 }
 
 button[nz-button] {
-  height: 40px;
-  font-size: 16px;
+  height: 40px; /* Chiều cao cố định cho nút */
+  font-size: 16px; /* Kích thước font cho chữ trên nút */
 }

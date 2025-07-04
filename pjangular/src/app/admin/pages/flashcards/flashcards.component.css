@@ -1,3 +1,10 @@
+/* ===== General Styles ===== */
+.flashcards-card {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 24px;
+}
+
 /* ===== Form Styles ===== */
 .search-form {
   padding: 12px 0;
@@ -8,6 +15,7 @@
   display: flex;
   align-items: center;
   color: #333;
+  margin-bottom: 4px; /* Adjust spacing below label */
 }
 
 .form-label i {
@@ -15,71 +23,49 @@
   font-size: 18px;
 }
 
-/* ===== Icon Styling ===== */
-.form-icon,
-.status-icon {
-  font-size: 16px;
-  vertical-align: middle;
-}
-
-/* Màu sắc riêng cho các icon form */
-i[nzType="book"] {
-  color: #3f51b5;
-}
-
-i[nzType="font-colors"] {
-  color: #4caf50;
-}
-
-i[nzType="bulb"] {
-  color: #ff9800;
-}
-
-i[nzType="question-circle"] {
-  color: #9c27b0;
-}
-
-i[nzType="bar-chart"] {
-  color: #2196f3;
-}
-
-i[nzType="search"] {
-  color: white;
-}
-
-i[nzType="reload"] {
-  color: #1890ff;
-}
-
-i[nzType="setting"] {
-  color: #607d8b;
-}
-
-i[nzType="check-circle"] {
-  color: #52c41a;
-}
-
-i[nzType="close-circle"] {
-  color: #f5222d;
-}
-
 /* ===== Input Styling ===== */
 .custom-input,
 .custom-select {
   border-radius: 6px;
+  width: 100%; /* Ensure inputs take full width */
+}
+
+.ant-select-selector {
+  border-radius: 6px !important; /* Override Ant Design default */
 }
 
 /* ===== Buttons ===== */
+.button-col {
+  display: flex;
+  justify-content: flex-end; /* Align buttons to the right */
+  align-items: flex-end; /* Align buttons to the bottom of their column */
+}
+
 .search-button {
   background-color: #1890ff;
   border: none;
   color: white;
+  border-radius: 6px;
+  padding: 8px 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.search-button:hover {
+  background-color: #40a9ff;
 }
 
 .reset-button {
   background-color: #fff;
   border: 1px solid #d9d9d9;
   color: #595959;
+  border-radius: 6px;
+  padding: 8px 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 8px; /* Add margin to the left of reset button */
 }
 
 .reset-button:hover {
@@ -93,16 +79,35 @@ i[nzType="close-circle"] {
   align-items: center;
   gap: 5px;
   font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 4px;
 }
 
 /* ===== Table Styling ===== */
 .flashcards-table {
-  margin-top: 16px;
+  margin-top: 24px;
 }
 
 .table-header {
-  background-color: #fafafa;
+  background-color: #fafafa !important;
   font-weight: 600;
+  padding: 12px 16px;
+  color: #555;
+}
+
+.table-header i {
+  margin-right: 6px;
+  font-size: 16px;
+  vertical-align: middle;
+}
+
+.table-cell {
+  padding: 10px 16px;
+  vertical-align: middle;
+}
+
+.table-row:nth-child(even) {
+  background-color: #f9f9f9;
 }
 
 .actions-cell a {
@@ -110,7 +115,30 @@ i[nzType="close-circle"] {
   align-items: center;
   gap: 5px;
   font-weight: 500;
+  margin-right: 10px; /* Space between action buttons */
 }
-.reset-button {
-  margin-left: 8px;
+
+/* Custom divider style */
+.custom-divider {
+  margin: 24px 0;
+  border-color: #f0f0f0;
 }
+
+/* ===== Icon Styling ===== */
+.form-icon,
+.status-icon {
+  font-size: 16px;
+  vertical-align: middle;
+}
+
+i[nzType="book"] { color: #3f51b5; } /* Indigo */
+i[nzType="font-colors"] { color: #4caf50; } /* Green */
+i[nzType="bulb"] { color: #ff9800; } /* Orange */
+i[nzType="question-circle"] { color: #9c27b0; } /* Purple */
+i[nzType="bar-chart"] { color: #2196f3; } /* Blue */
+i[nzType="search"] { color: white; }
+i[nzType="reload"] { color: #1890ff; }
+i[nzType="setting"] { color: #607d8b; } /* Blue Grey */
+
+.icon-green { color: #52c41a; } /* Ant Design Green */
+.icon-red { color: #f5222d; } /* Ant Design Red */

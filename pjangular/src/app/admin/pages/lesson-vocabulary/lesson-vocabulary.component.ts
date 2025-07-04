@@ -1,17 +1,15 @@
+
 import { Component, OnInit, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms'; // Import FormGroup và Validators
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
-
-// Đảm bảo các interface này đúng đường dẫn và cấu trúc
 import { Vocabulary, DifficultyLevel } from 'src/app/interface/vocabulary.interface';
-import { LessonVocabulary } from 'src/app/interface/lesson-vocabulary.interface';
-
-// Đảm bảo các service này đúng đường dẫn
+import { LessonVocabularyResponse } from 'src/app/interface/lesson-vocabulary.interface';
 import { LessonVocabularyService } from 'src/app/service/lesson-vocabulary.service';
 import { VocabularyService } from 'src/app/service/vocabulary.service';
 import { ApiService } from 'src/app/service/api.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-lesson-vocabulary',
@@ -20,189 +18,208 @@ import { ApiService } from 'src/app/service/api.service';
 })
 export class LessonVocabularyComponent implements OnInit {
   @Input() lessonId: number | null = null;
-  lessonVocabularies: Vocabulary[] = []; // Chứa các từ vựng đã được gán cho bài học (để hiển thị)
-  allVocabularies: Vocabulary[] = [];   // Chứa TẤT CẢ các từ vựng có sẵn (để chọn trong dropdown)
-  isAddModalVisible = false;            // Biến kiểm soát hiển thị modal thêm từ vựng
-  vocabularyForm: FormGroup;             // FormGroup cho form thêm từ vựng
-  isAdmin: boolean = false;              // Biến kiểm tra quyền admin
+  lessonVocabularies: Vocabulary[] = [];
+  allVocabularies: Vocabulary[] = [];
+  isAddModalVisible = false;
+  vocabularyForm: FormGroup;
+  isAdmin: boolean = false;
+  isLoadingVocabularies = false;
+  isAddingVocabulary = false;
+
+  // Thêm hàm lọc tùy chỉnh
+  customFilterOption = (input: string, option: any): boolean => {
+    return option.nzLabel.toLowerCase().includes(input.toLowerCase());
+  };
 
   constructor(
     private route: ActivatedRoute,
-    private fb: FormBuilder, // Inject FormBuilder
+    private fb: FormBuilder,
     private modal: NzModalService,
     private notification: NzNotificationService,
     private lessonVocabularyService: LessonVocabularyService,
     private vocabularyService: VocabularyService,
     private apiService: ApiService
   ) {
-    // Khởi tạo FormGroup cho form thêm từ vựng
     this.vocabularyForm = this.fb.group({
-      wordId: [null, Validators.required] // 'wordId' là FormControlName trong HTML, bắt buộc phải chọn
+      wordId: [null, Validators.required]
     });
   }
 
   ngOnInit(): void {
-    // Lấy lessonId từ URL params
-    this.route.paramMap.subscribe(params => {
-      const id = params.get('lessonId');
-      if (id) {
-        this.lessonId = +id; // Chuyển đổi sang số
-        console.log('Lesson ID from route:', this.lessonId);
-        this.checkRoleAndLoadData(); // Gọi hàm kiểm tra quyền và tải dữ liệu
-      } else {
-        this.notification.error('Error', 'Lesson ID is missing in the URL.');
-        console.error('Lesson ID is missing in the URL for LessonVocabularyComponent.');
-      }
-    });
+    if (this.lessonId === null) {
+      this.route.paramMap.subscribe(params => {
+        const id = params.get('lessonId');
+        if (id) {
+          this.lessonId = +id;
+          console.log('Lesson ID from route params:', this.lessonId);
+          this.checkRoleAndLoadData();
+        } else {
+          this.notification.error('Lỗi', 'Không tìm thấy ID bài học trong URL.');
+          console.error('Lesson ID is missing in the URL for LessonVocabularyComponent.');
+        }
+      });
+    } else {
+      console.log('Lesson ID from @Input:', this.lessonId);
+      this.checkRoleAndLoadData();
+    }
   }
 
   private checkRoleAndLoadData(): void {
     this.apiService.checkAdminRole().subscribe({
       next: (isAdmin) => {
         this.isAdmin = isAdmin;
-        if (this.isAdmin && this.lessonId) {
-          // Chỉ tải dữ liệu nếu là admin và có lessonId
-          this.loadAllVocabularies(); // Tải tất cả từ vựng trước (cho dropdown)
-          this.loadLessonVocabularies(); // Sau đó tải các từ vựng của bài học này
+        if (this.isAdmin && this.lessonId !== null) {
+          this.loadAllVocabularies();
         } else if (!this.isAdmin) {
-          this.notification.warning('Warning', 'You do not have administrative privileges to manage lesson vocabulary.');
+          this.notification.warning('Cảnh báo', 'Bạn không có quyền quản trị để quản lý từ vựng bài học.');
+        } else if (this.lessonId === null) {
+          this.notification.error('Lỗi', 'Không có ID bài học để tải dữ liệu.');
         }
       },
-      error: (err) => {
-        this.notification.error('Error', 'Failed to verify admin role.');
-        console.error('Admin role check error:', err);
+      error: (err: any) => {
+        this.notification.error('Lỗi', 'Không thể xác minh quyền quản trị.');
+        console.error('Lỗi kiểm tra quyền Admin:', err);
       }
     });
   }
 
   loadLessonVocabularies(): void {
-    if (this.lessonId) {
-      // Gọi service để lấy danh sách LessonVocabulary (chỉ chứa lessonId, wordId)
-      this.lessonVocabularyService.getLessonVocabulariesByLessonId(this.lessonId).subscribe({
-        next: (data: LessonVocabulary[]) => {
-          // Chuyển đổi LessonVocabulary[] thành Vocabulary[] để hiển thị đầy đủ thông tin
-          // bằng cách tìm kiếm trong danh sách allVocabularies đã tải
-          this.lessonVocabularies = data.map(lv => {
-            const fullVocab = this.allVocabularies.find(v => v.wordId === lv.wordId);
-            return fullVocab
-              ? fullVocab
-              : {
-                  // Cung cấp các giá trị mặc định nếu không tìm thấy thông tin chi tiết
-                  wordId: lv.wordId,
-                  word: 'N/A',
-                  meaning: 'N/A',
-                  difficultyLevel: DifficultyLevel.EASY // Gán một giá trị hợp lệ từ enum
-                };
-          });
-          console.log('Loaded lesson vocabularies:', this.lessonVocabularies);
-        },
-        error: (err) => {
-          this.notification.error('Error', 'Failed to load lesson vocabularies');
-          console.error('Load lesson vocabularies error:', err);
-        }
-      });
+    if (this.lessonId === null) {
+      this.notification.error('Lỗi', 'Không có ID bài học để tải từ vựng.');
+      this.lessonVocabularies = [];
+      return;
     }
+
+    this.isLoadingVocabularies = true;
+    this.lessonVocabularyService.getLessonVocabulariesByLessonId(this.lessonId).pipe(
+      finalize(() => this.isLoadingVocabularies = false)
+    ).subscribe({
+      next: (data: LessonVocabularyResponse[]) => {
+        this.lessonVocabularies = data
+          .map(lv => this.allVocabularies.find(v => v.wordId === lv.wordId))
+          .filter((vocab): vocab is Vocabulary => vocab !== undefined);
+        console.log('Đã tải từ vựng bài học:', this.lessonVocabularies);
+        if (this.lessonVocabularies.length === 0 && this.isAdmin) {
+          this.notification.info('Thông báo', 'Bài học này chưa có từ vựng nào được gán.');
+        }
+      },
+      error: (err: any) => {
+        this.notification.error('Lỗi', 'Không thể tải từ vựng bài học.');
+        console.error('Lỗi tải từ vựng bài học:', err);
+        this.lessonVocabularies = [];
+      }
+    });
   }
 
   loadAllVocabularies(): void {
-    // Gọi service để lấy TẤT CẢ các từ vựng có sẵn (cho dropdown chọn)
-    this.vocabularyService.getAllVocabulary().subscribe({
-      next: (data: Vocabulary[]) => { // Đảm bảo kiểu dữ liệu trả về là Vocabulary[]
-        this.allVocabularies = data;
-        console.log('Loaded all vocabularies for selection:', this.allVocabularies); // KIỂM TRA LOG NÀY
+    this.vocabularyService.searchVocabularies().subscribe({
+      next: (pageData) => {
+        this.allVocabularies = pageData.content;
+        console.log('Đã tải tất cả từ vựng để chọn:', this.allVocabularies);
+        if (this.lessonId !== null) {
+          this.loadLessonVocabularies();
+        }
       },
-      error: (err) => {
-        this.notification.error('Error', 'Failed to load all vocabularies');
-        console.error('Load all vocabularies error:', err);
+      error: (err: any) => {
+        this.notification.error('Lỗi', 'Không thể tải tất cả từ vựng.');
+        console.error('Lỗi tải tất cả từ vựng:', err);
       }
     });
   }
 
   showAddModal(): void {
     if (!this.isAdmin) {
-      this.notification.error('Error', 'You do not have permission to add vocabulary.');
+      this.notification.error('Lỗi', 'Bạn không có quyền thêm từ vựng.');
       return;
     }
-    this.vocabularyForm.reset(); // Đảm bảo form được reset mỗi khi mở modal
+    this.vocabularyForm.reset();
     this.isAddModalVisible = true;
   }
 
   handleAddOk(): void {
-    console.log('Current form value:', this.vocabularyForm.value); // LOG GIÁ TRỊ FORM TRƯỚC KHI XỬ LÝ
     if (this.vocabularyForm.invalid) {
-      this.vocabularyForm.markAllAsTouched(); // Hiển thị lỗi validation trên form
-      this.notification.error('Error', 'Please select a vocabulary to add.');
-      console.error('Form is invalid. Errors:', this.vocabularyForm.errors); // LOG LỖI FORM NẾU CÓ
+      this.vocabularyForm.markAllAsTouched();
+      this.notification.error('Lỗi', 'Vui lòng chọn một từ vựng để thêm.');
       return;
     }
 
     if (this.lessonId === null) {
-      this.notification.error('Error', 'Lesson ID is missing. Cannot add vocabulary.');
+      this.notification.error('Lỗi', 'Không có ID bài học. Không thể thêm từ vựng.');
       return;
     }
 
     const wordIdToAdd = this.vocabularyForm.get('wordId')?.value;
-    console.log('Word ID to add from form:', wordIdToAdd); // LOG wordId TRƯỚC KHI GỌI SERVICE
-
-    // Kiểm tra lại nếu wordIdToAdd vẫn là null/undefined sau khi lấy từ form
     if (wordIdToAdd === null || wordIdToAdd === undefined) {
-      this.notification.error('Error', 'No vocabulary selected or invalid selection.');
+      this.notification.error('Lỗi', 'Chưa chọn từ vựng hoặc lựa chọn không hợp lệ.');
       return;
     }
 
-    // Kiểm tra xem từ vựng đã có trong bài học chưa
     const isAlreadyAdded = this.lessonVocabularies.some(v => v.wordId === wordIdToAdd);
     if (isAlreadyAdded) {
-      this.notification.warning('Warning', 'This vocabulary is already added to this lesson.');
-      this.handleCancel(); // Đóng modal và reset form
+      this.notification.warning('Cảnh báo', 'Từ vựng này đã được thêm vào bài học.');
+      this.handleCancel();
       return;
     }
 
-    // Gọi service để thêm từ vựng vào bài học
-    this.lessonVocabularyService.createLessonVocabulary(this.lessonId, wordIdToAdd).subscribe({
+    this.isAddingVocabulary = true;
+    this.lessonVocabularyService.createLessonVocabulary(this.lessonId, wordIdToAdd).pipe(
+      finalize(() => this.isAddingVocabulary = false)
+    ).subscribe({
       next: () => {
-        this.notification.success('Success', 'Vocabulary added to lesson successfully!');
-        this.loadLessonVocabularies(); // Tải lại danh sách từ vựng của bài học sau khi thêm
-        this.isAddModalVisible = false; // Đóng modal
-        this.vocabularyForm.reset(); // Reset form
+        this.notification.success('Thành công', 'Từ vựng đã được thêm vào bài học!');
+        this.loadLessonVocabularies();
+        this.isAddModalVisible = false;
+        this.vocabularyForm.reset();
       },
-      error: (err) => {
-        this.notification.error('Error', 'Failed to add vocabulary to lesson: ' + (err.error?.message || err.message));
-        console.error('Add vocabulary to lesson error:', err);
+      error: (err: any) => {
+        this.notification.error('Lỗi', 'Không thể thêm từ vựng vào bài học: ' + (err.error?.message || err.message));
+        console.error('Lỗi thêm từ vựng vào bài học:', err);
       }
     });
   }
 
   handleCancel(): void {
-    this.isAddModalVisible = false; // Đóng modal
-    this.vocabularyForm.reset(); // Reset form khi hủy
+    this.isAddModalVisible = false;
+    this.vocabularyForm.reset();
   }
 
   deleteVocabularyFromLesson(wordId: number): void {
     if (!this.isAdmin) {
-      this.notification.error('Error', 'You do not have permission to delete vocabulary.');
+      this.notification.error('Lỗi', 'Bạn không có quyền xóa từ vựng.');
       return;
     }
     if (this.lessonId === null) {
-      this.notification.error('Error', 'Lesson ID is missing. Cannot delete vocabulary.');
+      this.notification.error('Lỗi', 'Không có ID bài học. Không thể xóa từ vựng.');
       return;
     }
 
     this.modal.confirm({
-      nzTitle: 'Are you sure you want to remove this vocabulary from the lesson?',
-      nzContent: 'This action cannot be undone.',
+      nzTitle: 'Bạn có chắc chắn muốn xóa từ vựng này khỏi bài học?',
+      nzContent: 'Hành động này không thể hoàn tác.',
+      nzOkText: 'Đồng ý',
+      nzCancelText: 'Hủy',
       nzOnOk: () => {
         this.lessonVocabularyService.deleteLessonVocabulary(this.lessonId!, wordId).subscribe({
           next: () => {
-            this.notification.success('Success', 'Vocabulary removed from lesson successfully!');
-            this.loadLessonVocabularies(); // Tải lại danh sách từ vựng sau khi xóa
+            this.notification.success('Thành công', 'Từ vựng đã được xóa khỏi bài học!');
+            this.loadLessonVocabularies();
           },
-          error: (err) => {
-            this.notification.error('Error', 'Failed to remove vocabulary from lesson: ' + (err.error?.message || err.message));
-            console.error('Remove vocabulary from lesson error:', err);
+          error: (err: any) => {
+            this.notification.error('Lỗi', 'Không thể xóa từ vựng khỏi bài học: ' + (err.error?.message || err.message));
+            console.error('Lỗi xóa từ vựng khỏi bài học:', err);
           }
         });
       }
     });
   }
+
+  get availableVocabularies(): Vocabulary[] {
+    if (this.lessonId === null || !this.allVocabularies) {
+      return [];
+    }
+    return this.allVocabularies.filter(
+      vocab => !this.lessonVocabularies.some(lv => lv.wordId === vocab.wordId)
+    );
+  }
 }
+

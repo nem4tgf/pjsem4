@@ -1,0 +1,208 @@
+/* src/app/admin/pages/user-speaking-attempts/user-speaking-attempts.component.css */
+
+/* Tái sử dụng CSS từ listening attempts, chỉ thêm các style đặc thù nếu có */
+
+/* ==== Card Container ==== */
+.attempt-card {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  margin: 16px;
+}
+
+/* ==== Filter Form ==== */
+.filter-form {
+  margin-bottom: 20px;
+}
+
+.filter-item {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.custom-select {
+  border-radius: 6px !important;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+  width: 100%;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 28px;
+}
+
+.search-button, .reset-button {
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease-in-out;
+}
+
+.search-button {
+  background-color: #1890ff;
+  color: white;
+  border: none;
+}
+
+.search-button:hover {
+  background-color: #40a9ff;
+}
+
+.reset-button {
+  background-color: #fff;
+  border: 1px solid #d9d9d9;
+  color: #595959;
+}
+
+.reset-button:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+/* ==== Table Styling ==== */
+.attempts-table {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.attempts-table .ant-table-thead > tr > th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+  text-align: center;
+  color: #333;
+  padding: 12px 8px;
+}
+
+.attempts-table .ant-table-tbody > tr > td {
+  text-align: center;
+  padding: 10px 8px;
+  color: #555;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+.attempts-table .ant-table-tbody > tr:hover {
+  background-color: #e6f7ff;
+}
+
+.attempts-table th i[nz-icon] {
+  margin-right: 4px;
+}
+
+/* Specific icon colors for table headers (Speaking) */
+.attempts-table th .anticon-user { color: #1890ff; }
+.attempts-table th .anticon-question-circle { color: #faad14; }
+.attempts-table th .anticon-message { color: #52c41a; } /* Original Prompt */
+.attempts-table th .anticon-sound { color: #722ed1; } /* User Audio */
+.attempts-table th .anticon-file-text { color: #13c2c2; } /* STT Transcribed */
+.attempts-table th .anticon-star { color: #eb2f96; } /* Pronunciation Score */
+.attempts-table th .anticon-thunderbolt { color: #fa8c16; } /* Fluency Score */
+.attempts-table th .anticon-trophy { color: #7cb305; } /* Overall Score */
+.attempts-table th .anticon-calendar { color: #9254de; }
+.attempts-table th .anticon-setting { color: #595959; }
+
+/* ==== Action Buttons ==== */
+.actions-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.actions-cell a {
+  color: #f5222d; /* Red for delete */
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.2s ease-in-out;
+}
+
+.actions-cell a:hover {
+  color: #ff4d4f;
+  text-decoration: underline;
+}
+
+.audio-link {
+  color: #1890ff;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.audio-link:hover {
+  color: #40a9ff;
+  text-decoration: underline;
+}
+
+/* ==== No Permission Message ==== */
+.no-permission-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background-color: #fff1f0;
+  border: 1px solid #ffa39e;
+  color: #cf1322;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.no-permission-message i {
+  font-size: 48px;
+  margin-bottom: 15px;
+  color: #cf1322;
+}
+
+/* ==== Responsive ==== */
+@media (max-width: 992px) { /* Tablet */
+  .filter-form nz-col {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+  .button-col {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  .filter-buttons {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 576px) { /* Mobile */
+  .filter-form nz-col {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  .filter-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .search-button, .reset-button {
+    width: 100%;
+  }
+  .attempts-table .ant-table-tbody > tr > td {
+    font-size: 12px;
+  }
+  .attempts-table th {
+    font-size: 11px;
+  }
+}

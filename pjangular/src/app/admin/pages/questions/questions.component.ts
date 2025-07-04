@@ -1,33 +1,50 @@
-// src/app/admin/pages/questions/questions.component.ts
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms'; // Đã thêm AbstractControl
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
-import { Question } from 'src/app/interface/question.interface';
-import { Quiz, Skill } from 'src/app/interface/quiz.interface'; // Giả sử Skill cũng có trong quiz.interface
+import { NzTableSortFn, NzTableSortOrder } from 'ng-zorro-antd/table';
+import { HttpErrorResponse } from '@angular/common/http';
+import { NzFilterOptionType } from 'ng-zorro-antd/select';
+
+import { ApiService } from 'src/app/service/api.service';
 import { QuestionService } from 'src/app/service/question.service';
 import { QuizService } from 'src/app/service/quiz.service';
-import { ApiService } from 'src/app/service/api.service';
+import { Quiz } from 'src/app/interface/quiz.interface';
+import {
+  Question,
+  QuestionPageResponse,
+  QuestionRequest,
+  QuestionSearchRequest,
+  QuestionType,
+} from 'src/app/interface/question.interface';
+import { finalize } from 'rxjs/operators'; // Đảm bảo đã import finalize
 
 @Component({
   selector: 'app-questions',
   templateUrl: './questions.component.html',
-  styleUrls: ['./questions.component.css']
+  styleUrls: ['./questions.component.css'],
 })
 export class QuestionsComponent implements OnInit {
   questions: Question[] = [];
   quizzes: Quiz[] = [];
+  questionForm: FormGroup;
+  searchForm: FormGroup;
+
+  questionTypes = Object.values(QuestionType);
+  isAdmin: boolean = false;
+  loading = false;
+
   isVisible = false;
   isEdit = false;
-  questionForm: FormGroup;
-  skills = Object.values(Skill);
-  selectedQuizId: number | null = null;
-  isAdmin: boolean = false;
+  currentQuestionId: number | undefined;
 
-  // Thuộc tính cho chức năng tìm kiếm
-  searchText: string = '';
-  selectedSearchSkill: Skill | null = null;
-  selectedSearchQuizId: number | null = null; // Dùng riêng cho tìm kiếm nếu muốn lọc độc lập
+  pageData: QuestionPageResponse = {
+    content: [],
+    totalElements: 0,
+    totalPages: 0,
+    currentPage: 0,
+    pageSize: 10,
+  };
 
   constructor(
     private questionService: QuestionService,
@@ -35,21 +52,33 @@ export class QuestionsComponent implements OnInit {
     private fb: FormBuilder,
     private modal: NzModalService,
     private notification: NzNotificationService,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private cdRef: ChangeDetectorRef // Đã thêm ChangeDetectorRef
   ) {
     this.questionForm = this.fb.group({
       questionId: [null],
       quizId: [null, Validators.required],
-      questionText: ['', Validators.required],
-      skill: [null, Validators.required]
+      questionText: ['', [Validators.required, Validators.minLength(5)]],
+      questionType: [null, Validators.required],
+      audioUrl: [null],
+      imageUrl: [null],
+      correctAnswerText: [null],
+    });
+
+    this.searchForm = this.fb.group({
+      quizId: [null],
+      questionText: [''],
+      questionType: [null],
+      page: [0],
+      size: [10],
+      sortBy: ['questionId'],
+      sortDir: ['ASC'],
     });
   }
 
   ngOnInit(): void {
     this.checkAdminStatus();
     this.loadQuizzes();
-    // Ban đầu tải tất cả câu hỏi hoặc không tải gì cho đến khi có bộ lọc
-    // Để hiển thị tất cả ban đầu, gọi searchQuestions() không có tham số
     this.searchQuestions();
   }
 
@@ -57,179 +86,222 @@ export class QuestionsComponent implements OnInit {
     this.apiService.checkAdminRole().subscribe(
       (isAdmin: boolean) => {
         this.isAdmin = isAdmin;
-        if (!isAdmin) {
-          this.notification.warning('Permission Denied', 'Bạn không có quyền truy cập trang quản lý câu hỏi.');
-        }
+        this.cdRef.detectChanges();
       },
-      error => {
-        console.error('Error checking admin status:', error);
+      (error: HttpErrorResponse) => {
+        console.error('Lỗi kiểm tra trạng thái quản trị viên:', error);
         this.isAdmin = false;
-        this.notification.error('Error', 'Không thể kiểm tra trạng thái quản trị viên.');
+        this.notification.error('Lỗi', 'Không thể kiểm tra trạng thái quản trị viên.');
+        this.cdRef.detectChanges();
       }
     );
   }
 
   loadQuizzes(): void {
-    this.quizService.getAllQuizzes().subscribe(
-      quizzes => {
+    this.quizService.getAllQuizzes().subscribe({
+      next: (quizzes) => {
         this.quizzes = quizzes;
-        // Cập nhật selectedSearchQuizId nếu có quiz để hiển thị trong bộ lọc
-        if (quizzes.length > 0 && this.selectedSearchQuizId === null) {
-          // Bạn có thể chọn để mặc định chọn quiz đầu tiên hoặc để trống
-          // this.selectedSearchQuizId = quizzes[0].quizId;
-        }
       },
-      error => {
-        this.notification.error('Error', 'Không thể tải danh sách bài kiểm tra.');
-        console.error('Lỗi tải bài kiểm tra:', error);
+      error: (err: HttpErrorResponse) => {
+        this.notification.error('Lỗi', 'Không thể tải danh sách Quiz.');
+        console.error('Lỗi tải Quiz:', err);
         this.quizzes = [];
       }
-    );
+    });
   }
 
-  // Phương thức này hiện tại chỉ tải câu hỏi theo Quiz ID CỤ THỂ
-  // Giữ lại nếu bạn vẫn muốn chức năng "hiển thị theo Quiz" riêng biệt.
-  // Nếu bạn muốn chức năng này là một phần của tìm kiếm chung, có thể bỏ qua.
-  loadQuestions(quizId: number): void {
-     // Khi chọn Quiz từ dropdown, hãy cập nhật bộ lọc tìm kiếm và gọi searchQuestions
-     this.selectedSearchQuizId = quizId;
-     this.searchQuestions();
-  }
+  sortQuestionIdFn: NzTableSortFn<Question> = (a: Question, b: Question) => {
+    return (a.questionId || 0) - (b.questionId || 0);
+  };
+  sortQuestionTextFn: NzTableSortFn<Question> = (a: Question, b: Question) => a.questionText.localeCompare(b.questionText);
+  sortQuestionTypeFn: NzTableSortFn<Question> = (a: Question, b: Question) => a.questionType.localeCompare(b.questionType);
+  sortQuizIdFn: NzTableSortFn<Question> = (a: Question, b: Question) => a.quizId - b.quizId;
 
+  filterQuizOption: NzFilterOptionType = (inputValue: string, option: any) => {
+    return option.nzLabel.toLowerCase().indexOf(inputValue.toLowerCase()) > -1;
+  };
 
-  /**
-   * Phương thức để thực hiện tìm kiếm câu hỏi dựa trên các tiêu chí.
-   * Nó sẽ sử dụng các thuộc tính `searchText`, `selectedSearchSkill`, `selectedSearchQuizId`
-   * của component để truyền vào service.
-   */
   searchQuestions(): void {
-    this.questionService.searchQuestions(
-      this.selectedSearchQuizId || undefined, // Truyền undefined nếu null
-      this.selectedSearchSkill || undefined, // Truyền undefined nếu null
-      this.searchText || undefined // Truyền undefined nếu rỗng
-    ).subscribe(
-      questions => {
-        this.questions = questions;
+    this.loading = true;
+    const formValues = this.searchForm.value;
+
+    // Khởi tạo một đối tượng request cơ bản với các trường luôn có
+    const request: QuestionSearchRequest = {
+      page: formValues.page,
+      size: formValues.size,
+      sortBy: formValues.sortBy,
+      sortDir: formValues.sortDir
+    };
+
+    // Thêm các trường tùy chọn chỉ khi chúng có giá trị hợp lệ
+    if (formValues.quizId !== null && formValues.quizId !== undefined) {
+      request.quizId = formValues.quizId;
+    }
+    if (formValues.questionText && formValues.questionText.trim() !== '') { // Kiểm tra cả chuỗi rỗng sau khi trim
+      request.questionText = formValues.questionText;
+    }
+    if (formValues.questionType !== null && formValues.questionType !== undefined) {
+      request.questionType = formValues.questionType;
+    }
+
+    this.questionService.searchQuestions(request).pipe(
+      finalize(() => this.loading = false)
+    ).subscribe({
+      next: (pageData: QuestionPageResponse) => {
+        this.pageData = pageData;
+        this.questions = pageData.content;
       },
-      error => {
-        this.notification.error('Error', `Không thể tải câu hỏi.`);
+      error: (err: HttpErrorResponse) => {
+        this.notification.error('Lỗi', 'Lỗi khi tìm kiếm câu hỏi: ' + (err.error?.message || err.message));
+        console.error('Search questions error:', err);
         this.questions = [];
-        console.error('Lỗi tải câu hỏi:', error);
+        this.pageData = { content: [], totalElements: 0, totalPages: 0, currentPage: 0, pageSize: 10 };
       }
-    );
+    });
   }
 
-  // Khi người dùng thay đổi Quiz trong dropdown lọc, gọi searchQuestions
-  onSearchQuizChange(quizId: number | null): void {
-    this.selectedSearchQuizId = quizId;
+  onPageIndexChange(page: number): void {
+    this.searchForm.patchValue({ page: page - 1 });
     this.searchQuestions();
   }
 
-  // Khi người dùng thay đổi Skill trong dropdown lọc, gọi searchQuestions
-  onSearchSkillChange(skill: Skill | null): void {
-    this.selectedSearchSkill = skill;
+  onPageSizeChange(size: number): void {
+    this.searchForm.patchValue({ size: size, page: 0 });
     this.searchQuestions();
   }
 
-  // Khi người dùng gõ vào ô tìm kiếm văn bản, có thể sử dụng (keyup) hoặc (ngModelChange)
-  // và gọi searchQuestions
-  onSearchTextChange(): void {
-    // Để tránh quá nhiều request khi người dùng đang gõ, bạn có thể cân nhắc debounceTime ở đây
+  onSortChange(sortBy: string, sortDir: 'ascend' | 'descend' | null): void {
+    const direction = sortDir === 'ascend' ? 'ASC' : (sortDir === 'descend' ? 'DESC' : 'ASC');
+    this.searchForm.patchValue({ sortBy, sortDir: direction, page: 0 });
     this.searchQuestions();
   }
 
-  showModal(isEdit: boolean, question?: Question): void {
+  resetFilters(): void {
+    this.searchForm.reset({
+      quizId: null,
+      questionText: '',
+      questionType: null,
+      page: 0,
+      size: 10,
+      sortBy: 'questionId',
+      sortDir: 'ASC'
+    });
+    this.searchQuestions();
+  }
+
+  showQuestionModal(isEdit: boolean, question?: Question): void {
+    if (!this.isAdmin) {
+      this.notification.error('Lỗi', 'Bạn không có quyền thực hiện hành động này');
+      return;
+    }
+
     this.isEdit = isEdit;
+    this.questionForm.reset();
+
     if (isEdit && question) {
+      this.currentQuestionId = question.questionId;
       this.questionForm.patchValue({
         questionId: question.questionId,
         quizId: question.quizId,
         questionText: question.questionText,
-        skill: question.skill
+        questionType: question.questionType,
+        audioUrl: question.audioUrl,
+        imageUrl: question.imageUrl,
+        correctAnswerText: question.correctAnswerText,
       });
     } else {
-      this.questionForm.reset();
-      // Khi thêm mới, mặc định chọn Quiz đang được chọn trong bộ lọc (nếu có)
-      if (this.selectedSearchQuizId !== null) {
-        this.questionForm.get('quizId')?.setValue(this.selectedSearchQuizId);
+      this.currentQuestionId = undefined;
+      if (this.searchForm.get('quizId')?.value !== null) {
+        this.questionForm.get('quizId')?.setValue(this.searchForm.get('quizId')?.value);
       }
+      this.questionForm.get('questionType')?.setValue(QuestionType.MULTIPLE_CHOICE);
     }
     this.isVisible = true;
+    this.cdRef.detectChanges();
   }
 
-  handleOk(): void {
+  handleQuestionModalOk(): void {
     if (this.questionForm.invalid) {
-      this.questionForm.markAllAsTouched();
-      this.notification.error('Error', 'Vui lòng điền đầy đủ các trường bắt buộc.');
+      Object.values(this.questionForm.controls).forEach((control: AbstractControl) => { // Sử dụng AbstractControl
+        if (control.invalid) {
+          control.markAsDirty();
+          control.updateValueAndValidity({ onlySelf: true });
+        }
+      });
+      this.notification.error('Lỗi', 'Vui lòng điền đầy đủ và đúng các trường bắt buộc');
       return;
     }
 
     const formValue = this.questionForm.value;
-    const questionToSave: Question = {
-      questionId: formValue.questionId,
+    const questionToSave: QuestionRequest = {
       quizId: formValue.quizId,
       questionText: formValue.questionText,
-      skill: formValue.skill
+      questionType: formValue.questionType,
+      audioUrl: formValue.audioUrl || undefined,
+      imageUrl: formValue.imageUrl || undefined,
+      correctAnswerText: formValue.correctAnswerText || undefined
     };
 
-    if (this.isEdit) {
-      if (questionToSave.questionId === null || questionToSave.questionId === undefined) {
-          this.notification.error('Error', 'ID câu hỏi bị thiếu để cập nhật.');
-          return;
-      }
-      this.questionService.updateQuestion(questionToSave.questionId, questionToSave).subscribe(
-        () => {
+    if (this.isEdit && this.currentQuestionId !== undefined) {
+      this.questionService.updateQuestion(this.currentQuestionId, questionToSave).subscribe({
+        next: () => {
           this.notification.success('Thành công', 'Câu hỏi đã được cập nhật.');
-          // Sau khi cập nhật, gọi searchQuestions để tải lại danh sách với các bộ lọc hiện tại
           this.searchQuestions();
           this.isVisible = false;
         },
-        error => {
-          this.notification.error('Lỗi', 'Không thể cập nhật câu hỏi.');
-          console.error('Lỗi cập nhật:', error);
-        }
-      );
+        error: (err: HttpErrorResponse) => {
+          this.notification.error('Lỗi', 'Không thể cập nhật câu hỏi: ' + (err.error?.message || err.message));
+          console.error('Lỗi cập nhật:', err);
+        },
+      });
     } else {
-      this.questionService.createQuestion(questionToSave).subscribe(
-        () => {
+      this.questionService.createQuestion(questionToSave).subscribe({
+        next: () => {
           this.notification.success('Thành công', 'Câu hỏi đã được tạo.');
-          // Sau khi tạo, gọi searchQuestions để tải lại danh sách với các bộ lọc hiện tại
           this.searchQuestions();
           this.isVisible = false;
         },
-        error => {
-          this.notification.error('Lỗi', 'Không thể tạo câu hỏi.');
-          console.error('Lỗi tạo:', error);
-        }
-      );
+        error: (err: HttpErrorResponse) => {
+          this.notification.error('Lỗi', 'Không thể tạo câu hỏi: ' + (err.error?.message || err.message));
+          console.error('Lỗi tạo:', err);
+        },
+      });
     }
   }
 
-  handleCancel(): void {
+  handleQuestionModalCancel(): void {
     this.isVisible = false;
+    this.questionForm.reset();
   }
 
-  deleteQuestion(questionId: number): void {
+  deleteQuestion(questionId: number | undefined): void {
+    if (!this.isAdmin || questionId === undefined) {
+      this.notification.error('Lỗi', 'Bạn không có quyền hoặc ID câu hỏi không hợp lệ');
+      return;
+    }
+
     this.modal.confirm({
-      nzTitle: 'Bạn có chắc không?',
-      nzContent: 'Hành động này không thể hoàn tác. Bạn có muốn xóa câu hỏi này không?',
+      nzTitle: 'Xác nhận xóa',
+      nzContent: 'Bạn có chắc chắn muốn xóa câu hỏi này không?',
       nzOkText: 'Có',
       nzOkType: 'primary',
       nzOkDanger: true,
-      nzCancelText: 'Không',
       nzOnOk: () => {
-        this.questionService.deleteQuestion(questionId).subscribe(
-          () => {
-            this.notification.success('Thành công', 'Câu hỏi đã được xóa.');
-            // Sau khi xóa, gọi searchQuestions để tải lại danh sách với các bộ lọc hiện tại
+        this.questionService.deleteQuestion(questionId).subscribe({
+          next: () => {
+            this.notification.success('Thành công', 'Câu hỏi đã được xóa thành công');
             this.searchQuestions();
+            // The following line was misplaced and has been removed from here.
+            // this.notification.info('Thông báo', 'Hủy bỏ thao tác xóa câu hỏi.');
           },
-          error => {
-            this.notification.error('Lỗi', 'Không thể xóa câu hỏi.');
-            console.error('Lỗi xóa:', error);
-          }
-        );
-      }
+          error: (err: HttpErrorResponse) => {
+            this.notification.error('Lỗi', err.error?.message || 'Xóa câu hỏi thất bại');
+            console.error('Lỗi xóa câu hỏi:', err);
+          },
+        });
+      },
+      nzCancelText: 'Không',
+      nzOnCancel: () => this.notification.info('Thông báo', 'Hủy bỏ thao tác xóa câu hỏi.'),
     });
   }
 

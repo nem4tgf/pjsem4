@@ -4,7 +4,7 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { Answer, AnswerSearchRequest, AnswerPage } from 'src/app/interface/answer.interface';
 import { Question } from 'src/app/interface/question.interface';
-import { AnswerService } from 'src/app/service/answer.service';
+import { AnswerService, AnswerRequest } from 'src/app/service/answer.service';
 import { QuestionService } from 'src/app/service/question.service';
 import { ApiService } from 'src/app/service/api.service';
 
@@ -31,17 +31,19 @@ export class AnswersComponent implements OnInit {
     private modal: NzModalService,
     private notification: NzNotificationService
   ) {
+    // Khởi tạo answerForm với trường 'isActive' và Validators
     this.answerForm = this.fb.group({
       answerId: [null],
       questionId: [null, Validators.required],
       content: ['', [Validators.required, this.noWhitespaceValidator]],
-      isCorrect: [false]
+      isCorrect: [false, Validators.required], // isCorrect cũng là bắt buộc
+      isActive: [false, Validators.required] // Thêm trường isActive và đặt mặc định là false
     });
     this.searchForm = this.fb.group({
       questionId: [null],
       isCorrect: [null],
       isActive: [null],
-      answerText: [''],
+      content: [''],
       page: [0],
       size: [10],
       sortBy: ['answerId'],
@@ -70,6 +72,7 @@ export class AnswersComponent implements OnInit {
     });
   }
 
+  // Validator tùy chỉnh để kiểm tra khoảng trắng
   noWhitespaceValidator: ValidatorFn = (control: AbstractControl): { [key: string]: any } | null => {
     const isWhitespace = (control.value || '').trim().length === 0;
     return isWhitespace ? { 'whitespace': true } : null;
@@ -81,7 +84,7 @@ export class AnswersComponent implements OnInit {
         this.questions = questions;
         if (this.questions.length > 0) {
           this.searchForm.patchValue({ questionId: this.questions[0].questionId });
-          this.searchAnswers();
+          this.searchAnswers(); // Kích hoạt tìm kiếm sau khi câu hỏi được tải và chọn mặc định
         }
       },
       error: (error) => {
@@ -104,7 +107,7 @@ export class AnswersComponent implements OnInit {
       },
       error: (error) => {
         console.error('Failed to search answers:', error);
-        this.notification.error('Lỗi', 'Không thể tải câu trả lời.');
+        this.notification.error('Lỗi', error.error?.message || 'Không thể tải câu trả lời.');
       }
     });
   }
@@ -138,16 +141,19 @@ export class AnswersComponent implements OnInit {
       return;
     }
     this.isEdit = isEdit;
-    this.answerForm.reset({ isCorrect: false });
+    // Đặt lại form và đặt mặc định cho isCorrect và isActive
+    this.answerForm.reset({ isCorrect: false, isActive: false });
 
     if (isEdit && answer) {
       this.answerForm.patchValue({
         answerId: answer.answerId,
         content: answer.content,
         isCorrect: answer.isCorrect,
+        isActive: answer.isActive, // Patch isActive khi chỉnh sửa
         questionId: answer.questionId
       });
     } else if (this.searchForm.get('questionId')?.value) {
+      // Điền trước questionId nếu có một cái được chọn trong form tìm kiếm
       this.answerForm.patchValue({ questionId: this.searchForm.get('questionId')?.value });
     }
     this.isVisible = true;
@@ -165,10 +171,12 @@ export class AnswersComponent implements OnInit {
     }
 
     const formValue = this.answerForm.value;
-    const answerDataToSend = {
-      content: formValue.content,
+    // Xây dựng AnswerRequest khớp với DTO backend
+    const answerDataToSend: AnswerRequest = {
+      content: formValue.content, // Đã đổi thành 'content' để khớp với AnswerRequest interface
       isCorrect: formValue.isCorrect,
-      questionId: formValue.questionId
+      questionId: formValue.questionId,
+      isActive: formValue.isActive // Lấy giá trị isActive từ form
     };
 
     if (this.isEdit) {
@@ -191,7 +199,7 @@ export class AnswersComponent implements OnInit {
     } else {
       this.answerService.createAnswer(answerDataToSend).subscribe({
         next: () => {
-          this.notification.success('Thành công', 'Tạo câu trả lời thành công. Vui lòng kích hoạt để sử dụng.');
+          this.notification.success('Thành công', 'Tạo câu trả lời thành công.');
           this.searchAnswers();
           this.isVisible = false;
         },
@@ -205,7 +213,7 @@ export class AnswersComponent implements OnInit {
 
   handleCancel(): void {
     this.isVisible = false;
-    this.answerForm.reset({ isCorrect: false });
+    this.answerForm.reset({ isCorrect: false, isActive: false }); // Đặt lại với isActive mặc định
   }
 
   toggleAnswerStatus(answer: Answer): void {

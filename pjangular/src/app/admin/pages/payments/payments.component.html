@@ -1,49 +1,160 @@
 <nz-card nzTitle="💳 Quản lý Thanh toán" class="payments-card">
-  <div class="table-operations">
-    <button nz-button nzType="primary" (click)="loadPayments()" class="reload-button">
-      <i nz-icon nzType="reload" class="icon-reload"></i> Tải lại
-    </button>
-  </div>
+  <form nz-form [formGroup]="searchForm" (ngSubmit)="searchPayments()" class="search-form">
+    <div nz-row nzGutter="16">
+      <div nz-col nzSpan="6">
+        <nz-form-item>
+          <nz-form-label class="form-label"><i nz-icon nzType="idcard" class="icon-idcard"></i> User ID</nz-form-label>
+          <nz-form-control nzErrorTip="Vui lòng nhập User ID hợp lệ">
+            <nz-input-number formControlName="userId" [nzMin]="1" [nzStep]="1" [nzPrecision]="0" placeholder="Nhập User ID" class="custom-input"></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="6">
+        <nz-form-item>
+          <nz-form-label class="form-label"><i nz-icon nzType="file-done" class="icon-idcard"></i> Order ID</nz-form-label>
+          <nz-form-control nzErrorTip="Vui lòng nhập Order ID hợp lệ">
+            <nz-input-number formControlName="orderId" [nzMin]="1" [nzStep]="1" [nzPrecision]="0" placeholder="Nhập Order ID" class="custom-input"></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="6">
+        <nz-form-item>
+          <nz-form-label class="form-label"><i nz-icon nzType="info-circle" class="icon-info"></i> Trạng thái</nz-form-label>
+          <nz-form-control>
+            <nz-select formControlName="status" nzPlaceHolder="Chọn trạng thái" nzAllowClear class="custom-select">
+              <nz-option *ngFor="let status of paymentStatusOptions" [nzValue]="status" [nzLabel]="status"></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="6">
+        <nz-form-item>
+          <nz-form-label class="form-label"><i nz-icon nzType="calendar" class="icon-calendar"></i> Ngày từ</nz-form-label>
+          <nz-form-control>
+            <nz-date-picker formControlName="minDate" nzPlaceHolder="Chọn ngày" class="custom-input"></nz-date-picker>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="6">
+        <nz-form-item>
+          <nz-form-label class="form-label"><i nz-icon nzType="calendar" class="icon-calendar"></i> Ngày đến</nz-form-label>
+          <nz-form-control>
+            <nz-date-picker formControlName="maxDate" nzPlaceHolder="Chọn ngày" class="custom-input"></nz-date-picker>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="6">
+        <nz-form-item>
+          <nz-form-label class="form-label"><i nz-icon nzType="dollar" class="icon-dollar"></i> Số tiền từ</nz-form-label>
+          <nz-form-control nzErrorTip="Vui lòng nhập số tiền tối thiểu hợp lệ">
+            <nz-input-number formControlName="minAmount" [nzMin]="0" [nzStep]="1000" [nzPrecision]="2" placeholder="Số tiền tối thiểu" class="custom-input"></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="6">
+        <nz-form-item>
+          <nz-form-label class="form-label"><i nz-icon nzType="dollar" class="icon-dollar"></i> Số tiền đến</nz-form-label>
+          <nz-form-control nzErrorTip="Vui lòng nhập số tiền tối đa hợp lệ">
+            <nz-input-number formControlName="maxAmount" [nzMin]="0" [nzStep]="1000" [nzPrecision]="2" placeholder="Số tiền tối đa" class="custom-input"></nz-input-number>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="6">
+        <nz-form-item>
+          <nz-form-label class="form-label"><i nz-icon nzType="bank" class="icon-home"></i> Phương thức</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="paymentMethod" placeholder="Nhập phương thức thanh toán" class="custom-input" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+      <div nz-col nzSpan="6">
+        <nz-form-item>
+          <nz-form-label class="form-label"><i nz-icon nzType="key" class="icon-profile"></i> Transaction ID</nz-form-label>
+          <nz-form-control>
+            <input nz-input formControlName="transactionId" placeholder="Nhập Transaction ID" class="custom-input" />
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button nz-button nzType="primary" [nzLoading]="loading" htmlType="submit" class="search-button">
+        <i nz-icon nzType="search"></i> Tìm kiếm
+      </button>
+      <button nz-button (click)="resetFilters()" class="reset-button">
+        <i nz-icon nzType="reload"></i> Đặt lại
+      </button>
+      <button nz-button nzType="primary" (click)="showInitiatePaymentModal()" *ngIf="isAdmin" class="initiate-payment-button">
+        <i nz-icon nzType="credit-card"></i> Khởi tạo Thanh toán
+      </button>
+    </div>
+  </form>
+
+  <nz-divider></nz-divider>
 
   <nz-table
     #paymentTable
     [nzData]="payments"
     [nzLoading]="loading"
-    nzShowPagination
-    [nzPageSize]="10"
+    [nzNoResult]="'Không tìm thấy giao dịch thanh toán nào.'"
+    [nzFrontPagination]="false"
+    [nzTotal]="pageData.totalElements"
+    [nzPageSize]="pageData.size"
+    [nzPageIndex]="pageData.page + 1"
+    (nzPageIndexChange)="onPageIndexChange($event)"
+    (nzPageSizeChange)="onPageSizeChange($event)"
     nzBordered
     class="payments-table"
   >
     <thead>
       <tr>
-        <th><i nz-icon nzType="credit-card" class="icon-dollar"></i> ID Giao dịch</th>
-        <th><i nz-icon nzType="user" class="icon-user"></i> Người dùng</th>
-        <th><i nz-icon nzType="file-done" class="icon-idcard"></i> ID Đơn hàng</th>
-        <th><i nz-icon nzType="dollar" class="icon-dollar"></i> Số tiền</th>
-        <th><i nz-icon nzType="calendar" class="icon-calendar"></i> Ngày thanh toán</th>
-        <th><i nz-icon nzType="bank" class="icon-home"></i> Phương thức</th>
-        <th><i nz-icon nzType="key" class="icon-profile"></i> Transaction ID</th>
-        <th><i nz-icon nzType="info-circle" class="icon-info"></i> Trạng thái</th>
-        <th><i nz-icon nzType="file-text" class="icon-book"></i> Mô tả</th>
-        <th><i nz-icon nzType="tool" class="icon-edit"></i> Hành động</th>
+        <th class="table-header" [nzSortFn]="true" (nzSortOrderChange)="onSortChange('paymentId', $event === 'ascend' ? 'ASC' : 'DESC')">
+          <i nz-icon nzType="credit-card" class="icon-dollar"></i> ID Giao dịch
+        </th>
+        <th class="table-header" [nzSortFn]="true" (nzSortOrderChange)="onSortChange('user.fullName', $event === 'ascend' ? 'ASC' : 'DESC')">
+          <i nz-icon nzType="user" class="icon-user"></i> Người dùng
+        </th>
+        <th class="table-header" [nzSortFn]="true" (nzSortOrderChange)="onSortChange('orderId', $event === 'ascend' ? 'ASC' : 'DESC')">
+          <i nz-icon nzType="file-done" class="icon-idcard"></i> ID Đơn hàng
+        </th>
+        <th class="table-header" [nzSortFn]="true" (nzSortOrderChange)="onSortChange('amount', $event === 'ascend' ? 'ASC' : 'DESC')">
+          <i nz-icon nzType="dollar" class="icon-dollar"></i> Số tiền
+        </th>
+        <th class="table-header" [nzSortFn]="true" (nzSortOrderChange)="onSortChange('paymentDate', $event === 'ascend' ? 'ASC' : 'DESC')">
+          <i nz-icon nzType="calendar" class="icon-calendar"></i> Ngày thanh toán
+        </th>
+        <th class="table-header" [nzSortFn]="true" (nzSortOrderChange)="onSortChange('paymentMethod', $event === 'ascend' ? 'ASC' : 'DESC')">
+          <i nz-icon nzType="bank" class="icon-home"></i> Phương thức
+        </th>
+        <th class="table-header" [nzSortFn]="true" (nzSortOrderChange)="onSortChange('transactionId', $event === 'ascend' ? 'ASC' : 'DESC')">
+          <i nz-icon nzType="key" class="icon-profile"></i> Transaction ID
+        </th>
+        <th class="table-header" [nzSortFn]="true" (nzSortOrderChange)="onSortChange('status', $event === 'ascend' ? 'ASC' : 'DESC')">
+          <i nz-icon nzType="info-circle" class="icon-info"></i> Trạng thái
+        </th>
+        <th class="table-header">
+          <i nz-icon nzType="file-text" class="icon-book"></i> Mô tả
+        </th>
+        <th *ngIf="isAdmin" class="table-header">
+          <i nz-icon nzType="tool" class="icon-edit"></i> Hành động
+        </th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let payment of paymentTable.data" class="table-row">
         <td>{{ payment.paymentId }}</td>
-        <td>{{ payment.user?.fullName }} ({{ payment.user?.email }})</td>
+        <td>{{ payment.user.fullName }} ({{ payment.user.email }})</td>
         <td>{{ payment.orderId }}</td>
-        <td>{{ payment.amount | currency:'VND':'symbol':'1.0-0' }}</td>
+        <td>{{ payment.amount | currency:'VND':'symbol':'1.0-2' }}</td>
         <td>{{ payment.paymentDate | date: 'short' }}</td>
         <td>{{ payment.paymentMethod }}</td>
-        <td>{{ payment.transactionId }}</td>
+        <td>{{ payment.transactionId || 'N/A' }}</td>
         <td>
           <nz-tag [nzColor]="getPaymentStatusTagColor(payment.status)">
             {{ payment.status }}
           </nz-tag>
         </td>
         <td>{{ payment.description || 'N/A' }}</td>
-        <td class="actions-cell">
+        <td *ngIf="isAdmin" class="actions-cell">
           <a (click)="showPaymentDetailModal(payment)">
             <i nz-icon nzType="eye" class="icon-eye"></i> Xem chi tiết
           </a>
@@ -65,30 +176,51 @@
   </nz-table>
 </nz-card>
 
-<nz-modal
-  [(nzVisible)]="isVisible"
-  nzTitle="🧾 Chi tiết Thanh toán #{{ selectedPayment?.paymentId }}"
-  [nzFooter]="null"
-  (nzOnCancel)="handleCancel()"
-  (nzOnOk)="handleOk()"
-  [nzWidth]="800"
-  class="modal"
->
-  <div *nzModalContent>
-    <div *ngIf="selectedPayment">
-      <p><i nz-icon nzType="credit-card" class="icon-dollar"></i> <b>ID Giao dịch:</b> {{ selectedPayment.paymentId }}</p>
-      <p><i nz-icon nzType="user" class="icon-user"></i> <b>Người dùng:</b> {{ selectedPayment.user?.fullName }} ({{ selectedPayment.user?.email }})</p>
-      <p><i nz-icon nzType="file-done" class="icon-idcard"></i> <b>ID Đơn hàng:</b> {{ selectedPayment.orderId }}</p>
-      <p><i nz-icon nzType="dollar" class="icon-dollar"></i> <b>Số tiền:</b> {{ selectedPayment.amount | currency:'VND':'symbol':'1.0-0' }}</p>
-      <p><i nz-icon nzType="calendar" class="icon-calendar"></i> <b>Ngày thanh toán:</b> {{ selectedPayment.paymentDate | date: 'medium' }}</p>
-      <p><i nz-icon nzType="bank" class="icon-home"></i> <b>Phương thức:</b> {{ selectedPayment.paymentMethod }}</p>
-      <p><i nz-icon nzType="key" class="icon-profile"></i> <b>Transaction ID:</b> {{ selectedPayment.transactionId }}</p>
-      <p><i nz-icon nzType="info-circle" class="icon-info"></i> <b>Trạng thái:</b>
-        <nz-tag [nzColor]="getPaymentStatusTagColor(selectedPayment.status)">
-          {{ selectedPayment.status }}
-        </nz-tag>
-      </p>
-      <p><i nz-icon nzType="file-text" class="icon-book"></i> <b>Mô tả:</b> {{ selectedPayment.description || 'Chưa có' }}</p>
-    </div>
+<ng-template #paymentDetailModalContent>
+  <div *ngIf="selectedPayment">
+    <p><i nz-icon nzType="credit-card" class="icon-dollar"></i> <b>ID Giao dịch:</b> {{ selectedPayment.paymentId }}</p>
+    <p><i nz-icon nzType="user" class="icon-user"></i> <b>Người dùng:</b> {{ selectedPayment.user.fullName }} ({{ selectedPayment.user.email }})</p>
+    <p><i nz-icon nzType="file-done" class="icon-idcard"></i> <b>ID Đơn hàng:</b> {{ selectedPayment.orderId }}</p>
+    <p><i nz-icon nzType="dollar" class="icon-dollar"></i> <b>Số tiền:</b> {{ selectedPayment.amount | currency:'VND':'symbol':'1.0-2' }}</p>
+    <p><i nz-icon nzType="calendar" class="icon-calendar"></i> <b>Ngày thanh toán:</b> {{ selectedPayment.paymentDate | date: 'medium' }}</p>
+    <p><i nz-icon nzType="bank" class="icon-home"></i> <b>Phương thức:</b> {{ selectedPayment.paymentMethod || 'N/A' }}</p>
+    <p><i nz-icon nzType="key" class="icon-profile"></i> <b>Transaction ID:</b> {{ selectedPayment.transactionId || 'N/A' }}</p>
+    <p><i nz-icon nzType="info-circle" class="icon-info"></i> <b>Trạng thái:</b>
+      <nz-tag [nzColor]="getPaymentStatusTagColor(selectedPayment.status)">
+        {{ selectedPayment.status }}
+      </nz-tag>
+    </p>
+    <p><i nz-icon nzType="file-text" class="icon-book"></i> <b>Mô tả:</b> {{ selectedPayment.description || 'Chưa có' }}</p>
   </div>
-</nz-modal>
+</ng-template>
+
+<ng-template #initiatePaymentModalContent>
+  <form nz-form [formGroup]="initiatePaymentForm">
+    <nz-form-item>
+      <nz-form-label><i nz-icon nzType="idcard"></i> User ID</nz-form-label>
+      <nz-form-control nzErrorTip="Vui lòng nhập User ID hợp lệ">
+        <nz-input-number formControlName="userId" [nzMin]="1" [nzStep]="1" [nzPrecision]="0" placeholder="Nhập User ID"></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label><i nz-icon nzType="file-done"></i> Order ID</nz-form-label>
+      <nz-form-control nzErrorTip="Vui lòng nhập Order ID hợp lệ">
+        <nz-input-number formControlName="orderId" [nzMin]="1" [nzStep]="1" [nzPrecision]="0" placeholder="Nhập Order ID"></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label><i nz-icon nzType="dollar"></i> Số tiền</nz-form-label>
+      <nz-form-control nzErrorTip="Vui lòng nhập số tiền hợp lệ">
+        <nz-input-number formControlName="amount" [nzMin]="0.01" [nzStep]="1000" [nzPrecision]="2" placeholder="Nhập số tiền"></nz-input-number>
+      </nz-form-control>
+    </nz-form-item>
+    <nz-form-item>
+      <nz-form-label><i nz-icon nzType="bank"></i> Phương thức</nz-form-label>
+      <nz-form-control>
+        <nz-select formControlName="paymentMethod" nzPlaceHolder="Chọn phương thức">
+          <nz-option nzValue="PayPal" nzLabel="PayPal"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+  </form>
+</ng-template>
